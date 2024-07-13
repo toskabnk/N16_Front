@@ -1,6 +1,7 @@
 import AbstractApiService from "./abstractApiService";
+import n16Api from "./apiServices";
 
-export class TeacherService extends AbstractApiService {
+class TeacherService extends AbstractApiService {
     getUrl() {
         return "/teacher";
     }
@@ -24,3 +25,5 @@ export class TeacherService extends AbstractApiService {
         }
     }
 }
+
+export default new TeacherService();

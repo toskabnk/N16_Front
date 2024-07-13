@@ -2,6 +2,8 @@ import { Routes as ReactRoutes, Route } from 'react-router-dom'
 import Login from '../pages/Login'
 import Home from '../pages/Home'
 import ProtectedRoute from './ProtectedRoute';
+import Dashboard from '../pages/Dashboard';
+import ProtectedAdminRoutes from './ProtectedAdminRoutes';
 
 /**
  * Rutas de la aplicacion
@@ -15,6 +17,9 @@ const Routes = () => {
             {/* Rutas protegidas */}
             <Route  element={<ProtectedRoute/>} >
                 <Route path="/" element={<Home/>} />
+                <Route  element={<ProtectedAdminRoutes/>}>
+                    <Route path="/dashboard" element={<Dashboard/>} />
+                </Route>
             </Route>
         </ReactRoutes>
     )

@@ -19,7 +19,7 @@ function App() {
         isAuthenticated={isAuthenticated}
         collapsed={collapsed}
         setCollapsed={setCollapsed}/>
-      <StyledFlexFullRow>
+      <StyledFlexFullRow height='100%'>
         {/* Muestra la barra lateral si esta logueado*/}
         {isAuthenticated ? 
           <SidebarComponent

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { Link } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -19,8 +19,8 @@ function SidebarComponent({ openSidebar }) {
     return (
       <Sidebar collapsed={openSidebar}>
             <Menu>
-                <MenuItem component={<Link to="/" />} icon={<HomeIcon />}> Dashboard</MenuItem>
-                <MenuItem component={<Link to="/login" />} icon={<CalendarTodayIcon />}> Calendar By Classroom</MenuItem>
+                <MenuItem component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</MenuItem>
+                <MenuItem icon={<CalendarTodayIcon />}> Calendar By Classroom</MenuItem>
                 <MenuItem icon={<CalendarTodayIcon />}> Calendar By Teacher</MenuItem>
                 <MenuItem icon={<PersonOutlineIcon />}> Users</MenuItem>
                 <MenuItem icon={<PersonOutlineIcon />}> Teachers</MenuItem>

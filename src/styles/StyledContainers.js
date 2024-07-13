@@ -27,7 +27,7 @@ export const StyledFlexFullRow = styled('div')`
   display: flex;
   flex-direction: row;
   width: 100%;
-  min-height: 100vh;
+  flex-grow : 1;
   height: ${props => (props.height ? props.height : '100vh;')};
   background-color: ${props => props.theme.palette.background.default};
 `

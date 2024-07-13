@@ -1,6 +1,7 @@
 import AbstractApiService from "./abstractApiService";
+import n16Api from "./apiServices";
 
-export class EventService extends AbstractApiService {
+class EventService extends AbstractApiService {
   getUrl() {
     return "/events";
   }
@@ -206,3 +207,5 @@ export class EventService extends AbstractApiService {
       }
   }
 }
+
+export default new EventService();
