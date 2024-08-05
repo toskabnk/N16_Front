@@ -8,3 +8,12 @@
   margin: 0;
   padding: 0;
 }
+
+.my-swal {
+  z-index: 99999;
+}
+
+.swal2-container {
+  z-index: 99999;
+}
+

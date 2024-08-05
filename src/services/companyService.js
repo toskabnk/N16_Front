@@ -1,7 +1,9 @@
 import AbstractApiService from "./abstractApiService";
 
-export class CompanyService extends AbstractApiService {
+class CompanyService extends AbstractApiService {
     getUrl() {
         return "/companies";
     }
 }
+
+export default new CompanyService();

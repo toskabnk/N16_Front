@@ -4,6 +4,7 @@ import Home from '../pages/Home'
 import ProtectedRoute from './ProtectedRoute';
 import Dashboard from '../pages/Dashboard';
 import ProtectedAdminRoutes from './ProtectedAdminRoutes';
+import CalendarByClassroom from '../pages/CalendarByClassroom';
 
 /**
  * Rutas de la aplicacion
@@ -17,6 +18,7 @@ const Routes = () => {
             {/* Rutas protegidas */}
             <Route  element={<ProtectedRoute/>} >
                 <Route path="/" element={<Home/>} />
+                <Route path="/calendar" element={<CalendarByClassroom/>} />
                 <Route  element={<ProtectedAdminRoutes/>}>
                     <Route path="/dashboard" element={<Dashboard/>} />
                 </Route>

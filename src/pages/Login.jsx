@@ -62,6 +62,7 @@ function Login() {
         name: loginData.user.name,
         role: loginData.user.user_role,
         token: loginData.authorisation.token,
+        company_id: loginData.user.company_id,
         isAuthenticated: true,
       }
       dispatch(addUser(userData));

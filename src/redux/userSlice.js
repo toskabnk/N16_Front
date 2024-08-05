@@ -8,6 +8,7 @@ const initialState = JSON.parse(Cookies.get('user') || 'null') || {
     name: null,
     role: null,
     id: null,
+    company_id: null
 };
 
 //Slice para el usuario con las acciones de agregar y eliminar usuario
@@ -16,12 +17,14 @@ export const userSlice = createSlice({
     initialState,
     reducers: {
         addUser: (state, action) => {
-            const {name, id, token, role} = action.payload;
+            const {name, id, token, role, company_id} = action.payload;
             state.name = name;
             state.id = id;
             state.token = token;
             state.role = role;
             state.isAuthenticated = true;
+            state.company_id = company_id;
+
             Cookies.set('user', JSON.stringify(state), { expires: 7, sameSite: 'strict' });
         },
 
@@ -31,6 +34,7 @@ export const userSlice = createSlice({
             state.token = null;
             state.role = null;
             state.isAuthenticated = false;
+            state.company_id = null;
             Cookies.remove('user');
         }
     }

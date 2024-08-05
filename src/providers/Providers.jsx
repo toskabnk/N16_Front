@@ -3,6 +3,9 @@ import { store } from "../redux/store";
 import theme from "../theme/theme";
 import { ThemeProvider } from "@mui/material/styles";
 import { ThemeProvider as StyledProvider } from "styled-components";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import 'dayjs/locale/en-gb';
 
 /**
  * Provee el store y el tema a la aplicacion
@@ -14,7 +17,9 @@ const Providers = ({ children }) => {
         <StyledProvider theme={theme}>
             <ThemeProvider theme={theme}>
                 <Provider store={store}>
-                    {children}
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                        {children}
+                    </LocalizationProvider>
                 </Provider>
             </ThemeProvider>
         </StyledProvider>

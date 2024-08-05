@@ -1,7 +1,9 @@
 import AbstractApiService from "./abstractApiService";
 
-export class EventTypeService extends AbstractApiService {
+class EventTypeService extends AbstractApiService {
     getUrl() {
-        return "/event_type";
+        return "/event-type";
     }
 }
+
+export default new EventTypeService();

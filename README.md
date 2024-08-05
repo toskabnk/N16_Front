@@ -21,6 +21,7 @@ Install the dependencies with
 npm install
 ```
 Rename `.env.example` to `.env` and edit the `VITE_API_URL` with the direction of the API.
+Add your FullCalendar license key to `VITE_FULLCALENDAR_LICENSE_KEY` for using the premium plugins.
 
 ## Run
 

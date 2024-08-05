@@ -9,6 +9,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ListIcon from '@mui/icons-material/List';
 import HomeIcon from '@mui/icons-material/Home';
 import FolderIcon from '@mui/icons-material/Folder';
+import { Chip } from '@mui/material';
 
 /**
  * Sidebar de la aplicacion
@@ -20,8 +21,8 @@ function SidebarComponent({ openSidebar }) {
       <Sidebar collapsed={openSidebar}>
             <Menu>
                 <MenuItem component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</MenuItem>
-                <MenuItem icon={<CalendarTodayIcon />}> Calendar By Classroom</MenuItem>
-                <MenuItem icon={<CalendarTodayIcon />}> Calendar By Teacher</MenuItem>
+                <MenuItem component={<Link to="/calendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By classroom" color="primary" size="small" /></MenuItem>
+                <MenuItem icon={<CalendarTodayIcon />}> Calendar <Chip label="By teacher" color="primary" size="small"/></MenuItem>
                 <MenuItem icon={<PersonOutlineIcon />}> Users</MenuItem>
                 <MenuItem icon={<PersonOutlineIcon />}> Teachers</MenuItem>
                 <MenuItem icon={<TaskAltIcon />}> Events</MenuItem>
