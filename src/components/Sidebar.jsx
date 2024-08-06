@@ -22,7 +22,7 @@ function SidebarComponent({ openSidebar }) {
             <Menu>
                 <MenuItem component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</MenuItem>
                 <MenuItem component={<Link to="/calendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By classroom" color="primary" size="small" /></MenuItem>
-                <MenuItem icon={<CalendarTodayIcon />}> Calendar <Chip label="By teacher" color="primary" size="small"/></MenuItem>
+                <MenuItem component={<Link to="/calendarByTeacher" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By teacher" color="primary" size="small"/></MenuItem>
                 <MenuItem icon={<PersonOutlineIcon />}> Users</MenuItem>
                 <MenuItem icon={<PersonOutlineIcon />}> Teachers</MenuItem>
                 <MenuItem icon={<TaskAltIcon />}> Events</MenuItem>
