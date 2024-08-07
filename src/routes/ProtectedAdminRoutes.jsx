@@ -12,7 +12,7 @@ const ProtectedAdminRoutes = ({children}) => {
     let location = useLocation();
 
     //Si el usuario no es administrador redirige a la pagina principal
-    if(user.role !== "admin") {
+    if(user.role !== "admin" && user.role !== "super_admin") {
         return <Navigate to="/" state={{ from: location}} replace />
     }
     return children ? children : <Outlet />;
