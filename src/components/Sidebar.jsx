@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -10,6 +10,43 @@ import ListIcon from '@mui/icons-material/List';
 import HomeIcon from '@mui/icons-material/Home';
 import FolderIcon from '@mui/icons-material/Folder';
 import { Chip } from '@mui/material';
+import styled from 'styled-components';
+
+const CustomMenuItem = styled(MenuItem)`
+  position: relative;
+  
+  &.ps-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: #1976d2;
+  }
+
+  &.ps-active {
+    color: #1976d2;
+    .pro-icon-wrapper {
+      color: #1976d2;
+    }
+  }
+
+  &:hover {
+    color: #1976d2;
+    .pro-icon-wrapper {
+      color: #1976d2;
+
+    }
+    .ps-menu-label {
+      transform: translateX(10px);
+    }
+  }
+
+  .ps-menu-label {
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+`;
 
 /**
  * Sidebar de la aplicacion
@@ -17,20 +54,22 @@ import { Chip } from '@mui/material';
  * @returns {JSX.Element} Sidebar
  */
 function SidebarComponent({ openSidebar }) {
+  const location = useLocation();
+
     return (
       <Sidebar collapsed={openSidebar}>
             <Menu>
-                <MenuItem component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</MenuItem>
-                <MenuItem component={<Link to="/calendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By classroom" color="primary" size="small" /></MenuItem>
-                <MenuItem component={<Link to="/calendarByTeacher" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By teacher" color="primary" size="small"/></MenuItem>
-                <MenuItem component={<Link to="/myCalendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="My calendar" color="primary" size="small"/></MenuItem>
-                <MenuItem icon={<PersonOutlineIcon />}> Users</MenuItem>
-                <MenuItem icon={<PersonOutlineIcon />}> Teachers</MenuItem>
-                <MenuItem icon={<TaskAltIcon />}> Events</MenuItem>
-                <MenuItem icon={<FolderIcon />}> Organizations</MenuItem>
-                <MenuItem icon={<LightModeIcon />}> Holidays</MenuItem>
-                <MenuItem icon={<AccessTimeIcon />}> Teaching hours</MenuItem>
-                <MenuItem icon={<ListIcon />}> Logs</MenuItem>
+                <CustomMenuItem active={location.pathname === '/dashboard'} component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</CustomMenuItem>
+                <CustomMenuItem active={location.pathname === '/calendar'} component={<Link to="/calendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By classroom" color="primary" size="small" /></CustomMenuItem>
+                <CustomMenuItem active={location.pathname === '/calendarByTeacher'} component={<Link to="/calendarByTeacher" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By teacher" color="primary" size="small"/></CustomMenuItem>
+                <CustomMenuItem active={location.pathname === '/myCalendar'} component={<Link to="/myCalendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="My calendar" color="primary" size="small"/></CustomMenuItem>
+                <CustomMenuItem icon={<PersonOutlineIcon />}> Users</CustomMenuItem>
+                <CustomMenuItem icon={<PersonOutlineIcon />}> Teachers</CustomMenuItem>
+                <CustomMenuItem icon={<TaskAltIcon />}> Events</CustomMenuItem>
+                <CustomMenuItem icon={<FolderIcon />}> Organizations</CustomMenuItem>
+                <CustomMenuItem icon={<LightModeIcon />}> Holidays</CustomMenuItem>
+                <CustomMenuItem icon={<AccessTimeIcon />}> Teaching hours</CustomMenuItem>
+                <CustomMenuItem icon={<ListIcon />}> Logs</CustomMenuItem>
             </Menu>
       </Sidebar>
     )
