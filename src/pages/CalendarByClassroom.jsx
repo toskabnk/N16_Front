@@ -22,7 +22,7 @@ import { FULLCALENDAR_LICENSE_KEY } from "../config/constants";
 import CloseIcon from '@mui/icons-material/Close';
 import EditEventStepper from "../components/CalendarComponents/FormSteps/EditEventStepper";
 import teacherService from "../services/teacherService";
-import departmentService from "../services/departmentservice";
+import departmentService from "../services/departmentService"; //Fix this name if needed! <3
 import eventTypeService from "../services/eventTypeService";
 import SnackbarComponent from "../components/SnackbarComponent";
 import { Class } from "@mui/icons-material";

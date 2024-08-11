@@ -7,7 +7,7 @@ import ProtectedAdminRoutes from './ProtectedAdminRoutes';
 import CalendarByClassroom from '../pages/CalendarByClassroom';
 import CalendarByTeacher from '../pages/CalendarByTeacher';
 import MyCalendar from '../pages/MyCalendar';
-import User from '../pages/User';
+import User from '../pages/User.jsx';
 import UserForm from '../pages/UserForm.jsx';
 
 /**
