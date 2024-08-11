@@ -1,4 +1,5 @@
 import AbstractApiService from "./abstractApiService";
+import n16Api from "./apiServices";
 
 export class UserService extends AbstractApiService {
     getUrl() {
@@ -35,7 +36,7 @@ export class UserService extends AbstractApiService {
      */
     async updateUserPassword(access_token, id, values) {
         try {
-            const response = await n16Api.post(`/users/${id}/update-password`, values, { bearerToken: access_token });
+            const response = await  n16Api.post(`/users/${id}/update-password`, values, { bearerToken: access_token });
             return response.data;
         } catch (error) {
             console.error("Error during updateUserPassword:", error);
@@ -43,3 +44,4 @@ export class UserService extends AbstractApiService {
         }
     }
 }
+export default new UserService();

@@ -73,6 +73,22 @@ function SidebarComponent({ openSidebar }) {
             </Menu>
       </Sidebar>
     )
+  return (
+    <Sidebar collapsed={openSidebar}>
+      <Menu>
+        <MenuItem component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</MenuItem>
+        <MenuItem component={<Link to="/calendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By classroom" color="primary" size="small" /></MenuItem>
+        <MenuItem component={<Link to="/calendarByTeacher" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By teacher" color="primary" size="small"/></MenuItem>
+        <MenuItem component={<Link to="/user" />} icon={<PersonOutlineIcon />}> Users</MenuItem>
+        <MenuItem icon={<PersonOutlineIcon />}> Teachers</MenuItem>
+        <MenuItem icon={<TaskAltIcon />}> Events</MenuItem>
+        <MenuItem icon={<FolderIcon />}> Organizations</MenuItem>
+        <MenuItem icon={<LightModeIcon />}> Holidays</MenuItem>
+        <MenuItem icon={<AccessTimeIcon />}> Teaching hours</MenuItem>
+        <MenuItem icon={<ListIcon />}> Logs</MenuItem>
+      </Menu>
+    </Sidebar>
+  )
 }
 
 export default SidebarComponent;

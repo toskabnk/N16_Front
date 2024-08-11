@@ -7,6 +7,8 @@ import ProtectedAdminRoutes from './ProtectedAdminRoutes';
 import CalendarByClassroom from '../pages/CalendarByClassroom';
 import CalendarByTeacher from '../pages/CalendarByTeacher';
 import MyCalendar from '../pages/MyCalendar';
+import User from '../pages/User';
+import UserForm from '../pages/UserForm.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -21,6 +23,9 @@ const Routes = () => {
             <Route  element={<ProtectedRoute/>} >
                 <Route path="/" element={<Home/>} />
                 <Route path="/calendar" element={<CalendarByClassroom/>} />
+                <Route path="/user" element={<User/>} />
+                <Route path="/user/new" element={<UserForm/>} /> {/* Ruta para crear */}
+                <Route path="/user/:id" element={<UserForm/>} />  {/* Ruta para editar */}
                 <Route path="/calendarByTeacher" element={<CalendarByTeacher/>} />
                 <Route path="/myCalendar" element={<MyCalendar/>} />
                 <Route  element={<ProtectedAdminRoutes/>}>
