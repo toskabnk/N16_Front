@@ -194,6 +194,11 @@ function NewEvent () {
         setDaysOfWeek(newDaysOfWeek);
     };
 
+    //Función para cerrar el snackbar
+    const handleCloseSnackbar = () => {
+        setShowSnackBar(false);
+    };
+
     useEffect(() => {
         formik.setFieldValue('daysOfWeek', daysOfWeek);
     }, [daysOfWeek]);
@@ -816,7 +821,7 @@ function NewEvent () {
             open={showSnackBar}
             severity={severity}
             message={snackbarMessage}
-            onClose={() => setShowSnackBar(false)}
+            onClose={handleCloseSnackbar}
         />
     </Box>
   );

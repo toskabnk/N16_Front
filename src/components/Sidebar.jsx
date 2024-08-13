@@ -67,7 +67,7 @@ function SidebarComponent({ openSidebar }) {
         <CustomMenuItem icon={<PersonOutlineIcon />}> Teachers</CustomMenuItem>
         <SubMenu label="Events" icon={<TaskAltIcon />}>
           <CustomMenuItem active={location.pathname === '/newEvent'} component={<Link to="/newEvent" />}>Add Events</CustomMenuItem>
-          <CustomMenuItem> Suspend Events</CustomMenuItem>
+          <CustomMenuItem active={location.pathname === '/event'} component={<Link to="/event" />}>Suspend Events</CustomMenuItem>
           <CustomMenuItem> Event Types</CustomMenuItem>
         </SubMenu>
         <CustomMenuItem icon={<FolderIcon />}> Organizations</CustomMenuItem>
