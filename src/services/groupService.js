@@ -1,7 +1,9 @@
 import AbstractApiService from "./abstractApiService";
 
-export class GroupService extends AbstractApiService {
+class GroupService extends AbstractApiService {
     getUrl() {
         return "/groups";
     }
 }
+
+export default new GroupService();

@@ -7,6 +7,7 @@ import ProtectedAdminRoutes from './ProtectedAdminRoutes';
 import CalendarByClassroom from '../pages/CalendarByClassroom';
 import CalendarByTeacher from '../pages/CalendarByTeacher';
 import MyCalendar from '../pages/MyCalendar';
+import NewEvent from '../pages/NewEvent';
 import User from '../pages/User.jsx';
 import UserForm from '../pages/UserForm.jsx';
 
@@ -30,6 +31,7 @@ const Routes = () => {
                 <Route path="/myCalendar" element={<MyCalendar/>} />
                 <Route  element={<ProtectedAdminRoutes/>}>
                     <Route path="/dashboard" element={<Dashboard/>} />
+                    <Route path="/newEvent" element={<NewEvent/>} />
                 </Route>
             </Route>
         </ReactRoutes>

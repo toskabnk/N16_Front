@@ -65,7 +65,11 @@ function SidebarComponent({ openSidebar }) {
         <CustomMenuItem active={location.pathname === '/myCalendar'} component={<Link to="/myCalendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="My calendar" color="primary" size="small" /></CustomMenuItem>
         <CustomMenuItem active={location.pathname.includes('/user')} component={<Link to="/user" />} icon={<PersonOutlineIcon />}> Users</CustomMenuItem>
         <CustomMenuItem icon={<PersonOutlineIcon />}> Teachers</CustomMenuItem>
-        <CustomMenuItem icon={<TaskAltIcon />}> Events</CustomMenuItem>
+        <SubMenu label="Events" icon={<TaskAltIcon />}>
+          <CustomMenuItem active={location.pathname === '/newEvent'} component={<Link to="/newEvent" />}>Add Events</CustomMenuItem>
+          <CustomMenuItem> Suspend Events</CustomMenuItem>
+          <CustomMenuItem> Event Types</CustomMenuItem>
+        </SubMenu>
         <CustomMenuItem icon={<FolderIcon />}> Organizations</CustomMenuItem>
         <CustomMenuItem icon={<LightModeIcon />}> Holidays</CustomMenuItem>
         <CustomMenuItem icon={<AccessTimeIcon />}> Teaching hours</CustomMenuItem>
