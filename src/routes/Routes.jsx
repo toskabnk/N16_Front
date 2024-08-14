@@ -12,6 +12,7 @@ import User from '../pages/User.jsx';
 import UserForm from '../pages/UserForm.jsx';
 import SuspendEvents from '../pages/SuspendEvents.jsx';
 import EventType from '../pages/EventType.jsx';
+import EventTypeForm from '../pages/EventTypeForm.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -36,6 +37,7 @@ const Routes = () => {
                     <Route path="/newEvent" element={<NewEvent/>} />
                     <Route path="/event" element={<SuspendEvents/>} />
                     <Route path="/eventType" element={<EventType/>} />
+                    <Route path="/eventType/:id" element={<EventTypeForm/>} />
                 </Route>
             </Route>
         </ReactRoutes>

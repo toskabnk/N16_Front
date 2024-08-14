@@ -28,7 +28,7 @@ function EventType() {
     //Cuando se hace click en una fila de la tabla se redirige a la página de edicion del tipo de evento
     const handleRowClick = (params) => {
         console.log(params.row);
-        navigate(`/eventType/${params.id}`, { state: { user: params.row } });
+        navigate(`/eventType/${params.id}`, { state: { eventType: params.row } });
     };
 
     const getEventTypes = async () => {
