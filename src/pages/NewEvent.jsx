@@ -333,7 +333,6 @@ function NewEvent () {
             <Box       
                 display="flex"
                 alignItems="left"
-                gap={4}
                 p={2}>
                     <>
                     <Typography variant="h10" >

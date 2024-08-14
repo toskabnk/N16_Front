@@ -11,6 +11,7 @@ import NewEvent from '../pages/NewEvent';
 import User from '../pages/User.jsx';
 import UserForm from '../pages/UserForm.jsx';
 import SuspendEvents from '../pages/SuspendEvents.jsx';
+import EventType from '../pages/EventType.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -34,6 +35,7 @@ const Routes = () => {
                     <Route path="/dashboard" element={<Dashboard/>} />
                     <Route path="/newEvent" element={<NewEvent/>} />
                     <Route path="/event" element={<SuspendEvents/>} />
+                    <Route path="/eventType" element={<EventType/>} />
                 </Route>
             </Route>
         </ReactRoutes>
