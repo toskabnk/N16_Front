@@ -15,6 +15,7 @@ import EventType from '../pages/EventType.jsx';
 import EventTypeForm from '../pages/EventTypeForm.jsx';
 import Teacher from '../pages/Teacher.jsx';
 import TeacherForm from '../pages/TeacherForm.jsx';
+import Departments from '../pages/Departments.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -45,6 +46,7 @@ const Routes = () => {
                     <Route path="/event" element={<SuspendEvents/>} />
                     <Route path="/eventType" element={<EventType/>} />
                     <Route path="/eventType/:id" element={<EventTypeForm/>} />
+                    <Route path="/department" element={<Departments/>} />
                 </Route>
             </Route>
         </ReactRoutes>
