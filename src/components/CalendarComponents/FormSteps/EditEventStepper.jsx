@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Stepper, Step, StepLabel, Button} from '@mui/material';
 import { Formik, Form } from 'formik';
 import DataForm from './DataForm';
@@ -12,6 +12,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import eventService from '../../../services/eventService';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
+import { useSnackbarContext } from '../../../providers/SnackbarWrapperProvider';
 
 //Pasos del formulario y sus nombres
 const steps = ['Step 1', 'Finish'];
@@ -19,6 +20,8 @@ const steps = ['Step 1', 'Finish'];
 const { formId, formField } = eventFormModel;
 
 const EditEventStepper = (props) => {
+    //Hooks
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Paso activo
     const [activeStep, setActiveStep] = useState(0);
     //Estado para saber si se está enviando el formulario
@@ -107,9 +110,17 @@ const EditEventStepper = (props) => {
             console.log(response);
             setIsSubmitting(false);
             props.closeDialog(false);
-            props.setSnackbarMessage('Event updated successfully');
-            props.setSeverity('success');
-            props.setShowSnackBar(true);
+            showSnackbar('Event updated successfully', {
+                variant: 'success',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
             //Eliminamos el evento de la lista de eventos
             props.setEvents(props.events.filter(event => event.id !== id));
             //Añadimos el evento actualizado a la lista de eventos
@@ -117,9 +128,23 @@ const EditEventStepper = (props) => {
         } catch (error) {
             console.error(error);
             setIsSubmitting(false);
-            props.setSnackbarMessage('Something went wrong, please try again later');
-            props.setSeverity('error');
-            props.setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     }
 
@@ -144,17 +169,39 @@ const EditEventStepper = (props) => {
             setIsDeleting(false);
             console.log(response);
             props.closeDialog(false);
-            props.setSnackbarMessage('Event deleted successfully');
-            props.setSeverity('success');
-            props.setShowSnackBar(true);
+            showSnackbar('Event deleted successfully', {
+                variant: 'success',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
         catch (error) {
             Swal.close();
             console.error(error);
             setIsDeleting(false);
-            props.setSnackbarMessage('Something went wrong, please try again later');
-            props.setSeverity('error');
-            props.setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     }
 
@@ -177,17 +224,39 @@ const EditEventStepper = (props) => {
             setIsDeleting(false);
             console.log(response);
             props.closeDialog(false);
-            props.setSnackbarMessage('Event group deleted successfully');
-            props.setSeverity('success');
-            props.setShowSnackBar(true);
+            showSnackbar('Event group deleted successfully', {
+                variant: 'success',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
         catch (error) {
             Swal.close();
             console.error(error);
             setIsDeleting(false);
-            props.setSnackbarMessage('Something went wrong, please try again later');
-            props.setSeverity('error');
-            props.setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     }
 

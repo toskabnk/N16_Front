@@ -1,18 +1,19 @@
 import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl, FormLabel,  } from '@mui/material';
 import { HexColorPicker } from 'react-colorful';
 import { useSelector } from "react-redux";
-import React, { useEffect, useState, useRef, } from "react";
+import React, { useEffect, useState, Fragment, } from "react";
 import { useNavigate, useLocation, useParams, Link} from 'react-router-dom';
 import TeacherService from "../services/teacherService";
-
 import CompanyService from "../services/companyService";
-import SnackbarComponent from "../components/SnackbarComponent";
+import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 
 function TeacherForm() {
-
+    //Token
     const token = useSelector((state) => state.user.token);
+    //Hooks
     const location = useLocation();
     const navigate = useNavigate();
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //id from url
     const { id } = useParams();
     //id sent from teacher page. Prevents accessing edit version of the page if null.
@@ -36,12 +37,8 @@ function TeacherForm() {
     const [roles, setRoles] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [isNewTeacher, setIsNewTeacher] = useState(!id);
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
     const [showMainColorPicker, setShowMainColorPicker] = useState(false);
     const [showTextColorPicker, setShowTextColorPicker] = useState(false);
-    const snackbarRef = useRef();
     //redirect if location id null
     useEffect(() => {
         if (!locationTeacherID && window.location.pathname !== '/teacher/new') {
@@ -112,9 +109,23 @@ function TeacherForm() {
             await TeacherService.delete(token, teacher.id); 
             //navigate('/teacher');
         } catch (error) {
-            setSeverity('error');
-            setSnackbarMessage('An error occurred while deleting the teacher.');
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     };
 
@@ -122,9 +133,17 @@ function TeacherForm() {
         e.preventDefault();
 
         if (!teacher.colour || !teacher.text_colour) {
-            setSeverity('error');
-            setSnackbarMessage('Please select both colors.');
-            setShowSnackBar(true);
+            showSnackbar('Please, select bot colors', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
             return;
         }
 
@@ -136,13 +155,35 @@ function TeacherForm() {
                 await TeacherService.update(token, id, teacher);
                 //navigate(`/teacher`);    // TODO define if redirect
             }
-            setSeverity('success');
-            setSnackbarMessage(isNewTeacher ? 'Teacher created successfully!' : 'Teacher updated successfully!');
+            showSnackbar(isNewTeacher ? 'Teacher created successfully!' : 'Teacher updated successfully!', {
+                variant: 'success',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         } catch (error) {
-            setSeverity('error');
-            setSnackbarMessage('An error occurred, please try again.');
-        } finally {
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     };
 
@@ -364,14 +405,6 @@ function TeacherForm() {
                         </Box>
                     </Paper>
                 </Grid>
-                {/* Snackbar Component */}
-                <SnackbarComponent
-                    ref={snackbarRef}
-                    open={showSnackBar}
-                    severity={severity}
-                    message={snackbarMessage}
-                    onClose={() => setShowSnackBar(false)}
-                />
             </Grid>
         </Box>
     );

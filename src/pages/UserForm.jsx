@@ -1,14 +1,13 @@
 import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl,  } from '@mui/material';
 import { useSelector } from "react-redux";
-import React, { useEffect, useState, useRef, } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate, useLocation, useParams, Link} from 'react-router-dom';
 import UserService from "../services/userService";
-
 import CompanyService from "../services/companyService";
-import SnackbarComponent from "../components/SnackbarComponent";
+import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 
 function UserForm() {
-
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     const token = useSelector((state) => state.user.token);
     const location = useLocation();
     const navigate = useNavigate();
@@ -33,10 +32,6 @@ function UserForm() {
     const [roles, setRoles] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [isNewUser, setIsNewUser] = useState(!id);
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = useRef();
     //redirect if location id null
     useEffect(() => {
         if (!locationUserID && window.location.pathname !== '/user/new') {
@@ -106,13 +101,35 @@ function UserForm() {
                 await UserService.update(token, id, user);
                 //navigate(`/user`);    // TODO define if redirect
             }
-            setSeverity('success');
-            setSnackbarMessage(isNewUser ? 'User created successfully!' : 'User updated successfully!');
+            showSnackbar(isNewUser ? 'User created successfully!' : 'User updated successfully!', {
+                variant: 'success',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         } catch (error) {
-            setSeverity('error');
-            setSnackbarMessage('An error occurred, please try again.');
-        } finally {
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     };
 
@@ -124,19 +141,50 @@ function UserForm() {
             if (password.newPassword === password.confirmPassword) {
                 let values = { id: user.id, password: password.newPassword };
                 await UserService.updateUserPassword(token, values.id, values);
-                setSeverity('success');
-                setSnackbarMessage('Password updated!');
+                showSnackbar('Password updated!', {
+                    variant: 'success',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
 
             } else {
-                setSeverity('warning');
-                setSnackbarMessage('Passwords must match');
+                showSnackbar('Passwords must match', {
+                    variant: 'warning',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
             }
         }
         catch (error) {
-            setSeverity('error');
-            setSnackbarMessage('An error occurred, please try again.');
-        } finally {
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     };
 
@@ -288,15 +336,6 @@ function UserForm() {
                         </Box>
                     </Paper>
                 </Grid>
-
-                {/* Snackbar Component */}
-                <SnackbarComponent
-                    ref={snackbarRef}
-                    open={showSnackBar}
-                    severity={severity}
-                    message={snackbarMessage}
-                    onClose={() => setShowSnackBar(false)}
-                />
             </Grid>
         </Box>
     );

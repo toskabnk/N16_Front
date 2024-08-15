@@ -2,27 +2,22 @@ import { LoadingButton } from "@mui/lab";
 import { Button, Grid, Paper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import SnackbarComponent from "../components/SnackbarComponent";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import FormikTextField from "../components/FormikTextField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import SaveIcon from '@mui/icons-material/Save';
 import { useSelector } from "react-redux";
-import { set } from "lodash";
 import eventTypeService from "../services/eventTypeService";
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from "sweetalert2";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 function EventTypeForm() {
     //Hooks
     const navigate = useNavigate();
     const location = useLocation();
-    //Estado para el snackbar
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = React.createRef();
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
     //Loading para el botón de borrar
@@ -68,24 +63,41 @@ function EventTypeForm() {
                 setLoadingDelete(true);
                 try {
                     await eventTypeService.delete(token, location.state?.eventType.id);
-                    setSnackbarMessage('Event type deleted successfully');
-                    setSeverity('success');
-                    setShowSnackBar(true);
+                    showSnackbar('Event type deleted successfully', {
+                        variant: 'success',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
                     navigate('/eventType');
                 } catch (error) {
                     console.error(error);
-                    setSnackbarMessage('Something went wrong, please try again later');
-                    setSeverity('error');
-                    setShowSnackBar(true);
+                    showSnackbar('Something went wrong, please try again later.', {
+                        variant: 'error',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button
+                                    size='small'
+                                    onClick={() => alert(`Error: ${error.message}`)}
+                                >
+                                    Detail
+                                </Button>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
                 }
                 setLoadingDelete(false);
             }
         });
-    };
-
-    //Función para cerrar el snackbar
-    const handleCloseSnackbar = () => {
-        setShowSnackBar(false);
     };
 
     //Formik
@@ -102,16 +114,38 @@ function EventTypeForm() {
             try {
                 //Si se está editando, se llama a la función de update, si no, se llama a la función de create
                 const respone = isEdit ? await eventTypeService.update(token, location.state?.eventType.id, values) : await eventTypeService.create(token, values);
-                setSnackbarMessage('Event type created successfully');
-                setSeverity('success');
-                setShowSnackBar(true);
+                showSnackbar(isEdit ? 'Event type edited successfully!' : 'Event type created successfully!', {
+                    variant: 'success',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
                 //Si esta editando no se resetea el formulario, si no, se resetea
                 isEdit ? null : formik.resetForm()
             } catch (error) {
                 console.error(error);
-                setSnackbarMessage('Something went wrong, please try again later');
-                setSeverity('error');
-                setShowSnackBar(true);
+                showSnackbar('Something went wrong, please try again later.', {
+                    variant: 'error',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button
+                                size='small'
+                                onClick={() => alert(`Error: ${error.message}`)}
+                            >
+                                Detail
+                            </Button>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
             }
             setLoading(false);
         },
@@ -189,12 +223,6 @@ function EventTypeForm() {
                     </Paper>  
                 </Box>
             </form>
-            <SnackbarComponent
-            ref={snackbarRef}
-            open={showSnackBar}
-            message={snackbarMessage}
-            severity={severity}
-            handleClose={handleCloseSnackbar}/>
         </Box>
     );
 }

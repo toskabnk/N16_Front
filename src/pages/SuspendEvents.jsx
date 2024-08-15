@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import eventService from "../services/eventService";
 import companyService from "../services/companyService";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Autocomplete, CircularProgress, Grid, Paper, TextField, Typography } from "@mui/material";
+import { Autocomplete, Button, CircularProgress, Grid, Paper, TextField, Typography } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import SnackbarComponent from "../components/SnackbarComponent";
 import { LoadingButton } from "@mui/lab";
 import { Box } from "@mui/system";
 import SaveIcon from '@mui/icons-material/Save';
 import dayjs from "dayjs";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 function SuspendEvents() {
-
+    //Hooks
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Estado para las compañias
     const [companies, setCompanies] = useState([]);
     const [companyValue, setCompanyValue] = useState('');
@@ -23,18 +24,11 @@ function SuspendEvents() {
     const [loadingCompanies, setLoadingCompanies] = useState(true);
     //Estado para la fecha
     const [startDate, setStartDate] = useState(null);
-    //Estado para el snackbar
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = React.createRef();
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
 
     //Token de autenticación
     const token = useSelector((state) => state.user.token);
-
-    const navigate = useNavigate();
 
     //Al cargar la pagina se obtienen los datos necesarios
     useEffect(() => {
@@ -55,11 +49,6 @@ function SuspendEvents() {
             console.error(error);
         }
     }
-
-    //Función para cerrar el snackbar
-    const handleCloseSnackbar = () => {
-        setShowSnackBar(false);
-    };
 
     const formik = useFormik({
         initialValues: {
@@ -82,9 +71,17 @@ function SuspendEvents() {
                 const response = await eventService.suspendEventsDayCompany(token, values.company_id, formated_start);
                 console.log(response);
                 //Mostrar snackbar
-                setSeverity('success');
-                setSnackbarMessage('Events suspended successfully');
-                setShowSnackBar(true);
+                showSnackbar('Events suspended successfully', {
+                    variant: 'success',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
 
                 //Reset form
                 formik.resetForm();
@@ -96,9 +93,23 @@ function SuspendEvents() {
             } catch (error) {
                 //Mostrar snackbar con el error
                 console.error(error);
-                setSeverity('error');
-                setSnackbarMessage('Error suspending events');
-                setShowSnackBar(true);
+                showSnackbar('Something went wrong, please try again later.', {
+                    variant: 'error',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button
+                                size='small'
+                                onClick={() => alert(`Error: ${error.message}`)}
+                            >
+                                Detail
+                            </Button>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
                 setLoading(false);
             }
         }
@@ -215,12 +226,6 @@ function SuspendEvents() {
                     </Paper>  
                 </Box>
             </form>
-            <SnackbarComponent
-            ref={snackbarRef}
-            open={showSnackBar}
-            message={snackbarMessage}
-            severity={severity}
-            handleClose={handleCloseSnackbar}/>
         </Box>
     );
 }

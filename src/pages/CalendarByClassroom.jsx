@@ -1,6 +1,6 @@
-import { Backdrop, Checkbox, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, FormControlLabel, FormGroup, Grid, IconButton, InputLabel, MenuItem, OutlinedInput, Paper, Select, Stack, Switch, TextField, Typography } from "@mui/material";
+import { Backdrop, Button, Checkbox, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, FormControlLabel, FormGroup, Grid, IconButton, InputLabel, MenuItem, OutlinedInput, Paper, Select, Stack, Switch, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useSelector } from "react-redux";
 import companyService from "../services/companyService";
@@ -24,15 +24,17 @@ import EditEventStepper from "../components/CalendarComponents/FormSteps/EditEve
 import teacherService from "../services/teacherService";
 import departmentService from "../services/departmentservice";
 import eventTypeService from "../services/eventTypeService";
-import SnackbarComponent from "../components/SnackbarComponent";
-import { Class } from "@mui/icons-material";
 import ClassSummary from "../components/CalendarComponents/ClassSummary";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 //Configuración de dayjs
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 function CalendarByClassroom() {
+    //Hooks
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
+
     //Estado para guardar el valor del select
     const [companyName, setCompanyName] = useState([]);
     
@@ -69,12 +71,6 @@ function CalendarByClassroom() {
     const [allowEdit, setAllowEdit] = useState(false);
     const [updateFuture, setUpdateFuture] = useState(false);
     
-    //Estados para mostrar el snackbar
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = React.createRef();
-
     //Estado para guardar la clave del calendario, se usa para recargar el calendario
     const [calendarKey, setCalendarKey] = useState(0);
 
@@ -219,11 +215,6 @@ function CalendarByClassroom() {
         }
     }
 
-     //Función para cerrar el snackbar
-     const handleCloseSnackbar = () => {
-        setShowSnackBar(false);
-    };
-
     /**
      * Actualiza el evento segun los cambios realizados en el calendario (cambio de aula, cambio de fecha de inicio y fin)
      * @param {*} info Información del evento
@@ -256,15 +247,37 @@ function CalendarByClassroom() {
                         //Si se modifica correctamente la fecha, actualizamos el evento en la lista de eventos
                         setEventsDataByDate(eventsDataByDate.map((event) => event.id === eventId ? { ...event, start: startDate, end: endDate, start_date: startDate, end_date: endDate } : event));
                         console.log("Update event date:", eventId, values);
-                        setSnackbarMessage('Event updated successfully');
-                        setSeverity('success');
-                        setShowSnackBar(true);
+                        showSnackbar('Event updated successfully', {
+                            variant: 'success',
+                            autoHideDuration: 6000,
+                            action: (key) => (
+                                <Fragment>
+                                    <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                        Dismiss
+                                    </Button>
+                                </Fragment>
+                            ),
+                        });
                     }
                 } catch (error) {
                     console.error("Error during updateEvent, revisa:", error);
-                    setSnackbarMessage('Something went wrong, please try again later');
-                    setSeverity('error');
-                    setShowSnackBar(true);
+                    showSnackbar('Something went wrong, please try again later', {
+                        variant: 'error',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button
+                                    size='small'
+                                    onClick={() => alert(`Error: ${error.message}`)}
+                                >
+                                    Detail
+                                </Button>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
                 } finally {
                     console.log(calendarRef.current.getApi().getEventSources());
                     calendarRef.current.getApi().refetchEvents();
@@ -278,14 +291,36 @@ function CalendarByClassroom() {
                                 date_range_start: dayjs(info.event.start).format('YYYY-MM-DD') }; 
                     const response = await eventService.updateEventsGroup(token, info.event.extendedProps.group_id, values);
                     console.log("Update event group:", info.event.extendedProps.group_id, values);
-                    setSnackbarMessage('Event updated successfully');
-                    setSeverity('success');
-                    setShowSnackBar(true);
+                    showSnackbar('Event updated successfully', {
+                        variant: 'success',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
                 } catch (error) {
                     console.error("Error during updateEvent, revisa:", error);
-                    setSnackbarMessage('Something went wrong, please try again later');
-                    setSeverity('error');
-                    setShowSnackBar(true);
+                    showSnackbar('Something went wrong, please try again later', {
+                        variant: 'error',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button
+                                    size='small'
+                                    onClick={() => alert(`Error: ${error.message}`)}
+                                >
+                                    Detail
+                                </Button>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
                 }
             }
         }
@@ -311,6 +346,23 @@ function CalendarByClassroom() {
         .catch((error) => {
             // Si alguna llamada falla, ya se maneja dentro de cada función
             console.error("Ocurrió un error en alguna de las llamadas:", error);
+            showSnackbar('Something went wrong, please try again later', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
             // No necesitamos setOpenBackDrop(false) aquí porque se maneja en las funciones individuales
         });
     }
@@ -538,7 +590,7 @@ function CalendarByClassroom() {
                     </IconButton>
                     <DialogContent>
                         {role === 'admin' || 'super_admin' || 'company_admin' ? 
-                            <EditEventStepper setShowSnackBar={setShowSnackBar} setSnackbarMessage={setSnackbarMessage} setSeverity={setSeverity} closeDialog={setEventEdit} teachers={teachers} classrooms={classroomData} departments={departments} eventTypes={eventTypes} event={event} events={eventsDataByDate} setEvents={setEventsDataByDate} token={token}/>
+                            <EditEventStepper teachers={teachers} classrooms={classroomData} departments={departments} eventTypes={eventTypes} event={event} events={eventsDataByDate} setEvents={setEventsDataByDate} token={token}/>
                             : <ClassSummary event={event} />}
                     </DialogContent>
             </Dialog>
@@ -548,12 +600,6 @@ function CalendarByClassroom() {
                 >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            <SnackbarComponent
-            ref={snackbarRef}
-            open={showSnackBar}
-            message={snackbarMessage}
-            severity={severity}
-            handleClose={handleCloseSnackbar}/>
         </Box>
     );
 }

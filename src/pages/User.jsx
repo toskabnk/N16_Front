@@ -1,12 +1,13 @@
 import { Box, TextField, Paper, Grid, Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useSelector } from "react-redux";
-import React, { useEffect, useState, useRef, } from "react";
+import React, { useEffect, useState, Fragment, } from "react";
 import { useNavigate } from 'react-router-dom';
 import UserService from "../services/userService";
-import SnackbarComponent from "../components/SnackbarComponent";
+import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 
 function User() {
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     const token = useSelector((state) => state.user.token);
     const [userData, setUserData] = useState([]);
     const [rows, setRows] = useState([]);
@@ -18,10 +19,6 @@ function User() {
         { field: 'email', headerName: 'Email', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'company', headerName: 'Company', flex: 1, resizable: true, overflow: 'hidden' },
     ]);
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = useRef();
     const navigate = useNavigate();
     const [filterText, setFilterText] = useState('');
 
@@ -53,9 +50,23 @@ function User() {
             console.log(transformedData);
         } catch (error) {
             console.error(error);
-            setSnackbarMessage('Something went wrong, please try again later');
-            setSeverity('error');
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     };
 
@@ -132,13 +143,6 @@ function User() {
                     </Box>
                 </Grid>
             </Grid>
-            <SnackbarComponent
-                ref={snackbarRef}
-                open={showSnackBar}
-                severity={severity}
-                message={snackbarMessage}
-                onClose={() => setShowSnackBar(false)}
-            />
         </Box>
     );
 }

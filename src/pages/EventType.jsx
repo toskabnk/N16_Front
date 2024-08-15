@@ -1,24 +1,25 @@
 import { Button, Grid, Paper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { Link, useNavigate } from "react-router-dom";
-import SnackbarComponent from "../components/SnackbarComponent";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import eventTypeService from "../services/eventTypeService";
 import { DataGrid } from "@mui/x-data-grid";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 function EventType() {
-
+    //Hooks
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
+    const navigate = useNavigate();
+    //Row data for the table
     const [rows, setRows] = useState([]);
+    //Columns for the table
     const [columns, setColumns] = useState([
         { field: 'name', headerName: 'Name', flex: 1, resizable: true, overflow: 'hidden' },
     ]);
-
-    const navigate = useNavigate();
-
     //Token de usuario
     const token = useSelector((state) => state.user.token);
-
+    //Carga los tipos de eventos cuando el token carga
     useEffect(() => {
         if(token){
             getEventTypes();
@@ -31,10 +32,12 @@ function EventType() {
         navigate(`/eventType/${params.id}`, { state: { eventType: params.row } });
     };
 
+    //Obtiene los tipos de eventos
     const getEventTypes = async () => {
         try {
             const response = await eventTypeService.getAll(token);
-
+            
+            //Transforma los datos para que el id sea el _id
             const transformedData = response.data.map((eventType) => ({
                 ...eventType,
                 id: eventType._id,
@@ -42,22 +45,25 @@ function EventType() {
             setRows(transformedData);
         } catch (error) {
             console.error(error);
-            setSnackbarMessage('Something went wrong, please try again later');
-            setSeverity('error');
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     }
-
-    //Estado para el snackbar
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = React.createRef();
-
-    //Función para cerrar el snackbar
-    const handleCloseSnackbar = () => {
-        setShowSnackBar(false);
-    };
 
     return (
         <Box sx={{ flexGrow:1 }}>
@@ -112,13 +118,6 @@ function EventType() {
                             </Grid>
                         </Paper>
                 </Box>
-                <SnackbarComponent
-                    ref={snackbarRef}
-                    open={showSnackBar}
-                    severity={severity}
-                    message={snackbarMessage}
-                    onClose={handleCloseSnackbar}
-                />
         </Box>
     );
 }

@@ -1,13 +1,15 @@
-import { Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { Box } from "@mui/system";
 import KpiComponent from "../components/DashboardComponents/KpiComponent";
 import { useSelector } from "react-redux";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import TeacherService from "../services/teacherService";
 import eventService from "../services/eventService";
-import SnackbarComponent from "../components/SnackbarComponent";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 function Dashboard() {
+    //Hooks
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Obtiene el token del usuario
     const token = useSelector((state) => state.user.token)
 
@@ -19,12 +21,6 @@ function Dashboard() {
     //Estados para indicar si los datos de los profesores y clases ya se cargaron
     const [professorsDataLoading, setProfessorsDataLoading] = useState(true);
     const [classesDataLoading, setClassesDataLoading] = useState(true);
-
-    //Estados para mostrar el snackbar
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = React.createRef();
 
     //Se ejecuta cuando el token cambia y ejecuta las funciones para obtener los datos cuando el token no es nulo
     useEffect(() => {
@@ -51,9 +47,23 @@ function Dashboard() {
             console.log(response);
         } catch (error) {
             console.error(error);
-            setSnackbarMessage('Something went wrong, please try again later');
-            setSeverity('error');
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     }
 
@@ -86,9 +96,23 @@ function Dashboard() {
             console.log(response);
         } catch (error) {
             console.error(error);
-            setSnackbarMessage('Something went wrong, please try again later');
-            setSeverity('error');
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     }
 
@@ -107,11 +131,6 @@ function Dashboard() {
         const differenceInHours = differenceInMilliseconds / (1000 * 60 * 60);
         return differenceInHours;
     }
-
-    //Función para cerrar el snackbar
-    const handleCloseSnackbar = () => {
-        setShowSnackBar(false);
-    };
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -135,12 +154,6 @@ function Dashboard() {
                     <KpiComponent display="Classes Today" data={ classesDataLoading ? 0 : hoursClassesData } loading={classesDataLoading} />
                 </Grid>
             </Grid>
-            <SnackbarComponent
-            ref={snackbarRef}
-            open={showSnackBar}
-            message={snackbarMessage}
-            severity={severity}
-            handleClose={handleCloseSnackbar}/>
         </Box>
     );
 }

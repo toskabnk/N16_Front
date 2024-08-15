@@ -6,6 +6,8 @@ import { ThemeProvider as StyledProvider } from "styled-components";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import 'dayjs/locale/en-gb';
+import { SnackbarProvider } from "notistack";
+import { SnackbarWrapperProvider } from "./SnackbarWrapperProvider";
 
 /**
  * Provee el store y el tema a la aplicacion
@@ -18,7 +20,11 @@ const Providers = ({ children }) => {
             <ThemeProvider theme={theme}>
                 <Provider store={store}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                        {children}
+                        <SnackbarProvider maxSnack={3}>
+                            <SnackbarWrapperProvider>
+                                {children}
+                            </SnackbarWrapperProvider>
+                        </SnackbarProvider>
                     </LocalizationProvider>
                 </Provider>
             </ThemeProvider>

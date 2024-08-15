@@ -6,11 +6,11 @@ import interactionPlugin from "@fullcalendar/interaction";
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 import scrollGridPlugin from '@fullcalendar/scrollgrid';
 import '../styles/FullCalendarstyles.css';
-import { Checkbox, Chip, CircularProgress, FormControlLabel, FormGroup, Grid, InputLabel, MenuItem, OutlinedInput, Paper, Select, Switch, Typography } from "@mui/material"
+import { Button, Checkbox, Chip, CircularProgress, FormControlLabel, FormGroup, Grid, InputLabel, MenuItem, OutlinedInput, Paper, Select, Switch, Typography } from "@mui/material"
 import { Box, Stack } from "@mui/system"
 import { FULLCALENDAR_LICENSE_KEY } from "../config/constants"
 import { useSelector } from "react-redux";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { DatePicker } from "@mui/x-date-pickers";
 import CancelIcon from '@mui/icons-material/Cancel';
 import teacherService from "../services/teacherService";
@@ -19,14 +19,15 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import companyService from "../services/companyService";
 import eventService from "../services/eventService";
-import { set } from "lodash";
-import SnackbarComponent from "../components/SnackbarComponent";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 //Configuración de dayjs
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 function CalendarByTeacher() {
+    //Hooks
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Estado para guardar el valor del select
     const [companyName, setCompanyName] = useState([]);
 
@@ -45,12 +46,6 @@ function CalendarByTeacher() {
     const [fullWidth, setFullWidth] = useState(false);
     const [allowEdit, setAllowEdit] = useState(false);
     const [updateFuture, setUpdateFuture] = useState(false);
-    
-    //Estados para mostrar el snackbar
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = React.createRef();
 
     //Referencia al componente FullCalendar
     const calendarRef = useRef(null); 
@@ -196,23 +191,40 @@ function CalendarByTeacher() {
                     } else {
                         const reponse = await eventService.updateEventTeacher(token, classroomId, professorId);
                     }
-                    setSnackbarMessage('Event updated successfully');
-                    setSeverity('success');
-                    setShowSnackBar(true);
+                    showSnackbar('Event updated successfully', {
+                        variant: 'success',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
                 } catch (error) {
                     console.error(error);
-                    setSnackbarMessage('Something went wrong, please try again later');
-                    setSeverity('error');
-                    setShowSnackBar(true);
+                    showSnackbar('Something went wrong, please try again later.', {
+                        variant: 'error',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button
+                                    size='small'
+                                    onClick={() => alert(`Error: ${error.message}`)}
+                                >
+                                    Detail
+                                </Button>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
                 }
             }
         }
     }
-
-    //Función para cerrar el snackbar
-    const handleCloseSnackbar = () => {
-        setShowSnackBar(false);
-    };
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -348,12 +360,6 @@ function CalendarByTeacher() {
                     </Box>
                 </Grid>
             </Grid>
-            <SnackbarComponent
-            ref={snackbarRef}
-            open={showSnackBar}
-            message={snackbarMessage}
-            severity={severity}
-            handleClose={handleCloseSnackbar}/>
         </Box>
     )
 }

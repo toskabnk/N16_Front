@@ -9,25 +9,22 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import eventService from "../services/eventService";
 import { useSelector } from "react-redux";
-import SnackbarComponent from "../components/SnackbarComponent";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 //Configuración de dayjs
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 function MyCalendar() {
+    //Hooks
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
+
     //Estado que almacena los eventos del calendario
     const [events, setEvents] = useState([]);
 
     //Token de autenticación
     const token = useSelector((state) => state.user.token);
     const role = useSelector((state) => state.user.role); 
-
-    //Estados para mostrar el snackbar
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = React.createRef();
   
     //Función que se ejecuta cuando se cambian las fechas del calendario
     const handleDatesSet = (arg) => {
@@ -63,9 +60,23 @@ function MyCalendar() {
             setEvents(response.data);
         } catch (error) {
             console.error('Error during getEventsForWeek:', error);
-            setSnackbarMessage('Something went wrong, please try again later');
-            setSeverity('error');
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     };
 
@@ -80,15 +91,24 @@ function MyCalendar() {
             setEvents(response.data);
         } catch (error) {
             console.error('Error during getEventsForWeek:', error);
-            setSnackbarMessage('Something went wrong, please try again later');
-            setSeverity('error');
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
-    };
-
-     //Función para cerrar el snackbar
-     const handleCloseSnackbar = () => {
-        setShowSnackBar(false);
     };
 
     return (
@@ -115,12 +135,6 @@ function MyCalendar() {
                     </Box>
                 </Grid>
             </Grid>
-            <SnackbarComponent
-            ref={snackbarRef}
-            open={showSnackBar}
-            message={snackbarMessage}
-            severity={severity}
-            handleClose={handleCloseSnackbar}/>
         </Box>
     );
 }

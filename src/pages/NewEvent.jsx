@@ -1,9 +1,9 @@
 import { Autocomplete, Button, Checkbox, Chip, CircularProgress, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Paper, Select, TextField, Typography } from "@mui/material";
-import { Box, flexbox } from "@mui/system";
+import { Box } from "@mui/system";
 import FormikTextField from "../components/FormikTextField";
 import { useFormik } from "formik";
 import * as Yup from 'yup';
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import eventTypeService from "../services/eventTypeService";
 import teacherService from "../services/teacherService";
@@ -11,20 +11,20 @@ import classroomService from "../services/classroomService";
 import groupService from "../services/groupService";
 import departmentService from "../services/departmentservice";
 import companyService from "../services/companyService";
-import { DatePicker, StaticTimePicker, TimeField, TimePicker } from "@mui/x-date-pickers";
+import { DatePicker, TimeField } from "@mui/x-date-pickers";
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from "dayjs";
 import { LoadingButton } from "@mui/lab";
 import SaveIcon from '@mui/icons-material/Save';
-import { Description } from "@mui/icons-material";
 import eventService from "../services/eventService";
 import { Link, useNavigate } from "react-router-dom";
-import SnackbarComponent from "../components/SnackbarComponent";
-import { set } from "lodash";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 
 function NewEvent () {
-
+    //Hooks
+    const navigate = useNavigate();
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Estados para los eventos
     const [eventTypes, setEventTypes] = useState([]);
     const [eventTypeValue, setEventTypeValue] = useState('');
@@ -75,16 +75,8 @@ function NewEvent () {
     const [endHour, setEndHour] = useState(dayjs('2024-08-12T00:00'));
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
-    //Estado para el snackbar
-    const [showSnackBar, setShowSnackBar] = useState(false);
-    const [severity, setSeverity] = useState('');
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const snackbarRef = React.createRef();
-
     //Token de autenticación
     const token = useSelector((state) => state.user.token);
-
-    const navigate = useNavigate();
 
     //Al cargar la pagina se obtienen los datos necesarios
     useEffect(() => {
@@ -194,11 +186,6 @@ function NewEvent () {
         setDaysOfWeek(newDaysOfWeek);
     };
 
-    //Función para cerrar el snackbar
-    const handleCloseSnackbar = () => {
-        setShowSnackBar(false);
-    };
-
     useEffect(() => {
         formik.setFieldValue('daysOfWeek', daysOfWeek);
     }, [daysOfWeek]);
@@ -270,9 +257,17 @@ function NewEvent () {
             const response = await eventService.create(token, data);
             console.log(response);
             setLoading(false);
-            setSeverity('success');
-            setSnackbarMessage('Event created successfully');
-            setShowSnackBar(true);
+            showSnackbar('Event created successfully', {
+                variant: 'success',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
             //Reset formulario y estados
             formik.resetForm();
             setStartDate(null);
@@ -297,9 +292,23 @@ function NewEvent () {
         } catch (error) {
             console.error(error);
             setLoading(false);
-            setSeverity('error');
-            setSnackbarMessage('Something went wrong, please try again later');
-            setShowSnackBar(true);
+            showSnackbar('Something went wrong, please try again later.', {
+                variant: 'error',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button
+                            size='small'
+                            onClick={() => alert(`Error: ${error.message}`)}
+                        >
+                            Detail
+                        </Button>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
         }
     }
 
@@ -815,13 +824,6 @@ function NewEvent () {
                     </Paper>
             </Box>
         </form>
-        <SnackbarComponent
-            ref={snackbarRef}
-            open={showSnackBar}
-            severity={severity}
-            message={snackbarMessage}
-            onClose={handleCloseSnackbar}
-        />
     </Box>
   );
 }
