@@ -1,7 +1,7 @@
-import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl, Link } from '@mui/material';
+import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl,  } from '@mui/material';
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, useRef, } from "react";
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams, Link} from 'react-router-dom';
 import UserService from "../services/userService";
 
 import CompanyService from "../services/companyService";
@@ -144,7 +144,7 @@ function UserForm() {
     return (
         <Box sx={{ p: 3, width: '100%' }}>
             <Typography variant="h10" sx={{ mb: 3 }}>
-                <Link href="/user" color="primary" underline="hover">
+                <Link to="/user" color="primary" underline="hover">
                     Users
                 </Link>
 
@@ -179,6 +179,7 @@ function UserForm() {
                                         name="surname"
                                         value={user.surname}
                                         onChange={handleChange}
+                                        required
                                         variant="outlined"
                                     />
                                 </FormControl>

@@ -3,12 +3,14 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, useRef, } from "react";
 import { useNavigate } from 'react-router-dom';
-import UserService from "../services/userService";
+import TeacherService from "../services/teacherService";
+
+import CompanyService from "../services/companyService";
 import SnackbarComponent from "../components/SnackbarComponent";
 
-function User() {
+function Teacher() {
     const token = useSelector((state) => state.user.token);
-    const [userData, setUserData] = useState([]);
+    const [teacherData, setTeacherData] = useState([]);
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true); // Estado de carga
     //hardcoded columns.
@@ -16,7 +18,7 @@ function User() {
         { field: 'name', headerName: 'Name', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'surname', headerName: 'Surname', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'email', headerName: 'Email', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'company', headerName: 'Company', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'company_name', headerName: 'Company', flex: 1, resizable: true, overflow: 'hidden' },
     ]);
     const [showSnackBar, setShowSnackBar] = useState(false);
     const [severity, setSeverity] = useState('');
@@ -25,31 +27,40 @@ function User() {
     const navigate = useNavigate();
     const [filterText, setFilterText] = useState('');
 
-    //get user data when the page loads
+    //get teacher data when the page loads
     useEffect(() => {
         if (token) {
-            getUsersData();
+            getTeachersData();
         }
     }, [token]);
 
-    //update filter with text change or user data
+    //update filter with text change or teacher data
     useEffect(() => {
         filterRows();
-    }, [filterText, userData]);
+    }, [filterText, teacherData]);
 
-    const getUsersData = async () => {
+    const getTeachersData = async () => {
         try {
-            const response = await UserService.getAll(token);
+            const [teacherResponse, companyResponse] = await Promise.all([
+                TeacherService.getAll(token),
+                CompanyService.getAll(token)
+            ]);
 
-            const transformedData = response.data.map((user) => ({
-                ...user,
-                company: user.company ? user.company.name : 'N/A', // get company name from <User><Company>
-                id: user._id,
-            }));
-            setUserData(transformedData);
+            const companies = companyResponse.data;
+
+            const transformedData = teacherResponse.data.map((teacher) => {
+                const company = companies.find(c => c.id === teacher.company_id);
+                return {
+                    ...teacher,
+                    id: teacher._id,
+                    company_name: company ? company.name : '' // Añadir el nombre de la compañía
+                };
+            });
+
+            setTeacherData(transformedData);
             setRows(transformedData);
-            setLoading(false);
             //Loading is done
+            setLoading(false);
             console.log(transformedData);
         } catch (error) {
             console.error(error);
@@ -59,9 +70,10 @@ function User() {
         }
     };
 
+
     //filter in ALL the columns with the text of the filter 
     const filterRows = () => {
-        const filteredRows = userData.filter((row) => {
+        const filteredRows = teacherData.filter((row) => {
             return Object.values(row).some(value =>
                 String(value).toLowerCase().includes(filterText.toLowerCase())
             );
@@ -71,11 +83,11 @@ function User() {
     //when clicking in a row, navigate to the edition page with the row params
     const handleRowClick = (params) => {
         console.log(params.row);
-        navigate(`/user/${params.id}`, { state: { user: params.row } });
+        navigate(`/teacher/${params.id}`, { state: { teacher: params.row } });
     };
     //boton para usuario nuevo
-    const handleCreateUser = () => {
-        navigate('/user/new');
+    const handleCreateTeacher = () => {
+        navigate('/teacher/new');
     }
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -100,9 +112,9 @@ function User() {
                                 <Button
                                     variant="contained"
                                     color="primary"
-                                    onClick={handleCreateUser}
+                                    onClick={handleCreateTeacher}
                                     sx={{ ml: 2 }}
-                                >New User</Button>
+                                >New Teacher</Button>
                             </Box>
                         </Paper>
                     </Box>
@@ -110,25 +122,28 @@ function User() {
                 <Grid item >
                     <Box gap={4}
                         p={3} sx={{ flex: 1, overflow: 'hidden' }}>
-                        <DataGrid
-                            autoHeight={true}
-                            rows={rows}
-                            columns={columns}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: { page: 0, pageSize: 10 },
-                                },
-                            }}
-                            pageSizeOptions={[5, 10, 20, 50]}
-                            onRowClick={handleRowClick}
-                            loading={loading}
-                            slotProps={{
-                                loadingOverlay: {
-                                    variant: 'linear-progress',
-                                    noRowsVariant: 'linear-progress',
-                                },
-                            }}
-                        />
+
+                            <DataGrid
+                                autoHeight={true}
+                                rows={rows}
+                                columns={columns}
+                                initialState={{
+                                    pagination: {
+                                        paginationModel: { page: 0, pageSize: 10 },
+                                    },
+                                }}
+                                pageSizeOptions={[5, 10, 20, 50]}
+                                onRowClick={handleRowClick}
+                                loading={loading}
+                                slotProps={{
+                                    loadingOverlay: {
+                                        variant: 'linear-progress',
+                                        noRowsVariant: 'linear-progress',
+                                    },
+                                }}
+                            />
+
+                        
                     </Box>
                 </Grid>
             </Grid>
@@ -144,4 +159,4 @@ function User() {
 }
 
 
-export default User;
+export default Teacher;

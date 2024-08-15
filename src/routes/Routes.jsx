@@ -13,6 +13,8 @@ import UserForm from '../pages/UserForm.jsx';
 import SuspendEvents from '../pages/SuspendEvents.jsx';
 import EventType from '../pages/EventType.jsx';
 import EventTypeForm from '../pages/EventTypeForm.jsx';
+import Teacher from '../pages/Teacher.jsx';
+import TeacherForm from '../pages/TeacherForm.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -30,6 +32,11 @@ const Routes = () => {
                 <Route path="/user" element={<User/>} />
                 <Route path="/user/new" element={<UserForm/>} /> {/* Ruta para crear */}
                 <Route path="/user/:id" element={<UserForm/>} />  {/* Ruta para editar */}
+
+                <Route path="/teacher" element={<Teacher/>} />
+                <Route path="/teacher/new" element={<TeacherForm/>} /> {/* Ruta para crear */}
+                <Route path="/teacher/:id" element={<TeacherForm/>} />  {/* Ruta para editar */}
+                
                 <Route path="/calendarByTeacher" element={<CalendarByTeacher/>} />
                 <Route path="/myCalendar" element={<MyCalendar/>} />
                 <Route element={<ProtectedAdminRoutes/>}>
