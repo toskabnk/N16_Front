@@ -17,6 +17,7 @@ import Teacher from '../pages/Teacher.jsx';
 import TeacherForm from '../pages/TeacherForm.jsx';
 import Departments from '../pages/Departments.jsx';
 import DepartmentForm from '../pages/DepartmentForm.jsx';
+import Classrooms from '../pages/Classrooms.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -49,6 +50,7 @@ const Routes = () => {
                     <Route path="/eventType/:id" element={<EventTypeForm/>} />
                     <Route path="/department" element={<Departments/>} />
                     <Route path="/department/:id" element={<DepartmentForm/>} />
+                    <Route path="/classroom" element={<Classrooms/>} />
                 </Route>
             </Route>
         </ReactRoutes>
