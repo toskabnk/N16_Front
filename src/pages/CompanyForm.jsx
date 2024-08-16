@@ -1,52 +1,51 @@
-import { useFormik } from "formik";
-import FormGrid from "../components/FormGrid";
-import { Fragment, useEffect, useState } from "react";
 import { Button, Grid } from "@mui/material";
-import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
-import * as Yup from "yup";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import departmentservice from "../services/departmentservice";
+import React, { Fragment, useEffect, useState } from "react";
 import FormikTextField from "../components/FormikTextField";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useSelector } from "react-redux";
+import eventTypeService from "../services/eventTypeService";
 import Swal from "sweetalert2";
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
+import FormGrid from "../components/FormGrid";
+import companyService from "../services/companyService";
 
-function DepartmentForm() {
+function CompanyForm() {
     //Hooks
-    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
-    const navigate = useNavigate();
     const location = useLocation();
+    const navigate = useNavigate();
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
     //Loading para el botón de borrar
     const [loadingDelete, setLoadingDelete] = useState(false);
-    //Estado para saber si se está editando o creando un nuevo department
+    //Estado para saber si se está editando o creando un nuevo eventType
     const [isEdit, setIsEdit] = useState(false);
-    //ID del department que se encuentra en la ruta
+    //ID del eventType que se encuentra en la ruta
     const { id } = useParams();
     //ID del eventType que se encuentra en la ubicación
-    const locationDepartmentID = location.state?.objectID?.id;
+    const locationEventTypeID = location.state?.objectID?.id;
     //Token de usuario
     const token = useSelector((state) => state.user.token);
 
-    //Si hay un department en la ubicación, se carga el nombre en el formulario
+    //Si hay un company en la ubicación, se carga el nombre en el formulario
     useEffect(() => {
         if (id && location.state?.objectID) {
             setIsEdit(true);
-            console.log('Edit event type', id, location.state?.objectID);
             formik.setFieldValue('name', location.state?.objectID.name);
         }
-    }, [id, locationDepartmentID]);
+    }, [id, locationEventTypeID]);
 
-    //Si no hay un department en la ubicación, redirige a la página de creación de eventType
+    //Si no hay un eventType en la ubicación, redirige a la página de creación de eventType
     useEffect(() => {
-        if (!locationDepartmentID && window.location.pathname !== '/deparment/new') {
-            navigate('/department/new');
+        if (!locationEventTypeID && window.location.pathname !== '/company/new') {
+            navigate('/company/new');
         }
-    }, [locationDepartmentID, navigate]);
+    }, [locationEventTypeID, navigate]);
 
-    //Función para borrar un eventType. Muestra un mensaje de confirmación antes de borrar.
+    //Función para borrar un company. Muestra un mensaje de confirmación antes de borrar.
     const handleDelete = async () => {
-        console.log('delete');
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -60,8 +59,8 @@ function DepartmentForm() {
             if (result.isConfirmed) {
                 setLoadingDelete(true);
                 try {
-                    await departmentservice.delete(token, location.state?.objectID.id);
-                    showSnackbar('Department deleted successfully', {
+                    await companyService.delete(token, location.state?.objectID.id);
+                    showSnackbar('Company deleted successfully', {
                         variant: 'success',
                         autoHideDuration: 6000,
                         action: (key) => (
@@ -72,7 +71,7 @@ function DepartmentForm() {
                             </Fragment>
                         ),
                     });
-                    navigate('/eventType');
+                    navigate('/company');
                 } catch (error) {
                     console.error(error);
                     showSnackbar('Something went wrong, please try again later.', {
@@ -111,8 +110,8 @@ function DepartmentForm() {
             setLoading(true);
             try {
                 //Si se está editando, se llama a la función de update, si no, se llama a la función de create
-                const respone = isEdit ? await departmentservice.update(token, location.state?.objectID.id, values) : await departmentservice.create(token, values);
-                showSnackbar(isEdit ? 'Department edited successfully!' : 'Department created successfully!', {
+                const respone = isEdit ? await companyService.update(token, location.state?.objectID.id, values) : await companyService.create(token, values);
+                showSnackbar(isEdit ? 'Company edited successfully!' : 'Company created successfully!', {
                     variant: 'success',
                     autoHideDuration: 6000,
                     action: (key) => (
@@ -150,16 +149,16 @@ function DepartmentForm() {
     });
 
     return (
-        <FormGrid
-            formik={formik}
-            loading={loading}
-            name={"Departments"}
-            url={"/department"}
+        <FormGrid 
+            formik={formik} 
+            name='Companies' 
+            url='/company' 
             isEdit={isEdit}
-            onSubmit={formik.handleSubmit}
             handleDelete={handleDelete}
+            onSubmit={formik.handleSubmit}
+            loading={loading}
             loadingDelete={loadingDelete}>
-                <Grid item xs={12} md={12}>
+            <Grid item xs={12} md={12}>
                 <FormikTextField
                     fullWidth
                     id="name"
@@ -169,7 +168,7 @@ function DepartmentForm() {
                     />
             </Grid>
         </FormGrid>
-  );
+    );
 }
 
-export default DepartmentForm;
+export default CompanyForm;

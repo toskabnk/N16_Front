@@ -151,7 +151,7 @@ function EventTypeForm() {
     return (
         <FormGrid 
             formik={formik} 
-            name='Event Type' 
+            name='Event Types' 
             url='/eventType' 
             isEdit={isEdit}
             handleDelete={handleDelete}

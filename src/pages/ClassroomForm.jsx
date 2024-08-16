@@ -193,7 +193,7 @@ function ClassroomForm(){
         <FormGrid
             formik={formik}
             loading={loading}
-            name={"Classroom"}
+            name={"Classrooms"}
             url={"/classroom"}
             isEdit={isEdit}
             onSubmit={formik.handleSubmit}
