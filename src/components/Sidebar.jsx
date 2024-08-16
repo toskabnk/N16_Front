@@ -72,7 +72,7 @@ function SidebarComponent({ openSidebar }) {
         </SubMenu>
         <SubMenu label="Organization" icon={<FolderIcon />}>
           <CustomMenuItem active={location.pathname.includes('/department')} component={<Link to="/department" />}>Departments</CustomMenuItem>
-          <CustomMenuItem active={location.pathname === '/classroom'} component={<Link to="/classroom" />}>Classrooms</CustomMenuItem>
+          <CustomMenuItem active={location.pathname.includes('/classroom')} component={<Link to="/classroom" />}>Classrooms</CustomMenuItem>
           <CustomMenuItem active={location.pathname === '/company'} component={<Link to="/company" />}>Companies</CustomMenuItem>
         </SubMenu>
         <CustomMenuItem icon={<LightModeIcon />}> Holidays</CustomMenuItem>
