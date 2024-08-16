@@ -10,7 +10,7 @@ const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName}) => {
     //Cuando se hace click en una fila de la tabla se redirige a la página de edicion del tipo de evento
     const handleRowClick = (params) => {
         console.log(params.row);
-        navigate(`${url}/${params.id}`, { state: { eventType: params.row } });
+        navigate(`${url}/${params.id}`, { state: { objectID: params.row } });
     };
 
     return (

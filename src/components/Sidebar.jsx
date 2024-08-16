@@ -71,7 +71,7 @@ function SidebarComponent({ openSidebar }) {
           <CustomMenuItem active={location.pathname.includes('/eventType')} component={<Link to="/eventType" />}>Event Types</CustomMenuItem>
         </SubMenu>
         <SubMenu label="Organization" icon={<FolderIcon />}>
-          <CustomMenuItem active={location.pathname === '/department'} component={<Link to="/department" />}>Departments</CustomMenuItem>
+          <CustomMenuItem active={location.pathname.includes('/department')} component={<Link to="/department" />}>Departments</CustomMenuItem>
           <CustomMenuItem active={location.pathname === '/classroom'} component={<Link to="/classroom" />}>Classrooms</CustomMenuItem>
           <CustomMenuItem active={location.pathname === '/company'} component={<Link to="/company" />}>Companies</CustomMenuItem>
         </SubMenu>
