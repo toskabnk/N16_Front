@@ -19,6 +19,7 @@ import Departments from '../pages/Departments.jsx';
 import DepartmentForm from '../pages/DepartmentForm.jsx';
 import Classrooms from '../pages/Classrooms.jsx';
 import ClassroomForm from '../pages/ClassroomForm.jsx';
+import Companies from '../pages/Companies.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -53,6 +54,7 @@ const Routes = () => {
                     <Route path="/department/:id" element={<DepartmentForm/>} />
                     <Route path="/classroom" element={<Classrooms/>} />
                     <Route path="/classroom/:id" element={<ClassroomForm/>} />
+                    <Route path="/company" element={<Companies/>} />
                 </Route>
             </Route>
         </ReactRoutes>
