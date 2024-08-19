@@ -4,6 +4,7 @@ import ListDataGrid from "../components/ListDataGrid";
 import { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import departmentservice from "../services/departmentservice";
+import { set } from "lodash";
 
 
 function Departments() {
@@ -17,6 +18,8 @@ function Departments() {
     const [columns, setColumns] = useState([
         { field: 'name', headerName: 'Name', flex: 1, resizable: true, overflow: 'hidden' },
     ]);
+    //Loading state
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if(token){
@@ -33,8 +36,10 @@ function Departments() {
                 id: department._id,
             }));
             setRows(transformedData);
+            setLoading(false);
         } catch (error) {
             console.error(error);
+            setLoading(false);
             showSnackbar('Something went wrong, please try again later.', {
                 variant: 'error',
                 autoHideDuration: 6000,
@@ -63,6 +68,7 @@ function Departments() {
             subname="List"
             url="/department"
             buttonName="New Department"
+            loading={loading}
         />
     );
 }

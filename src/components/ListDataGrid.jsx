@@ -3,7 +3,7 @@ import { Box } from "@mui/system"
 import { DataGrid } from "@mui/x-data-grid"
 import { Link, useNavigate } from "react-router-dom";
 
-const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName}) => {
+const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loading=false}) => {
     //Hooks
     const navigate = useNavigate();
 
@@ -62,6 +62,13 @@ const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName}) => {
                                                 }}
                                                 pageSizeOptions={[5, 10, 20, 50]}
                                                 onRowClick={handleRowClick}
+                                                loading={loading}
+                                                slotProps={{
+                                                    loadingOverlay: {
+                                                        variant: 'linear-progress',
+                                                        noRowsVariant: 'linear-progress',
+                                                    },
+                                                }}
                                             />
                                     </Box>
                                 </Grid>

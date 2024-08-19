@@ -14,6 +14,8 @@ function EventType() {
     const [columns, setColumns] = useState([
         { field: 'name', headerName: 'Name', flex: 1, resizable: true, overflow: 'hidden' },
     ]);
+    //Loading state
+    const [loading, setLoading] = useState(true);
     //Token de usuario
     const token = useSelector((state) => state.user.token);
     //Carga los tipos de eventos cuando el token carga
@@ -34,8 +36,10 @@ function EventType() {
                 id: eventType._id,
             }));
             setRows(transformedData);
+            setLoading(false);
         } catch (error) {
             console.error(error);
+            setLoading(false);
             showSnackbar('Something went wrong, please try again later.', {
                 variant: 'error',
                 autoHideDuration: 6000,
@@ -64,6 +68,7 @@ function EventType() {
             subname="List"
             url="/eventType"
             buttonName="New Event Type"
+            loading={loading}
         />
     );
 }

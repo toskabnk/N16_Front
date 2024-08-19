@@ -18,6 +18,8 @@ function Classrooms() {
         { field: 'order', headerName: 'Order', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'company', headerName: 'Company', flex: 1, resizable: true, overflow: 'hidden' },
     ]);
+    //Loading state
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if(token){
@@ -39,8 +41,10 @@ function Classrooms() {
                 company: classroom.company ? classroom.company.name : '',
             }));
             setRows(transformedData);
+            setLoading(false);
         } catch (error) {
             console.error(error);
+            setLoading(false);
             showSnackbar('Something went wrong, please try again later.', {
                 variant: 'error',
                 autoHideDuration: 6000,
@@ -69,6 +73,7 @@ function Classrooms() {
         subname="List"
         url="/classroom"
         buttonName="New Classroom"
+        loading={loading}
     />
     );
 }

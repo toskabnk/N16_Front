@@ -4,6 +4,7 @@ import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 import { Fragment, useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import CompanyService from "../services/companyService";
+import { set } from "lodash";
 
 function Companies() {
     //Hooks
@@ -16,6 +17,8 @@ function Companies() {
     const [columns, setColumns] = useState([
         { field: 'name', headerName: 'Name', flex: 1, resizable: true, overflow: 'hidden' },
     ]);
+    //Loading state
+    const [loading, setLoading] = useState(true);
 
     //Al cargar la pagina carga las companias
     useEffect(() => {
@@ -34,8 +37,10 @@ function Companies() {
                 id: company._id,
             }));
             setRows(transformedData);
+            setLoading(false);
         } catch (error) {
             console.error(error);
+            setLoading(false);
             showSnackbar('Something went wrong, please try again later.', {
                 variant: 'error',
                 autoHideDuration: 6000,
@@ -64,6 +69,7 @@ function Companies() {
         subname="List"
         url="/company"
         buttonName="New Company"
+        loading={loading}
     />
     );
 }
