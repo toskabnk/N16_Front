@@ -1,11 +1,12 @@
-import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl, FormLabel,  } from '@mui/material';
+import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl, FormLabel, FormHelperText, } from '@mui/material';
 import { HexColorPicker } from 'react-colorful';
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, Fragment, } from "react";
-import { useNavigate, useLocation, useParams, Link} from 'react-router-dom';
+import { useNavigate, useLocation, useParams, Link } from 'react-router-dom';
 import TeacherService from "../services/teacherService";
 import CompanyService from "../services/companyService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
+import Swal from "sweetalert2";
 
 function TeacherForm() {
     //Token
@@ -39,6 +40,10 @@ function TeacherForm() {
     const [isNewTeacher, setIsNewTeacher] = useState(!id);
     const [showMainColorPicker, setShowMainColorPicker] = useState(false);
     const [showTextColorPicker, setShowTextColorPicker] = useState(false);
+    const [loadingDelete, setLoadingDelete] = useState(false);
+    const [colour_set, setColour] = useState(false);
+    const [text_colour_set, settext_colour] = useState(false);
+    const [colourmissing, setColourMissing] = useState(false);
     //redirect if location id null
     useEffect(() => {
         if (!locationTeacherID && window.location.pathname !== '/teacher/new') {
@@ -58,7 +63,6 @@ function TeacherForm() {
     const getcompanyData = async () => {
         try {
             const responseCompany = await CompanyService.getAll(token);
-            console.log(responseCompany.data)
             setCompanies(responseCompany.data);
         } catch (error) {
             console.error('Error fetching companies:', error);
@@ -93,7 +97,6 @@ function TeacherForm() {
             ...teacher,
             [e.target.name]: e.target.value,
         });
-        console.log(teacher)
     };
 
     const handleColorChange = (colorType) => (color) => {
@@ -101,39 +104,79 @@ function TeacherForm() {
             ...teacher,
             [colorType]: color,
         });
+        if (colorType === 'colour' && color !== '' ) {
+            setColour(true);
+        }
+
+        if (colorType === 'text_colour' && color !== '') {
+            settext_colour(true);
+        }
+      
+
+      
     };
 
+    //Función para borrar un teacher. Muestra un mensaje de confirmación antes de borrar.
     const handleDelete = async () => {
-        try {
-            console.log(token, teacher.id)
-            await TeacherService.delete(token, teacher.id); 
-            //navigate('/teacher');
-        } catch (error) {
-            showSnackbar('Something went wrong, please try again later.', {
-                variant: 'error',
-                autoHideDuration: 6000,
-                action: (key) => (
-                    <Fragment>
-                        <Button
-                            size='small'
-                            onClick={() => alert(`Error: ${error.message}`)}
-                        >
-                            Detail
-                        </Button>
-                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
-                            Dismiss
-                        </Button>
-                    </Fragment>
-                ),
-            });
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setLoadingDelete(true);
+                try {
+                    await TeacherService.delete(token, locationTeacherID);
+                    showSnackbar('Teacher deleted successfully', {
+                        variant: 'success',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
+                    navigate('/teacher');
+                } catch (error) {
+                    console.error(error);
+                    showSnackbar('Something went wrong, please try again later.', {
+                        variant: 'error',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button
+                                    size='small'
+                                    onClick={() => alert(`Error: ${error.message}`)}
+                                >
+                                    Detail
+                                </Button>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
+                }
+                setLoadingDelete(false);
+            }
+        });
     };
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!teacher.colour || !teacher.text_colour) {
-            showSnackbar('Please, select bot colors', {
+            setColourMissing(true);
+            showSnackbar('Please, select bot colors', { //TODO mostrar mensaje en los color pickers
                 variant: 'error',
                 autoHideDuration: 6000,
                 action: (key) => (
@@ -279,6 +322,9 @@ function TeacherForm() {
                             {/* Main Color Picker */}
                             <Box sx={{ mb: 2 }}>
                                 <FormLabel component="legend">Main Color</FormLabel>
+                                {(colourmissing && !colour_set) &&(
+                                <FormHelperText sx={{color:'red'}}> Please select a colour</FormHelperText>
+                                )}
                                 <Box
                                     sx={{
                                         mt: 2,
@@ -312,6 +358,9 @@ function TeacherForm() {
                             {/* Text Color Picker */}
                             <Box sx={{ mb: 2 }}>
                                 <FormLabel component="legend">Text Color</FormLabel>
+                                {(colourmissing && !text_colour_set) && (
+                                <FormHelperText sx={{color:'red'}}> Please select a colour</FormHelperText>
+                            )}
                                 <Box
                                     sx={{
                                         mt: 2,
@@ -394,7 +443,7 @@ function TeacherForm() {
                                 </Button>
                                 {!isNewTeacher && (
                                     <Button
-                                        variant="outlined"
+                                        variant="contained"
                                         color="error"
                                         onClick={handleDelete}
                                     >

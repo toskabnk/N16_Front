@@ -60,7 +60,6 @@ function Teacher() {
             setRows(transformedData);
             //Loading is done
             setLoading(false);
-            console.log(transformedData);
         } catch (error) {
             console.error(error);
             showSnackbar('Something went wrong, please try again later.', {
@@ -95,7 +94,6 @@ function Teacher() {
     };
     //when clicking in a row, navigate to the edition page with the row params
     const handleRowClick = (params) => {
-        console.log(params.row);
         navigate(`/teacher/${params.id}`, { state: { teacher: params.row } });
     };
     //boton para usuario nuevo

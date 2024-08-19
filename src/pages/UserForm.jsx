@@ -1,10 +1,11 @@
-import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl,  } from '@mui/material';
+import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl, } from '@mui/material';
 import { useSelector } from "react-redux";
 import React, { Fragment, useEffect, useState } from "react";
-import { useNavigate, useLocation, useParams, Link} from 'react-router-dom';
+import { useNavigate, useLocation, useParams, Link } from 'react-router-dom';
 import UserService from "../services/userService";
 import CompanyService from "../services/companyService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
+import Swal from "sweetalert2";
 
 function UserForm() {
     const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
@@ -28,7 +29,8 @@ function UserForm() {
         newPassword: '',
         confirmPassword: ''
     });
-
+    //Loading para el botón de borrar
+    const [loadingDelete, setLoadingDelete] = useState(false);
     const [roles, setRoles] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [isNewUser, setIsNewUser] = useState(!id);
@@ -51,7 +53,6 @@ function UserForm() {
     const getcompanyData = async () => {
         try {
             const responseCompany = await CompanyService.getAll(token);
-            console.log(responseCompany.data)
             setCompanies(responseCompany.data);
         } catch (error) {
             console.error('Error fetching companies:', error);
@@ -80,7 +81,6 @@ function UserForm() {
             ...user,
             [e.target.name]: e.target.value,
         });
-        console.log(user)
     };
 
     const handlePasswordChange = (e) => {
@@ -188,6 +188,60 @@ function UserForm() {
         }
     };
 
+    //Función para borrar un user. Muestra un mensaje de confirmación antes de borrar.
+    const handleDelete = async () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setLoadingDelete(true);
+                try {
+                    await UserService.delete(token, locationUserID);
+                    showSnackbar('User deleted successfully', {
+                        variant: 'success',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
+                    navigate('/user');
+                } catch (error) {
+                    console.error(error);
+                    showSnackbar('Something went wrong, please try again later.', {
+                        variant: 'error',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button
+                                    size='small'
+                                    onClick={() => alert(`Error: ${error.message}`)}
+                                >
+                                    Detail
+                                </Button>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
+                }
+                setLoadingDelete(false);
+            }
+        });
+    };
+
+
 
     return (
         <Box sx={{ p: 3, width: '100%' }}>
@@ -287,13 +341,26 @@ function UserForm() {
                                     </Select>
                                 </FormControl>
                             </Box>
-                            <Button type="submit" variant="contained" color="primary">
-                                {isNewUser ? 'Create' : 'Save'}
-                            </Button>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Button type="submit" variant="contained" color="primary">
+                                    {isNewUser ? 'Create' : 'Save'}
+                                </Button>
+
+                                {isNewUser ? null :
+                                    <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={handleDelete}
+                                >
+                                    Delete
+                                </Button>
+                                }
+                            </Box>
+
                         </Box>
                     </Paper>
                 </Grid>
-
+                {isNewUser ? null :
                 <Grid item xs={12} md={6} sx={{ display: 'flex', alignItems: 'stretch' }}>
                     <Paper elevation={3} sx={{ p: 3, flex: 1 }}>
                         <Box component="form" onSubmit={handlePasswordSubmit}>
@@ -336,6 +403,7 @@ function UserForm() {
                         </Box>
                     </Paper>
                 </Grid>
+                  }
             </Grid>
         </Box>
     );

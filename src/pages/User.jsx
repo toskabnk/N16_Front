@@ -47,7 +47,6 @@ function User() {
             setRows(transformedData);
             setLoading(false);
             //Loading is done
-            console.log(transformedData);
         } catch (error) {
             console.error(error);
             showSnackbar('Something went wrong, please try again later.', {
@@ -81,7 +80,6 @@ function User() {
     };
     //when clicking in a row, navigate to the edition page with the row params
     const handleRowClick = (params) => {
-        console.log(params.row);
         navigate(`/user/${params.id}`, { state: { user: params.row } });
     };
     //boton para usuario nuevo
