@@ -1,6 +1,7 @@
 import AbstractApiService from "./abstractApiService";
+import n16Api from "./apiServices";
 
-export class TeachingHourService extends AbstractApiService {
+class TeachingHourService extends AbstractApiService {
     getUrl() {
         return "/teaching-hours";
     }
@@ -14,9 +15,9 @@ export class TeachingHourService extends AbstractApiService {
      * @param {*} values JSON con los valores de fechas y group_by 
      * @returns 
      */
-    async getTeachingHours(access_token, queryParams, values) {
+    async getTeachingHours(access_token, queryParams) {
         try {
-            const response = await n16Api.get(this.getUrl(), values, {
+            const response = await n16Api.get(this.getUrl(), {
                 bearerToken: access_token,
                 params: queryParams
             });
@@ -27,3 +28,5 @@ export class TeachingHourService extends AbstractApiService {
         }
     }
 }
+
+export default new TeachingHourService();

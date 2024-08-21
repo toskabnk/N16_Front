@@ -4,7 +4,6 @@ import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 import { Fragment, useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import CompanyService from "../services/companyService";
-import { set } from "lodash";
 
 function Companies() {
     //Hooks

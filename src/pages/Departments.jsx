@@ -4,8 +4,6 @@ import ListDataGrid from "../components/ListDataGrid";
 import { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import departmentservice from "../services/departmentservice";
-import { set } from "lodash";
-
 
 function Departments() {
     //Hooks

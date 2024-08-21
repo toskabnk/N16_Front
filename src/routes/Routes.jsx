@@ -21,6 +21,7 @@ import Classrooms from '../pages/Classrooms.jsx';
 import ClassroomForm from '../pages/ClassroomForm.jsx';
 import Companies from '../pages/Companies.jsx';
 import CompanyForm from '../pages/CompanyForm.jsx';
+import TeachingHours from '../pages/TeachingHours.jsx';
 import Logs from '../pages/Logs.jsx';
 import EventLogs from '../pages/EventLogs.jsx';
 
@@ -62,6 +63,7 @@ const Routes = () => {
                     <Route path="/classroom/:id" element={<ClassroomForm/>} />
                     <Route path="/company" element={<Companies/>} />
                     <Route path="/company/:id" element={<CompanyForm/>} />
+                    <Route path="/teachingHours" element={<TeachingHours/>} />
                 </Route>
             </Route>
         </ReactRoutes>
