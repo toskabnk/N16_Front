@@ -1,4 +1,5 @@
 import AbstractApiService from "./abstractApiService";
+import n16Api from "./apiServices";
 
 export class HistoryLogService extends AbstractApiService {
     getUrl() {
@@ -46,3 +47,5 @@ export class HistoryLogService extends AbstractApiService {
     }
 }
 
+
+export default new HistoryLogService();

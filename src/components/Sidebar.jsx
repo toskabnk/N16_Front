@@ -77,7 +77,10 @@ function SidebarComponent({ openSidebar }) {
         </SubMenu>
         <CustomMenuItem icon={<LightModeIcon />}> Holidays</CustomMenuItem>
         <CustomMenuItem icon={<AccessTimeIcon />}> Teaching hours</CustomMenuItem>
-        <CustomMenuItem icon={<ListIcon />}> Logs</CustomMenuItem>
+        <SubMenu label="Logs" icon={<ListIcon />}>
+          <CustomMenuItem active={location.pathname.includes('/logs')} component={<Link to="/logs" />}> History logs</CustomMenuItem>
+          <CustomMenuItem active={location.pathname.includes('/event-logs')} component={<Link to="/event-logs" />}> Event logs</CustomMenuItem>
+        </SubMenu>
       </Menu>
     </Sidebar>
   )

@@ -21,6 +21,8 @@ import Classrooms from '../pages/Classrooms.jsx';
 import ClassroomForm from '../pages/ClassroomForm.jsx';
 import Companies from '../pages/Companies.jsx';
 import CompanyForm from '../pages/CompanyForm.jsx';
+import Logs from '../pages/Logs.jsx';
+import EventLogs from '../pages/EventLogs.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -42,7 +44,10 @@ const Routes = () => {
                 <Route path="/teacher" element={<Teacher/>} />
                 <Route path="/teacher/new" element={<TeacherForm/>} /> {/* Ruta para crear */}
                 <Route path="/teacher/:id" element={<TeacherForm/>} />  {/* Ruta para editar */}
-                
+
+                <Route path="/logs" element={<Logs/>} />
+                <Route path="/event-logs" element={<EventLogs/>} />
+
                 <Route path="/calendarByTeacher" element={<CalendarByTeacher/>} />
                 <Route path="/myCalendar" element={<MyCalendar/>} />
                 <Route element={<ProtectedAdminRoutes/>}>
