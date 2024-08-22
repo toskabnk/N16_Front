@@ -3,7 +3,7 @@ import { Box } from "@mui/system"
 import { DataGrid } from "@mui/x-data-grid"
 import { Link, useNavigate } from "react-router-dom";
 
-const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loading=false}) => {
+const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loading=false, noClick=false}) => {
     //Hooks
     const navigate = useNavigate();
 
@@ -14,7 +14,7 @@ const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loadi
     };
 
     return (
-        <Box sx={{ flexGrow:1 }}>
+        <Box sx={{ flexGrow:1, minWidth:0 }}>
                 <Box       
                     display="flex"
                     alignItems="left"
@@ -35,7 +35,7 @@ const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loadi
                     gap={4}
                     p={2}>
                         <Paper>
-                            <Grid container direction={"column"} spacing={2}>
+                            <Grid container spacing={2}>
                                 <Grid item xs={12} md={12}>
                                     <Box
                                         sx={{ display: 'flex', justifyContent: 'space-between' }}
@@ -61,7 +61,7 @@ const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loadi
                                                     },
                                                 }}
                                                 pageSizeOptions={[5, 10, 20, 50]}
-                                                onRowClick={handleRowClick}
+                                                {...(!noClick && { onRowClick: handleRowClick })}
                                                 loading={loading}
                                                 slotProps={{
                                                     loadingOverlay: {

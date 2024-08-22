@@ -75,7 +75,7 @@ function SidebarComponent({ openSidebar }) {
           <CustomMenuItem active={location.pathname.includes('/classroom')} component={<Link to="/classroom" />}>Classrooms</CustomMenuItem>
           <CustomMenuItem active={location.pathname.includes('/company')} component={<Link to="/company" />}>Companies</CustomMenuItem>
         </SubMenu>
-        <CustomMenuItem icon={<LightModeIcon />}> Holidays</CustomMenuItem>
+        <CustomMenuItem active={location.pathname === '/holiday'} component={<Link to="/holiday" />} icon={<LightModeIcon />}> Holidays</CustomMenuItem>
         <CustomMenuItem active={location.pathname === '/techingHours'} component={<Link to="/teachingHours" />} icon={<AccessTimeIcon />}> Teaching hours</CustomMenuItem>
         <SubMenu label="Logs" icon={<ListIcon />}>
           <CustomMenuItem active={location.pathname.includes('/logs')} component={<Link to="/logs" />}> History logs</CustomMenuItem>

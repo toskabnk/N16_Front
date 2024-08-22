@@ -1,6 +1,7 @@
 import AbstractApiService from "./abstractApiService";
+import n16Api from "./apiServices";
 
-export class HolidayService extends AbstractApiService {
+class HolidayService extends AbstractApiService {
     getUrl() {
         return "/holidays";
     }
@@ -61,3 +62,5 @@ export class HolidayService extends AbstractApiService {
         }
     }
 }
+
+export default new HolidayService();
