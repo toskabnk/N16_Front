@@ -35,7 +35,6 @@ function EventLogs() {
     //Token
     const token = useSelector((state) => state.user.token);
     //States
-    const [eventLogsData, seteventLogsData] = useState([]);
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true); // Estado de carga
     const [params, setParams] = useState({ user: '', name: '', teacher: '', date: '' }); // Parámetros de búsqueda
@@ -51,7 +50,6 @@ function EventLogs() {
         { field: 'new_start_date', headerName: 'New start', flex: 1, resizable: true, overflow: 'hidden' },
 
     ]
-
     const [columns, setColumns] = useState(eventColumns);
 
     //get EventLogs data when the page loads
@@ -60,9 +58,6 @@ function EventLogs() {
             getEventLogsData();
         }
     }, [token]);
-
-
-
     const getEventLogsData = async () => {
         try {
             const response = await HistoryLogsService.getEventLog(token);
@@ -71,7 +66,6 @@ function EventLogs() {
                 ...EventLogs,
                 id: EventLogs._id,
             }));
-            seteventLogsData(transformedData);
             setRows(transformedData);
             setLoading(false);
         } catch (error) {
@@ -95,6 +89,30 @@ function EventLogs() {
         }
     };
 
+
+    return (
+        <ListDataGrid
+            rows={rows}
+            columns={columns}
+            name="Logs"
+            subname="Logs of changes"
+            url="/logs"
+            loading={loading}
+            noClick={true}
+            createButton={false}
+            filterComponent={<FilterComponent params={params} setParams={setParams} showSnackbar={showSnackbar} token={token} setRows={setRows} setLoading={setLoading} />} //not proud of this. should be improved
+        />
+
+    );
+}
+
+
+export default EventLogs;
+const FilterComponent = ({ params, setParams, showSnackbar, token, setRows, setLoading }) => {
+    const handleDateChange = (date) => {
+        const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : ''; // Formato de fecha
+        setParams((prev) => ({ ...prev, date: formattedDate }));    // Actualiza el estado de la fecha  
+    };
     const getfilteredData = async (params) => {
         try {
             const response = await HistoryLogsService.getEventLog(token, params);
@@ -102,7 +120,6 @@ function EventLogs() {
                 ...EventLogs,
                 id: EventLogs._id,
             }));
-            seteventLogsData(transformedData);
             setRows(transformedData);
             setLoading(false);
         } catch (error) {
@@ -126,85 +143,62 @@ function EventLogs() {
         }
     };
 
-
-    const handleDateChange = (date) => {
-        const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : ''; // Formato de fecha
-        setParams((prev) => ({ ...prev, date: formattedDate }));    // Actualiza el estado de la fecha  
-    };
-
     return (
-
         <Box sx={{ flexGrow: 1, minWidth: 0 }} gap={4} p={2}>
-            <Paper
-                elevation={3}>
-                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                    p={1}
-                    sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                    <FormControl fullWidth>
-                        <TextField
-                            label="User search"
-                            variant="outlined"
-                            margin="none"
-                            value={params.user || ''}
-                            onChange={(e) => setParams((prev) => ({ ...prev, user: e.target.value }))} />
-                    </FormControl>
-                    <FormControl fullWidth>
-                        <TextField
-                            label="Teacher search"
-                            variant="outlined"
-                            margin="none"
-                            value={params.teacher || ''}
-                            onChange={(e) => setParams((prev) => ({ ...prev, teacher: e.target.value }))} />
-                    </FormControl>
-                </Box>
-                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                    p={1}
-                    sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                    <FormControl fullWidth>
-                        <TextField
-                            label="Name search"
-                            variant="outlined"
-                            margin="none"
-                            value={params.name || ''}
-                            onChange={(e) => setParams((prev) => ({ ...prev, name: e.target.value }))} />
-                    </FormControl>
-                    <FormControl fullWidth>
+            <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                p={1}
+                sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                <FormControl fullWidth>
+                    <TextField
+                        label="User search"
+                        variant="outlined"
+                        margin="none"
+                        value={params.user || ''}
+                        onChange={(e) => setParams((prev) => ({ ...prev, user: e.target.value }))} />
+                </FormControl>
+                <FormControl fullWidth>
+                    <TextField
+                        label="Teacher search"
+                        variant="outlined"
+                        margin="none"
+                        value={params.teacher || ''}
+                        onChange={(e) => setParams((prev) => ({ ...prev, teacher: e.target.value }))} />
+                </FormControl>
+            </Box>
+            <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                p={1}
+                sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                <FormControl fullWidth>
+                    <TextField
+                        label="Name search"
+                        variant="outlined"
+                        margin="none"
+                        value={params.name || ''}
+                        onChange={(e) => setParams((prev) => ({ ...prev, name: e.target.value }))} />
+                </FormControl>
+                <FormControl fullWidth>
 
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                                label="Event date"
-                                value={params.date ? dayjs(params.date) : null}
-                                onChange={handleDateChange}
-                            />
-                        </LocalizationProvider>
-                    </FormControl>
-                </Box>
-                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                    p={2}
-                    sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                    <Button
-                        variant="contained"
-                        onClick={() => getfilteredData(params)}
-                        color="primary">
-                        Search
-                    </Button>
-                </Box>
-            </Paper>
-
-            <ListDataGrid
-                rows={rows}
-                columns={columns}
-                name="Logs"
-                subname="Logs of changes"
-                url="/logs"
-                loading={loading}
-                noClick={true}
-                createButton={false}
-            />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label="Event date"
+                            value={params.date ? dayjs(params.date) : null}
+                            onChange={handleDateChange}
+                        />
+                    </LocalizationProvider>
+                </FormControl>
+            </Box>
+            <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                p={2}
+                sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                <Button
+                    variant="contained"
+                    onClick={() => getfilteredData(params)}
+                    color="primary">
+                    Search
+                </Button>
+            </Box>
         </Box >
+
 
     );
 }
-
-
-export default EventLogs;

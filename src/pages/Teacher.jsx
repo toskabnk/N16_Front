@@ -93,37 +93,33 @@ function Teacher() {
         setRows(filteredRows);
     };
     return (
-        <Box sx={{ flexGrow: 1, minWidth: 0 }} gap={4} p={2}>
-            <Paper
-                elevation={3}>
-                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                    p={2}
-                    sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <TextField
-                        label="Filter"
-                        variant="outlined"
-                        size='small'
-                        margin='none'
-                        value={filterText}
-                        onChange={(e) => setFilterText(e.target.value)}
-                    />
-                </Box>
-            </Paper>
+        <ListDataGrid
+            rows={rows}
+            columns={columns}
+            name="Teachers"
+            subname="List"
+            url="/teacher"
+            buttonName="New Teacher"
+            loading={loading}
+            noClick={false}
+            filterComponent={<FilterComponent filterText={filterText} setFilterText={setFilterText} />}
+        />
 
-
-            <ListDataGrid
-                rows={rows}
-                columns={columns}
-                name="Teachers"
-                subname="List"
-                url="/teacher"
-                buttonName="New Teacher"
-                loading={loading}
-                noClick={false}
-            />
-        </Box>
     );
 }
 
 
 export default Teacher;
+
+const FilterComponent = ({ filterText, setFilterText }) => {
+    return (
+        <TextField
+            label="Filter"
+            variant="outlined"
+            size='small'
+            margin='none'
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+        />
+    );
+}

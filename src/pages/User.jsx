@@ -5,6 +5,7 @@ import React, { useEffect, useState, Fragment, } from "react";
 import { useNavigate } from 'react-router-dom';
 import UserService from "../services/userService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
+import { Filter } from '@mui/icons-material';
 
 function User() {
     const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
@@ -80,37 +81,31 @@ function User() {
     };
 
     return (
-
-        <Box sx={{ flexGrow: 1, minWidth: 0 }} gap={4} p={2}>
-            <Paper
-                elevation={3}>
-                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                    p={2}
-                    sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <TextField
-                        label="Filter"
-                        variant="outlined"
-                        size='small'
-                        margin='none'
-                        value={filterText}
-                        onChange={(e) => setFilterText(e.target.value)}
-                    />
-                </Box>
-            </Paper>
-
-            <ListDataGrid
-                rows={rows}
-                columns={columns}
-                name="Users"
-                subname="List"
-                url="/user"
-                buttonName="New User"
-                loading={loading}
-                noClick={false}
-            />
-        </Box>
+        <ListDataGrid
+            rows={rows}
+            columns={columns}
+            name="Users"
+            subname="List"
+            url="/user"
+            buttonName="New User"
+            loading={loading}
+            noClick={false}
+            filterComponent={<FilterComponent filterText={filterText} setFilterText={setFilterText} />}
+        />
     );
 }
 
-
 export default User;
+
+const FilterComponent = ({ filterText, setFilterText }) => {
+    return (
+        <TextField
+            label="Filter"
+            variant="outlined"
+            size='small'
+            margin='none'
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+        />
+    );
+}

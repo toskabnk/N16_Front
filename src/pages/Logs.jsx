@@ -9,6 +9,7 @@ import LogsService from "../services/historyLogService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import UserService from "../services/userService";
 import Swal from "sweetalert2";
+import { startCase } from 'lodash';
 
 function Logs() {
 
@@ -183,59 +184,50 @@ function Logs() {
         setRows(filteredRows);
     };
 
-    const handleUserChange = (event, value) => {
-        setUser_id(value ? value.id : '');
-    };
-
-    const handleSelectChange = (e) => {
-        setUser_id(e.target.value);
-    };
-
-    const handleRowClick = (params) => {
-        navigate(`/logs/${params.id}`, { state: { logs: params.row } });
-    };
-
     return (
-        <Box sx={{ flexGrow: 1, minWidth: 0 }} gap={4} p={2}>
-                <Paper
-                    elevation={3}>
-                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                        p={2}
-                        sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+        <ListDataGrid
+            rows={rows}
+            columns={columns}
+            name="Logs"
+            subname="Logs of changes"
+            url="/logs"
+            loading={loading}
+            noClick={true}
+            createButton={false}
+            filterComponent={<FilterComponent filterText={filterText} setFilterText={setFilterText} userData={userData} user_id={user_id} setUser_id={setUser_id} />}
 
-                        <FormControl fullWidth>
-                            <Autocomplete
-                                options={userData}
-                                getOptionLabel={(option) => option.name}
-                                value={userData.find(user => user.id === user_id) || null}
-                                onChange={handleUserChange}
-                                renderInput={(params) => <TextField {...params} label="User" variant="outlined" />}
-                            />
-                        </FormControl>
-                        <FormControl fullWidth>
-                            <TextField
-                                label="Filter"
-                                variant="outlined"
-                                margin='none'
-                                value={filterText}
-                                onChange={(e) => setFilterText(e.target.value)}
-                            /></FormControl>
-                    </Box>
-                </Paper>
-
-            <ListDataGrid
-                rows={rows}
-                columns={columns}
-                name="Logs"
-                subname="Logs of changes"
-                url="/logs"
-                loading={loading}
-                noClick={true}
-                createButton={false}
-            />
-        </Box >
+        />
     );
 }
 
-
 export default Logs;
+
+const FilterComponent = ({ filterText, setFilterText, userData, user_id, setUser_id }) => {
+    const handleUserChange = (event, value) => {
+        setUser_id(value ? value.id : '');
+    };
+    return (
+        <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+            sx={{ display: 'flex', flexGrow: 1, flexDirection: 'row', minWidth: 0, alignItems: 'start', gap: 2 }}>
+            <FormControl fullWidth>
+                <Autocomplete
+                    size='small'
+                    options={userData}
+                    getOptionLabel={(option) => option.name}
+                    value={userData.find(user => user.id === user_id) || null}
+                    onChange={handleUserChange}
+                    renderInput={(params) => <TextField {...params} label="User" variant="outlined" />}
+                />
+            </FormControl>
+            <FormControl fullWidth>
+                <TextField
+                 size='small'
+                    label="Filter"
+                    variant="outlined"
+                    margin='none'
+                    value={filterText}
+                    onChange={(e) => setFilterText(e.target.value)}
+                /></FormControl>
+        </Box>
+    );
+}

@@ -3,7 +3,7 @@ import { Box } from "@mui/system"
 import { DataGrid } from "@mui/x-data-grid"
 import { Link, useNavigate } from "react-router-dom";
 
-const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loading=false, noClick=false, createButton=true}) => {
+const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, loading = false, noClick = false, createButton = true, filterComponent = null }) => {
     //Hooks
     const navigate = useNavigate();
 
@@ -14,68 +14,74 @@ const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loadi
     };
 
     return (
-        <Box sx={{ flexGrow:1, minWidth:0 }}>
-                <Box       
-                    display="flex"
-                    alignItems="left"
-                    p={2}>
-                        <>
-                        <Typography variant="h10" >
-                            <Link to={url} color="blue" underline="hover" style={{textDecoration: "none"}}>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Box
+                display="flex"
+                alignItems="left"
+                p={2}>
+                <>
+                    <Typography variant="h10" >
+                        <Link to={url} color="blue" underline="hover" style={{ textDecoration: "none" }}>
                             {name} /
-                            </Link>
-                        </Typography>
-                        {subname ? 
-                            (<Typography variant="h10" >
-                                &nbsp;{subname}
-                            </Typography>) : null}
-                        </>
-                </Box>
-                <Box
-                    gap={4}
-                    p={2}>
-                        <Paper>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} md={12}>
-                                    <Box
-                                        sx={{ display: 'flex', justifyContent: 'space-between' }}
-                                        gap={4}
-                                        p={2}>
-                                        <Typography variant="h6">{name}</Typography>
-                                        {createButton ? ( 
-                                            <Button variant="contained" color="primary" onClick={() => navigate(`${url}/new`)}>{buttonName}</Button>
-                                        ): null}
-                                    </Box> 
-                                </Grid>
+                        </Link>
+                    </Typography>
+                    {subname ?
+                        (<Typography variant="h10" >
+                            &nbsp;{subname}
+                        </Typography>) : null}
+                </>
+            </Box>
+            <Box
+                gap={4}
+                p={2}>
+                <Paper>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={12}>
+                            <Box
+                                sx={{ display: 'flex', justifyContent: 'space-between' }}
+                                gap={4}
+                                p={2}>
+                                <Typography variant="h6">{name}</Typography>
+                                {createButton ? (
+                                    <Button variant="contained" color="primary" onClick={() => navigate(`${url}/new`)}>{buttonName}</Button>
+                                ) : null}
+                            </Box>
+                            <Box
+                                sx={{ display: 'flex', justifyContent: 'space-between' }}
+                                gap={4}
+                                px={2}>
+                                {filterComponent}
+                            </Box>
+                        </Grid>
 
-                                <Grid item xs={12} md={12}>
-                                    <Box
-                                        gap={4}
-                                        p={2}>
-                                            <DataGrid
-                                                autoHeight={true}
-                                                rows={rows}
-                                                columns={columns}
-                                                initialState={{
-                                                    pagination: {
-                                                        paginationModel: { page: 0, pageSize: 10 },
-                                                    },
-                                                }}
-                                                pageSizeOptions={[5, 10, 20, 50]}
-                                                {...(!noClick && { onRowClick: handleRowClick })}
-                                                loading={loading}
-                                                slotProps={{
-                                                    loadingOverlay: {
-                                                        variant: 'linear-progress',
-                                                        noRowsVariant: 'linear-progress',
-                                                    },
-                                                }}
-                                            />
-                                    </Box>
-                                </Grid>
-                            </Grid>
-                        </Paper>
-                </Box>
+                        <Grid item xs={12} md={12}>
+                            <Box
+                                gap={4}
+                                p={2}>
+                                <DataGrid
+                                    autoHeight={true}
+                                    rows={rows}
+                                    columns={columns}
+                                    initialState={{
+                                        pagination: {
+                                            paginationModel: { page: 0, pageSize: 10 },
+                                        },
+                                    }}
+                                    pageSizeOptions={[5, 10, 20, 50]}
+                                    {...(!noClick && { onRowClick: handleRowClick })}
+                                    loading={loading}
+                                    slotProps={{
+                                        loadingOverlay: {
+                                            variant: 'linear-progress',
+                                            noRowsVariant: 'linear-progress',
+                                        },
+                                    }}
+                                />
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </Box>
         </Box>
     )
 }
