@@ -5,7 +5,7 @@ import { Button, Grid, Paper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { Link, useNavigate } from "react-router-dom";
 
-const FormGrid = ({ children, formik, name, url, isEdit, loading, loadingDelete, handleDelete, onSubmit }) => {
+const FormGrid = ({ children, formik, name, url, isEdit, loading, loadingDelete, handleDelete, onSubmit, noDelete=false }) => {
     const navigate = useNavigate();
     return (
         <Box sx={{ flexGrow:1 }}>
@@ -62,7 +62,7 @@ const FormGrid = ({ children, formik, name, url, isEdit, loading, loadingDelete,
                                         }}
                                     >Cancel
                                     </Button>
-                                    {isEdit ? (
+                                    {isEdit && !noDelete ? (
                                         <LoadingButton
                                             variant="contained"
                                             color="error"

@@ -25,6 +25,7 @@ import TeachingHours from '../pages/TeachingHours.jsx';
 import Logs from '../pages/Logs.jsx';
 import EventLogs from '../pages/EventLogs.jsx';
 import Holidays from '../pages/Holidays.jsx';
+import HolidayForm from '../pages/HolidayForm.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -66,7 +67,7 @@ const Routes = () => {
                     <Route path="/company/:id" element={<CompanyForm/>} />
                     <Route path="/teachingHours" element={<TeachingHours/>} />
                     <Route path="/holiday" element={<Holidays/>} />
-
+                    <Route path="/holiday/:id" element={<HolidayForm/>} />
                 </Route>
             </Route>
         </ReactRoutes>

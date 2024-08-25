@@ -14,6 +14,8 @@ function Holidays() {
     const token = useSelector((state) => state.user.token);
     //Row data for the table
     const [rows, setRows] = useState([]);
+    //Role
+    const role = useSelector((state) => state.user.role);
     //Columns for the table
     const [columns, setColumns] = useState([
         { field: 'teacher_name', headerName: 'Teacher', flex: 1, overflow: 'hidden' },
@@ -57,7 +59,7 @@ function Holidays() {
                                         Edit
                                     </Button>
                                 </>
-                                ) : <></>}
+                                ) : null}
                                 {params.row.status === 'accepted' || params.row.status === 'pending'? (
                                 <Button
                                     variant="contained"
@@ -65,7 +67,7 @@ function Holidays() {
                                     onClick={() => handleRevoke(params.row, Array.from(currentRows.values()))}>
                                     {params.row.status === 'accepted' ? 'Revoke' : 'Reject'}
                                     </Button>
-                            ) : <></>}
+                            ) : null}
                     </div>
                 );
             },
@@ -80,6 +82,17 @@ function Holidays() {
             getHolidays();
         }
     }, [token]);
+
+    //Elimina las columnas de acciones y teacher_name si no es super_admin
+    useEffect(() => {
+        if(role){
+            if(role !== 'super_admin'){
+                //Elimina la columna de acciones y de teacher_name
+                setColumns(a => a.filter((column) => column.field !== 'actions'));
+                setColumns(a => a.filter((column) => column.field !== 'teacher_name'));
+            }
+        }
+    }, [role]);
 
     //Obtienes las solicitudes de vacaciones
     const getHolidays = async () => {
@@ -168,7 +181,7 @@ function Holidays() {
 
     //Maneja la edicion de una solicitud
     const handleEdit = useCallback(async (row) => {
-        navigate(`holiday/${row.id}`, { state: { objectID: row } });
+        navigate(`/holiday/${row.id}`, { state: { objectID: row } });
     }, [rows]);
 
     //Maneja la revocacion de una solicitud

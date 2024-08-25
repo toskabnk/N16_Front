@@ -12,7 +12,7 @@ import { TextField } from "@mui/material";
  * @param {*} disabled Si el campo esta deshabilitado
  * @returns {JSX.Element} Campo de texto
  */
-const FormikTextField = ({ id, type, label, required=false, fullWidth, formik, sx=null, disabled=false}) => {
+const FormikTextField = ({ id, type, label, required=false, fullWidth, formik, sx=null, disabled=false, multiline=false}) => {
     return (
         <TextField 
             margin='normal' 
@@ -28,6 +28,7 @@ const FormikTextField = ({ id, type, label, required=false, fullWidth, formik, s
             value={formik.values[id]} 
             onChange={formik.handleChange} 
             helperText={formik.touched[id] && formik.errors[id]}
+            {...(multiline ? { multiline} : {})}
         />
     );
 }
