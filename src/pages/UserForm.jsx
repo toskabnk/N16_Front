@@ -15,8 +15,7 @@ function UserForm() {
     //id from url
     const { id } = useParams();
     //id sent from user page. Prevents accessing edit version of the page if null.
-    const locationUserID = location.state?.user?.id;
-
+    const locationUserID = location.state?.objectID?.id;
     const [user, setUser] = useState({
         name: '',
         surname: '',
@@ -34,6 +33,8 @@ function UserForm() {
     const [roles, setRoles] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [isNewUser, setIsNewUser] = useState(!id);
+    const [loading, setLoading] = useState(true);
+
     //redirect if location id null
     useEffect(() => {
         if (!locationUserID && window.location.pathname !== '/user/new') {
@@ -50,30 +51,51 @@ function UserForm() {
         }
     }, [token]);
 
-    const getcompanyData = async () => {
+
+
+    //get user data when the page loads
+    //wait for company data to prevent MUI warning
+    //TO DO loading effect  
+    useEffect(() => {
+        const fetchData = async () => {
+
+            const companyData = await getcompanyData();
+            setCompanies(companyData);
+            if (id && location.state?.objectID) { //edit mode
+                const objectID = location.state.objectID;
+                const validCompanyId = companyData.some(company => company.id === objectID.company_id)
+                    ? objectID.company_id
+                    : '';
+                setUser({
+                    ...objectID,
+                    company_id: validCompanyId
+                });
+                setIsNewUser(false);
+            } else if (!id) { //create mode
+                setUser({
+                    name: '',
+                    surname: '',
+                    email: '',
+                    user_role: '',
+                    company_id: '',
+                });
+                setIsNewUser(true);
+            }
+            setLoading(false); // Finaliza la carga
+        };
+        fetchData();
+    }, [id, location.state, token]);
+
+
+    async function getcompanyData() {
         try {
-            const responseCompany = await CompanyService.getAll(token);
-            setCompanies(responseCompany.data);
+            const responseCompany = await CompanyService.getAll(token); // Espera la respuesta de la API
+            return responseCompany.data; // Devuelve los datos obtenidos
         } catch (error) {
             console.error('Error fetching companies:', error);
+            return []; // Devuelve un arreglo vacío en caso de error
         }
-    };
-
-    useEffect(() => {
-        if (id && location.state?.user) { //edit mode
-            setUser(location.state.user);
-            setIsNewUser(false);
-        } else if (!id) { //create mode
-            setUser({
-                name: '',
-                surname: '',
-                email: '',
-                user_role: '',
-                company_id: '',
-            });
-            setIsNewUser(true);
-        }
-    }, [id, location.state]);
+    }
 
 
     const handleChange = (e) => {
@@ -348,12 +370,12 @@ function UserForm() {
 
                                 {isNewUser ? null :
                                     <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={handleDelete}
-                                >
-                                    Delete
-                                </Button>
+                                        variant="contained"
+                                        color="error"
+                                        onClick={handleDelete}
+                                    >
+                                        Delete
+                                    </Button>
                                 }
                             </Box>
 
@@ -361,49 +383,49 @@ function UserForm() {
                     </Paper>
                 </Grid>
                 {isNewUser ? null :
-                <Grid item xs={12} md={6} sx={{ display: 'flex', alignItems: 'stretch' }}>
-                    <Paper elevation={3} sx={{ p: 3, flex: 1 }}>
-                        <Box component="form" onSubmit={handlePasswordSubmit}>
-                            <Typography color="primary" variant="h6" sx={{ mb: 2 }}>
-                                Reset Password
-                            </Typography>
-                            <Box sx={{ mb: 2 }}>
-                                <FormControl fullWidth>
+                    <Grid item xs={12} md={6} sx={{ display: 'flex', alignItems: 'stretch' }}>
+                        <Paper elevation={3} sx={{ p: 3, flex: 1 }}>
+                            <Box component="form" onSubmit={handlePasswordSubmit}>
+                                <Typography color="primary" variant="h6" sx={{ mb: 2 }}>
+                                    Reset Password
+                                </Typography>
+                                <Box sx={{ mb: 2 }}>
+                                    <FormControl fullWidth>
 
-                                    <TextField
-                                        label="New password"
-                                        type="password"
-                                        id="newPassword"
-                                        name="newPassword"
-                                        value={password.newPassword}
-                                        onChange={handlePasswordChange}
-                                        variant="outlined"
-                                        required
-                                    />
-                                </FormControl>
-                            </Box>
-                            <Box sx={{ mb: 2 }}>
-                                <FormControl fullWidth>
+                                        <TextField
+                                            label="New password"
+                                            type="password"
+                                            id="newPassword"
+                                            name="newPassword"
+                                            value={password.newPassword}
+                                            onChange={handlePasswordChange}
+                                            variant="outlined"
+                                            required
+                                        />
+                                    </FormControl>
+                                </Box>
+                                <Box sx={{ mb: 2 }}>
+                                    <FormControl fullWidth>
 
-                                    <TextField
-                                        label="Repeat new password"
-                                        type="password"
-                                        id="confirmPassword"
-                                        name="confirmPassword"
-                                        value={password.confirmPassword}
-                                        onChange={handlePasswordChange}
-                                        variant="outlined"
-                                        required
-                                    />
-                                </FormControl>
+                                        <TextField
+                                            label="Repeat new password"
+                                            type="password"
+                                            id="confirmPassword"
+                                            name="confirmPassword"
+                                            value={password.confirmPassword}
+                                            onChange={handlePasswordChange}
+                                            variant="outlined"
+                                            required
+                                        />
+                                    </FormControl>
+                                </Box>
+                                <Button type="submit" variant="contained" color="primary">
+                                    Update password
+                                </Button>
                             </Box>
-                            <Button type="submit" variant="contained" color="primary">
-                                Update password
-                            </Button>
-                        </Box>
-                    </Paper>
-                </Grid>
-                  }
+                        </Paper>
+                    </Grid>
+                }
             </Grid>
         </Box>
     );

@@ -18,7 +18,7 @@ function TeacherForm() {
     //id from url
     const { id } = useParams();
     //id sent from teacher page. Prevents accessing edit version of the page if null.
-    const locationTeacherID = location.state?.teacher?.id;
+    const locationTeacherID = location.state?.objectID?.id;
 
     const [teacher, setTeacher] = useState({
         name: '',
@@ -44,6 +44,7 @@ function TeacherForm() {
     const [colour_set, setColour] = useState(false);
     const [text_colour_set, settext_colour] = useState(false);
     const [colourmissing, setColourMissing] = useState(false);
+    const [loading, setLoading] = useState(true);
     //redirect if location id null
     useEffect(() => {
         if (!locationTeacherID && window.location.pathname !== '/teacher/new') {
@@ -51,46 +52,63 @@ function TeacherForm() {
         }
     }, [locationTeacherID, navigate]);
 
+
+
     useEffect(() => {
-        if (token) {
-            //hardcoded roles, ready to be changed to retrieved ones if needed.
+        const fetchData = async () => {
+            // Establece los roles
             setRoles(['super_admin', 'admin', 'teacher', 'director']);
-            getcompanyData();
 
-        }
-    }, [token]);
+            // Obtiene los datos de las compañías
+            const companyData = await getcompanyData();
+            setCompanies(companyData);
 
-    const getcompanyData = async () => {
+            if (id && location.state?.objectID) { // Modo edición
+                const objectID = location.state.objectID;
+
+                // Valida el company_id del objeto teacher antes de establecerlo
+                const validCompanyId = companyData.some(company => company.id === objectID.company_id)
+                    ? objectID.company_id
+                    : '';
+
+                setTeacher({
+                    ...objectID,
+                    company_id: validCompanyId
+                });
+                setIsNewTeacher(false);
+            } else if (!id) { // Modo creación
+                setTeacher({
+                    name: '',
+                    surname: '',
+                    email: '',
+                    start_date: '',
+                    leave_date: '',
+                    colour: '',
+                    text_colour: '',
+                    start_hours: '',
+                    contract_hours: '',
+                    company_id: '',
+                    user_role: '',
+                });
+                setIsNewTeacher(true);
+            }
+
+            setLoading(false); // Finaliza la carga
+        };
+
+        fetchData();
+    }, [id, location.state, token]);
+
+    // Función para obtener los datos de las compañías
+    async function getcompanyData() {
         try {
-            const responseCompany = await CompanyService.getAll(token);
-            setCompanies(responseCompany.data);
+            const responseCompany = await CompanyService.getAll(token); // Espera la respuesta de la API
+            return responseCompany.data; // Devuelve los datos obtenidos
         } catch (error) {
             console.error('Error fetching companies:', error);
+            return []; // Devuelve un arreglo vacío en caso de error
         }
-    };
-
-    useEffect(() => {
-        if (id && location.state?.teacher) { //edit mode
-            setTeacher(location.state.teacher);
-            setIsNewTeacher(false);
-        } else if (!id) { //create mode
-            setTeacher({
-                name: '',
-                surname: '',
-                email: '',
-                start_date: '',
-                leave_date: '',
-                colour: '',
-                text_colour: '',
-                start_hours: '',
-                contract_hours: '',
-                company_id: '',
-                user_role: '',
-            });
-            setIsNewTeacher(true);
-        }
-    }, [id, location.state]);
-
+    }
 
     const handleChange = (e) => {
         setTeacher({
@@ -104,16 +122,16 @@ function TeacherForm() {
             ...teacher,
             [colorType]: color,
         });
-        if (colorType === 'colour' && color !== '' ) {
+        if (colorType === 'colour' && color !== '') {
             setColour(true);
         }
 
         if (colorType === 'text_colour' && color !== '') {
             settext_colour(true);
         }
-      
 
-      
+
+
     };
 
     //Función para borrar un teacher. Muestra un mensaje de confirmación antes de borrar.
@@ -322,8 +340,8 @@ function TeacherForm() {
                             {/* Main Color Picker */}
                             <Box sx={{ mb: 2 }}>
                                 <FormLabel component="legend">Main Color</FormLabel>
-                                {(colourmissing && !colour_set) &&(
-                                <FormHelperText sx={{color:'red'}}> Please select a colour</FormHelperText>
+                                {(colourmissing && !colour_set) && (
+                                    <FormHelperText sx={{ color: 'red' }}> Please select a colour</FormHelperText>
                                 )}
                                 <Box
                                     sx={{
@@ -359,8 +377,8 @@ function TeacherForm() {
                             <Box sx={{ mb: 2 }}>
                                 <FormLabel component="legend">Text Color</FormLabel>
                                 {(colourmissing && !text_colour_set) && (
-                                <FormHelperText sx={{color:'red'}}> Please select a colour</FormHelperText>
-                            )}
+                                    <FormHelperText sx={{ color: 'red' }}> Please select a colour</FormHelperText>
+                                )}
                                 <Box
                                     sx={{
                                         mt: 2,

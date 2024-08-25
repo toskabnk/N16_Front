@@ -1,5 +1,7 @@
 import { Box, TextField, Paper, Grid, Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import ListDataGrid from "../components/ListDataGrid";
+
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, Fragment, } from "react";
 import { useNavigate } from 'react-router-dom';
@@ -78,14 +80,48 @@ function User() {
         });
         setRows(filteredRows);
     };
-    //when clicking in a row, navigate to the edition page with the row params
-    const handleRowClick = (params) => {
-        navigate(`/user/${params.id}`, { state: { user: params.row } });
-    };
-    //boton para usuario nuevo
-    const handleCreateUser = () => {
-        navigate('/user/new');
-    }
+
+    return (
+        <Box>
+            <Box
+                gap={4}
+                p={2}>
+                <Paper
+                    elevation={3}>
+                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                        p={2}
+                        sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <TextField
+                            label="Filter"
+                            variant="outlined"
+                            size='small'
+                            margin='none'
+                            value={filterText}
+                            onChange={(e) => setFilterText(e.target.value)}
+                        />
+                    </Box>
+                </Paper>
+            </Box>
+
+            <ListDataGrid
+                rows={rows}
+                columns={columns}
+                name="Users"
+                subname="List"
+                url="/user"
+                buttonName="New User"
+                loading={loading}
+                noClick={false}
+            />
+        </Box>
+    );
+}
+
+
+export default User;
+
+/**
+ * 
     return (
         <Box sx={{ flexGrow: 1 }}>
             <Grid container direction={"column"} spacing={2}>
@@ -143,7 +179,4 @@ function User() {
             </Grid>
         </Box>
     );
-}
-
-
-export default User;
+ */
