@@ -1,7 +1,5 @@
 import { Box, TextField, Paper, Grid, Button } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 import ListDataGrid from "../components/ListDataGrid";
-
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, Fragment, } from "react";
 import { useNavigate } from 'react-router-dom';
@@ -82,26 +80,23 @@ function User() {
     };
 
     return (
-        <Box>
-            <Box
-                gap={4}
-                p={2}>
-                <Paper
-                    elevation={3}>
-                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                        p={2}
-                        sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <TextField
-                            label="Filter"
-                            variant="outlined"
-                            size='small'
-                            margin='none'
-                            value={filterText}
-                            onChange={(e) => setFilterText(e.target.value)}
-                        />
-                    </Box>
-                </Paper>
-            </Box>
+
+        <Box sx={{ flexGrow: 1, minWidth: 0 }} gap={4} p={2}>
+            <Paper
+                elevation={3}>
+                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                    p={2}
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <TextField
+                        label="Filter"
+                        variant="outlined"
+                        size='small'
+                        margin='none'
+                        value={filterText}
+                        onChange={(e) => setFilterText(e.target.value)}
+                    />
+                </Box>
+            </Paper>
 
             <ListDataGrid
                 rows={rows}
@@ -119,64 +114,3 @@ function User() {
 
 
 export default User;
-
-/**
- * 
-    return (
-        <Box sx={{ flexGrow: 1 }}>
-            <Grid container direction={"column"} spacing={2}>
-                <Grid item xs={12} md={12}>
-                    <Box
-                        gap={4}
-                        p={2}>
-                        <Paper
-                            elevation={3}>
-                            <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                                p={2}
-                                sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <TextField
-                                    label="Filter"
-                                    variant="outlined"
-                                    size='small'
-                                    margin='none'
-                                    value={filterText}
-                                    onChange={(e) => setFilterText(e.target.value)}
-                                />
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleCreateUser}
-                                    sx={{ ml: 2 }}
-                                >New User</Button>
-                            </Box>
-                        </Paper>
-                    </Box>
-                </Grid>
-                <Grid item >
-                    <Box gap={4}
-                        p={3} sx={{ flex: 1, overflow: 'hidden' }}>
-                        <DataGrid
-                            autoHeight={true}
-                            rows={rows}
-                            columns={columns}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: { page: 0, pageSize: 10 },
-                                },
-                            }}
-                            pageSizeOptions={[5, 10, 20, 50]}
-                            onRowClick={handleRowClick}
-                            loading={loading}
-                            slotProps={{
-                                loadingOverlay: {
-                                    variant: 'linear-progress',
-                                    noRowsVariant: 'linear-progress',
-                                },
-                            }}
-                        />
-                    </Box>
-                </Grid>
-            </Grid>
-        </Box>
-    );
- */

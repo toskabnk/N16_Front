@@ -66,7 +66,7 @@ function EventLogs() {
     const getEventLogsData = async () => {
         try {
             const response = await HistoryLogsService.getEventLog(token);
-         
+
             const transformedData = response.data.map((EventLogs) => ({
                 ...EventLogs,
                 id: EventLogs._id,
@@ -134,66 +134,63 @@ function EventLogs() {
 
     return (
 
-        <Box>
-            <Box
-                gap={4}
-                p={2}>
-                <Paper
-                    elevation={3}>
-                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                        p={1}
-                        sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                        <FormControl fullWidth>
-                            <TextField
-                                label="User search"
-                                variant="outlined"
-                                margin="none"
-                                value={params.user || ''}
-                                onChange={(e) => setParams((prev) => ({ ...prev, user: e.target.value }))} />
-                        </FormControl>
-                        <FormControl fullWidth>
-                            <TextField
-                                label="Teacher search"
-                                variant="outlined"
-                                margin="none"
-                                value={params.teacher || ''}
-                                onChange={(e) => setParams((prev) => ({ ...prev, teacher: e.target.value }))} />
-                        </FormControl>
-                    </Box>
-                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                        p={1}
-                        sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                        <FormControl fullWidth>
-                            <TextField
-                                label="Name search"
-                                variant="outlined"
-                                margin="none"
-                                value={params.name || ''}
-                                onChange={(e) => setParams((prev) => ({ ...prev, name: e.target.value }))} />
-                        </FormControl>
-                        <FormControl fullWidth>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }} gap={4} p={2}>
+            <Paper
+                elevation={3}>
+                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                    p={1}
+                    sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                    <FormControl fullWidth>
+                        <TextField
+                            label="User search"
+                            variant="outlined"
+                            margin="none"
+                            value={params.user || ''}
+                            onChange={(e) => setParams((prev) => ({ ...prev, user: e.target.value }))} />
+                    </FormControl>
+                    <FormControl fullWidth>
+                        <TextField
+                            label="Teacher search"
+                            variant="outlined"
+                            margin="none"
+                            value={params.teacher || ''}
+                            onChange={(e) => setParams((prev) => ({ ...prev, teacher: e.target.value }))} />
+                    </FormControl>
+                </Box>
+                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                    p={1}
+                    sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                    <FormControl fullWidth>
+                        <TextField
+                            label="Name search"
+                            variant="outlined"
+                            margin="none"
+                            value={params.name || ''}
+                            onChange={(e) => setParams((prev) => ({ ...prev, name: e.target.value }))} />
+                    </FormControl>
+                    <FormControl fullWidth>
 
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker
-                                    label="Event date"
-                                    value={params.date ? dayjs(params.date) : null}
-                                    onChange={handleDateChange}
-                                />
-                            </LocalizationProvider>
-                        </FormControl>
-                    </Box>
-                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                        p={2}
-                        sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                        <Button
-                            variant="contained"
-                            onClick={() => getfilteredData(params)}
-                            color="primary">
-                            Search
-                        </Button>
-                    </Box>
-                </Paper>
-            </Box>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                                label="Event date"
+                                value={params.date ? dayjs(params.date) : null}
+                                onChange={handleDateChange}
+                            />
+                        </LocalizationProvider>
+                    </FormControl>
+                </Box>
+                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                    p={2}
+                    sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => getfilteredData(params)}
+                        color="primary">
+                        Search
+                    </Button>
+                </Box>
+            </Paper>
+
             <ListDataGrid
                 rows={rows}
                 columns={columns}

@@ -1,14 +1,11 @@
 import { Box, TextField, Paper, Grid, Button } from '@mui/material';
 import ListDataGrid from "../components/ListDataGrid";
-
-import { DataGrid } from '@mui/x-data-grid';
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, Fragment, } from "react";
 import { useNavigate } from 'react-router-dom';
 import TeacherService from "../services/teacherService";
 import CompanyService from "../services/companyService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
-import { BoySharp } from '@mui/icons-material';
 
 function Teacher() {
     //Hooks
@@ -96,26 +93,23 @@ function Teacher() {
         setRows(filteredRows);
     };
     return (
-        <Box>
-            <Box
-                gap={4}
-                p={2}>
-                <Paper
-                    elevation={3}>
-                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                        p={2}
-                        sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <TextField
-                            label="Filter"
-                            variant="outlined"
-                            size='small'
-                            margin='none'
-                            value={filterText}
-                            onChange={(e) => setFilterText(e.target.value)}
-                        />
-                    </Box>
-                </Paper>
-            </Box>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }} gap={4} p={2}>
+            <Paper
+                elevation={3}>
+                <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                    p={2}
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <TextField
+                        label="Filter"
+                        variant="outlined"
+                        size='small'
+                        margin='none'
+                        value={filterText}
+                        onChange={(e) => setFilterText(e.target.value)}
+                    />
+                </Box>
+            </Paper>
+
 
             <ListDataGrid
                 rows={rows}

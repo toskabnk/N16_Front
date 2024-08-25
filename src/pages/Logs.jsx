@@ -196,10 +196,7 @@ function Logs() {
     };
 
     return (
-        <Box>
-            <Box
-                gap={4}
-                p={2}>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }} gap={4} p={2}>
                 <Paper
                     elevation={3}>
                     <Box spacing={{ xs: 1, sm: 2, md: 2 }}
@@ -225,7 +222,7 @@ function Logs() {
                             /></FormControl>
                     </Box>
                 </Paper>
-            </Box>
+
             <ListDataGrid
                 rows={rows}
                 columns={columns}
