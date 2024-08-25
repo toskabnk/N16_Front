@@ -3,7 +3,7 @@ import { Box } from "@mui/system"
 import { DataGrid } from "@mui/x-data-grid"
 import { Link, useNavigate } from "react-router-dom";
 
-const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loading=false, noClick=false}) => {
+const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loading=false, noClick=false, createButton=true}) => {
     //Hooks
     const navigate = useNavigate();
 
@@ -42,9 +42,10 @@ const ListDataGrid = ({rows, columns, name, subname=null, url, buttonName, loadi
                                         gap={4}
                                         p={2}>
                                         <Typography variant="h6">{name}</Typography>
-                                        <Button variant="contained" color="primary" onClick={() => navigate(`${url}/new`)}>{buttonName}</Button>
-                                    </Box>
-
+                                        {createButton ? ( 
+                                            <Button variant="contained" color="primary" onClick={() => navigate(`${url}/new`)}>{buttonName}</Button>
+                                        ): null}
+                                    </Box> 
                                 </Grid>
 
                                 <Grid item xs={12} md={12}>

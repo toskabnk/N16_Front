@@ -3,6 +3,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, Fragment, } from "react";
 import HistoryLogsService from "../services/historyLogService";
+import ListDataGrid from "../components/ListDataGrid";
+
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -64,7 +66,7 @@ function EventLogs() {
     const getEventLogsData = async () => {
         try {
             const response = await HistoryLogsService.getEventLog(token);
-            console.log(response.data);
+         
             const transformedData = response.data.map((EventLogs) => ({
                 ...EventLogs,
                 id: EventLogs._id,
@@ -96,7 +98,6 @@ function EventLogs() {
     const getfilteredData = async (params) => {
         try {
             const response = await HistoryLogsService.getEventLog(token, params);
-            console.log(response.data);
             const transformedData = response.data.map((EventLogs) => ({
                 ...EventLogs,
                 id: EventLogs._id,
@@ -133,116 +134,78 @@ function EventLogs() {
 
     return (
 
-        <Box sx={{ flexGrow: 1, p: 3 }}>
-            <Typography variant="h10" sx={{ mb: 3, mr: 1 }}>
-                <Link to="/event-logs" color="primary" underline="hover" >
-                    Event-logs
-                </Link>
-            </Typography>
-            <Typography variant="h10" sx={{ mb: 3, mr: 1 }}>
-                /
-            </Typography>
-            <Typography variant="h10" sx={{ mb: 3, mr: 1 }}>
-                Log of event changes
-            </Typography>
-
-            <Grid container direction={"column"} spacing={2}>
-
-
-                <Grid item xs={12} md={12}>
-                    <Box
-                        gap={4}
-                        p={2}>
-                        <Paper
-                            elevation={3}>
-                            <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                                p={1}
-                                sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                                <FormControl fullWidth>
-                                    <TextField
-                                        label="User search"
-                                        variant="outlined"
-                                        margin="none"
-                                        value={params.user || ''}
-                                        onChange={(e) => setParams((prev) => ({ ...prev, user: e.target.value }))} />
-                                </FormControl>
-                                <FormControl fullWidth>
-                                    <TextField
-                                        label="Teacher search"
-                                        variant="outlined"
-                                        margin="none"
-                                        value={params.teacher || ''}
-                                        onChange={(e) => setParams((prev) => ({ ...prev, teacher: e.target.value }))} />
-                                </FormControl>
-                            </Box>
-                            <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                                p={1}
-                                sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                                <FormControl fullWidth>
-                                    <TextField
-                                        label="Name search"
-                                        variant="outlined"
-                                        margin="none"
-                                        value={params.name || ''}
-                                        onChange={(e) => setParams((prev) => ({ ...prev, name: e.target.value }))} />
-                                </FormControl>
-                                <FormControl fullWidth>
-
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                            label="Event date"
-                                            value={params.date ? dayjs(params.date) : null}
-                                            onChange={handleDateChange}
-                                        />
-                                    </LocalizationProvider>
-                                </FormControl>
-                            </Box>
-                            <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                                p={2}
-                                sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => getfilteredData(params)}
-                                    color="primary">
-                                    Search
-                                </Button>
-                            </Box>
-                        </Paper>
+        <Box>
+            <Box
+                gap={4}
+                p={2}>
+                <Paper
+                    elevation={3}>
+                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                        p={1}
+                        sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                        <FormControl fullWidth>
+                            <TextField
+                                label="User search"
+                                variant="outlined"
+                                margin="none"
+                                value={params.user || ''}
+                                onChange={(e) => setParams((prev) => ({ ...prev, user: e.target.value }))} />
+                        </FormControl>
+                        <FormControl fullWidth>
+                            <TextField
+                                label="Teacher search"
+                                variant="outlined"
+                                margin="none"
+                                value={params.teacher || ''}
+                                onChange={(e) => setParams((prev) => ({ ...prev, teacher: e.target.value }))} />
+                        </FormControl>
                     </Box>
-                </Grid >
-                <Grid item >
-                    <Box gap={4}
-                        p={3} sx={{ flex: 1, overflow: 'hidden' }}>
+                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                        p={1}
+                        sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                        <FormControl fullWidth>
+                            <TextField
+                                label="Name search"
+                                variant="outlined"
+                                margin="none"
+                                value={params.name || ''}
+                                onChange={(e) => setParams((prev) => ({ ...prev, name: e.target.value }))} />
+                        </FormControl>
+                        <FormControl fullWidth>
 
-                        <DataGrid
-                            autoHeight={true}
-                            rows={rows}
-                            columns={columns}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: { page: 0, pageSize: 10 },
-                                },
-                            }}
-                            sx={{
-                                '& .MuiDataGrid-cell': {
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'flex-start',
-                                },
-                            }}
-                            pageSizeOptions={[5, 10, 20, 50]}
-                            loading={loading}
-                            slotProps={{
-                                loadingOverlay: {
-                                    variant: 'linear-progress',
-                                    noRowsVariant: 'linear-progress',
-                                },
-                            }}
-                        />
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    label="Event date"
+                                    value={params.date ? dayjs(params.date) : null}
+                                    onChange={handleDateChange}
+                                />
+                            </LocalizationProvider>
+                        </FormControl>
                     </Box>
-                </Grid>
-            </Grid >
+                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                        p={2}
+                        sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
+                        <Button
+                            variant="contained"
+                            onClick={() => getfilteredData(params)}
+                            color="primary">
+                            Search
+                        </Button>
+                    </Box>
+                </Paper>
+            </Box>
+            <ListDataGrid
+                rows={rows}
+                columns={columns}
+                name="Logs"
+                subname="Logs of changes"
+                url="/logs"
+                loading={loading}
+                noClick={true}
+                createButton={false}
+            />
         </Box >
+
     );
 }
 

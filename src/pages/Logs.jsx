@@ -1,5 +1,7 @@
 import { Box, TextField, Paper, Grid, Button, Select, InputLabel, FormControl, Typography, Autocomplete, Link } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import ListDataGrid from "../components/ListDataGrid";
+
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, Fragment, } from "react";
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +50,6 @@ function Logs() {
             renderCell: (params) => {
                 const handleClick = () => {
                     const { original_entity, updated_entity } = params.row;
-                    console.log(params.row);
                     const originalEntityEmpty = !original_entity || Object.keys(original_entity).length === 0;
                     const updatedEntityEmpty = !updated_entity || Object.keys(updated_entity).length === 0;
 
@@ -195,84 +196,46 @@ function Logs() {
     };
 
     return (
-        <Box sx={{ flexGrow: 1, p: 3 }}>
+        <Box>
+            <Box
+                gap={4}
+                p={2}>
+                <Paper
+                    elevation={3}>
+                    <Box spacing={{ xs: 1, sm: 2, md: 2 }}
+                        p={2}
+                        sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
 
-            <Typography variant="h10" sx={{ mb: 3, mr: 1 }}>
-                <Link to="/logs" color="primary" underline="hover" >
-                    Logs
-                </Link>
-            </Typography>
-            <Typography variant="h10" sx={{ mb: 3, mr: 1 }}>
-                /
-            </Typography>
-            <Typography variant="h10" sx={{ mb: 3, mr: 1 }}>
-                Log of changes
-            </Typography>
-            <Grid container direction={"column"} spacing={2}>
-                <Grid item xs={12} md={12}>
-                    <Box
-                        gap={4}
-                        p={2}>
-                        <Paper
-                            elevation={3}>
-                            <Box spacing={{ xs: 1, sm: 2, md: 2 }}
-                                p={2}
-                                sx={{ display: 'flex', justifyContent: 'start', gap: 2 }}>
-
-                                <FormControl fullWidth>
-                                    <Autocomplete
-                                        options={userData}
-                                        getOptionLabel={(option) => option.name}
-                                        value={userData.find(user => user.id === user_id) || null}
-                                        onChange={handleUserChange}
-                                        renderInput={(params) => <TextField {...params} label="User" variant="outlined" />}
-                                    />
-                                </FormControl>
-                                <FormControl fullWidth>
-                                    <TextField
-                                        label="Filter"
-                                        variant="outlined"
-                                        margin='none'
-                                        value={filterText}
-                                        onChange={(e) => setFilterText(e.target.value)}
-                                    /></FormControl>
-                            </Box>
-                        </Paper>
+                        <FormControl fullWidth>
+                            <Autocomplete
+                                options={userData}
+                                getOptionLabel={(option) => option.name}
+                                value={userData.find(user => user.id === user_id) || null}
+                                onChange={handleUserChange}
+                                renderInput={(params) => <TextField {...params} label="User" variant="outlined" />}
+                            />
+                        </FormControl>
+                        <FormControl fullWidth>
+                            <TextField
+                                label="Filter"
+                                variant="outlined"
+                                margin='none'
+                                value={filterText}
+                                onChange={(e) => setFilterText(e.target.value)}
+                            /></FormControl>
                     </Box>
-                </Grid >
-                <Grid item >
-                    <Box gap={4}
-                        p={3} sx={{ flex: 1, overflow: 'hidden' }}>
-
-                        <DataGrid
-                            getRowHeight={() => 'auto'}
-                            autoHeight={true}
-                            rows={rows}
-                            columns={columns}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: { page: 0, pageSize: 10 },
-                                },
-                            }}
-                            sx={{
-                                '& .MuiDataGrid-cell': {
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'flex-start',
-                                },
-                            }}
-                            pageSizeOptions={[5, 10, 20, 50]}
-                            loading={loading}
-                            slotProps={{
-                                loadingOverlay: {
-                                    variant: 'linear-progress',
-                                    noRowsVariant: 'linear-progress',
-                                },
-                            }}
-                        />
-                    </Box>
-                </Grid>
-            </Grid >
+                </Paper>
+            </Box>
+            <ListDataGrid
+                rows={rows}
+                columns={columns}
+                name="Logs"
+                subname="Logs of changes"
+                url="/logs"
+                loading={loading}
+                noClick={true}
+                createButton={false}
+            />
         </Box >
     );
 }
