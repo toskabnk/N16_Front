@@ -1,17 +1,24 @@
-import { Box, Typography } from '@mui/material';
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
+    const navigate = useNavigate();
+    const role = useSelector((state) => state.user.role);
+
+    useEffect(() => {
+        if(role){
+            if(role !== 'teacher'){
+                navigate('/dashboard');
+            } else {
+                navigate('/myCalendar');
+            }
+        }
+    }, [role, navigate]);
+
     return (
-        <div>
-            <Box>
-                    <Typography variant="h1" component="div" gutterBottom fontFamily='system-ui'>
-                        Welcome to Timetable - N16
-                    </Typography>
-                    <Typography variant="h5" component="div" gutterBottom fontFamily='system-ui'>
-                        A simple timetable for N16
-                    </Typography>
-                </Box>
-        </div>
+        <>
+        </>
     )
 }
 

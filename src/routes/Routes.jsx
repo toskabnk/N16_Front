@@ -26,6 +26,10 @@ import Logs from '../pages/Logs.jsx';
 import EventLogs from '../pages/EventLogs.jsx';
 import Holidays from '../pages/Holidays.jsx';
 import HolidayForm from '../pages/HolidayForm.jsx';
+import ErrorBoundaryWrapper from '../components/ErrorBoundary/ErrorBoundaryWrapper.jsx';
+import ProtectedSuperAdminRoutes from './ProtectedSuperAdminRoutes.jsx';
+import ProtectedTeacherRoutes from './ProtectedTeacherRoutes.jsx';
+import ProtectedHolidayRoutes from './ProtectedHolidayRoutes.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -33,44 +37,51 @@ import HolidayForm from '../pages/HolidayForm.jsx';
  */
 const Routes = () => {
     return (
-        <ReactRoutes>
-            {/* Rutas publicas */}
-            <Route path="/login" element={<Login />} />
-            {/* Rutas protegidas */}
-            <Route  element={<ProtectedRoute/>} >
-                <Route path="/" element={<Home/>} />
-                <Route path="/calendar" element={<CalendarByClassroom/>} />
-                <Route path="/user" element={<User/>} />
-                <Route path="/user/new" element={<UserForm/>} /> {/* Ruta para crear */}
-                <Route path="/user/:id" element={<UserForm/>} />  {/* Ruta para editar */}
-
-                <Route path="/teacher" element={<Teacher/>} />
-                <Route path="/teacher/new" element={<TeacherForm/>} /> {/* Ruta para crear */}
-                <Route path="/teacher/:id" element={<TeacherForm/>} />  {/* Ruta para editar */}
-
-                <Route path="/logs" element={<Logs/>} />
-                <Route path="/event-logs" element={<EventLogs/>} />
-
-                <Route path="/calendarByTeacher" element={<CalendarByTeacher/>} />
-                <Route path="/myCalendar" element={<MyCalendar/>} />
-                <Route element={<ProtectedAdminRoutes/>}>
-                    <Route path="/dashboard" element={<Dashboard/>} />
-                    <Route path="/newEvent" element={<NewEvent/>} />
-                    <Route path="/event" element={<SuspendEvents/>} />
-                    <Route path="/eventType" element={<EventType/>} />
-                    <Route path="/eventType/:id" element={<EventTypeForm/>} />
-                    <Route path="/department" element={<Departments/>} />
-                    <Route path="/department/:id" element={<DepartmentForm/>} />
-                    <Route path="/classroom" element={<Classrooms/>} />
-                    <Route path="/classroom/:id" element={<ClassroomForm/>} />
-                    <Route path="/company" element={<Companies/>} />
-                    <Route path="/company/:id" element={<CompanyForm/>} />
-                    <Route path="/teachingHours" element={<TeachingHours/>} />
-                    <Route path="/holiday" element={<Holidays/>} />
-                    <Route path="/holiday/:id" element={<HolidayForm/>} />
+        <ErrorBoundaryWrapper>
+            <ReactRoutes>
+                {/* Rutas publicas */}
+                <Route path="/login" element={<Login />} />
+                {/* Rutas protegidas */}
+                <Route  element={<ProtectedRoute/>} >
+                    <Route path="/" element={<Home/>} />
+                    <Route path="/calendar" element={<CalendarByClassroom/>} />
+                    {/* Rutas para teacher y super_admin */}
+                    <Route element={<ProtectedHolidayRoutes/>}>
+                        <Route path="/holiday" element={<Holidays/>} />
+                        <Route path="/holiday/:id" element={<HolidayForm/>} />
+                    </Route>
+                    {/* Rutas solo para teacher */}
+                    <Route element={<ProtectedTeacherRoutes/>}>
+                        <Route path="/myCalendar" element={<MyCalendar/>} />
+                    </Route>
+                    {/* Rutas solo para admin y super_admin */}
+                    <Route element={<ProtectedAdminRoutes/>}>
+                        <Route path="/dashboard" element={<Dashboard/>} />
+                        <Route path="/newEvent" element={<NewEvent/>} />
+                        <Route path="/teachingHours" element={<TeachingHours/>} />
+                        <Route path="/calendarByTeacher" element={<CalendarByTeacher/>} />
+                    </Route>
+                    {/* Rutas solo para super_admin */}
+                    <Route element={<ProtectedSuperAdminRoutes/>}>
+                        <Route path="/event" element={<SuspendEvents/>} />
+                        <Route path="/eventType" element={<EventType/>} />
+                        <Route path="/eventType/:id" element={<EventTypeForm/>} />
+                        <Route path="/department" element={<Departments/>} />
+                        <Route path="/department/:id" element={<DepartmentForm/>} />
+                        <Route path="/classroom" element={<Classrooms/>} />
+                        <Route path="/classroom/:id" element={<ClassroomForm/>} />
+                        <Route path="/company" element={<Companies/>} />
+                        <Route path="/company/:id" element={<CompanyForm/>} />
+                        <Route path="/user" element={<User/>} />
+                        <Route path="/user/:id" element={<UserForm/>} />  {/* Ruta para editar */}
+                        <Route path="/teacher" element={<Teacher/>} />
+                        <Route path="/teacher/:id" element={<TeacherForm/>} />  {/* Ruta para editar */}
+                        <Route path="/logs" element={<Logs/>} />
+                        <Route path="/event-logs" element={<EventLogs/>} />
+                    </Route>
                 </Route>
-            </Route>
-        </ReactRoutes>
+            </ReactRoutes>
+        </ErrorBoundaryWrapper>
     )
 }
 

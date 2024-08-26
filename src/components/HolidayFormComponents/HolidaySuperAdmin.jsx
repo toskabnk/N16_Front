@@ -55,8 +55,8 @@ const HolidaySuperAdmin = ({ token }) => {
         },
         validationSchema: Yup.object({
             teacher_id: Yup.string().required('Required'),
-            start_date: Yup.string().required('Required'),
-            end_date: Yup.string().required('Required').min(Yup.ref('start_date'), 'End date must be after start date'),
+            start_date: Yup.date().required('Required'),
+            end_date: Yup.date().required('Required').min(Yup.ref('start_date'), 'End date must be after start date'),
             notes: Yup.string().required('Required'),
             absence_type: Yup.string().required('Required'),
             other_absence_type: Yup.string().when('absence_type', {

@@ -8,6 +8,7 @@ import FormGrid from "../FormGrid";
 import { DatePicker } from "@mui/x-date-pickers-pro";
 import FormikTextField from "../FormikTextField";
 import dayjs from "dayjs";
+import holidayService from "../../services/holidayService";
 
 const HolidayTeacher = ({ token }) => {
     //Hooks
@@ -50,8 +51,8 @@ const HolidayTeacher = ({ token }) => {
             notes: '',
         },
         validationSchema: Yup.object({
-            start_date: Yup.string().required('Required'),
-            end_date: Yup.string().required('Required').min(Yup.ref('start_date'), 'End date must be after start date'),
+            start_date: Yup.date().required('Required'),
+            end_date: Yup.date().required('Required').min(Yup.ref('start_date'), 'End date must be after start date'),
             notes: Yup.string().required('Required'),
         }),
         onSubmit: async (values) => {

@@ -59,7 +59,10 @@ function DataForm(props){
             setSelected(items.find(item => item.id === props.event.extendedProps[propKey]));
         } else {
             //Si el valor del formulario está definido, se asigna el valor del formulario
-            setValue(items.find(item => item.id === formValues[formValueKey]).name);
+            let name = items.find(item => item.id === formValues[formValueKey].name);
+            if(name){
+                setValue(name.name);
+            }
             setSelected(items.find(item => item.id === formValues[formValueKey]));
         }
     };
