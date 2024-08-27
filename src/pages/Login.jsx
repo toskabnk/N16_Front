@@ -12,6 +12,8 @@ import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import { StyledFullCenter } from '../styles/StyledContainers';
 import { login } from '../services/authService';
+import backgroundImage from '../assets/background.jpg';
+import logoImage from '../assets/n16.webp';
 
 /**
  * Pagina de login
@@ -87,35 +89,69 @@ function Login() {
   }, [isAuthenticated]);
 
   return (
-    <StyledFullCenter>
-      <form onSubmit={formik.handleSubmit}>
-        <Container
-          component="main"
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-            bgcolor: "gray.300",
-          }}
-        >
-          <Box
-            sx={{
-              bgcolor: "background.paper",
-              p: 3,
-              borderRadius: "5px",
-              boxShadow: "2px 2px 10px gray",
-              maxWidth: "sm",
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 3,
+    <form onSubmit={formik.handleSubmit}
+      style={{
+        display: "flex", justifyContent: "center", alignItems: "center", width: "100%",
+      }}
+    >
+      <Container
+        component="main"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          bgcolor: "background.default",
+          flexDirection: "row",
+
+        }}
+      >
+        <Box sx={{
+          bgcolor: "white",
+          p: 0,
+          borderRadius: "5px",
+          boxShadow: "2px 2px 10px gray",
+          maxWidth: "sm",
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          gap: 0,
+        }}>
+
+          <img src={backgroundImage} alt="logo"
+            style={{
+              width: "30%", height: "auto", objectFit: 'cover', flexGrow: '1',
+              objectPosition: '0% 50%'
+
             }}
-          >
-            <Typography variant="h4" color="text.primary" align="center">
-              Login
+          />
+
+          <Box sx={{ flexGrow: '1', p: 3 }}>
+
+            <a href="/login" target="_blank" rel="noreferrer"
+              style={{
+                fontWeight: "700",
+                fontSize: "25px",
+                color: "#000865",
+                fontFamily: "sans-serif",
+                textDecoration: "none", 
+              }}>
+              N
+              <span style={{
+                fontWeight: "300",
+                color: "#6571ff"
+              }}
+              >16
+              </span>
+
+            </a>
+
+            <Typography variant="h6" color="text.text" align="left">
+              Welcome back! Log in to your account.
             </Typography>
+
+
             <Collapse in={openAlert} sx={{ width: "100%" }}>
               <Alert
                 variant="outlined"
@@ -146,8 +182,6 @@ function Login() {
                   sx={{
                     width: "100%",
                     mt: 0.5,
-                    px: 1,
-                    py: 1,
                     border: "1px solid gray.300",
                     borderRadius: "5px",
                   }}
@@ -164,8 +198,6 @@ function Login() {
                   sx={{
                     width: "100%",
                     mt: 0.5,
-                    px: 1,
-                    py: 1,
                     border: "1px solid gray.300",
                     borderRadius: "5px",
                   }}
@@ -184,9 +216,9 @@ function Login() {
               </LoadingButton>
             </Box>
           </Box>
-        </Container>
-      </form>
-    </StyledFullCenter>
+        </Box>
+      </Container>
+    </form >
   );
 }
 

@@ -15,10 +15,12 @@ function App() {
   return (
     <StyledFlexFull height='100%'>
       {/* Barra de navegacion superior */}
+      {isAuthenticated ?
       <HeaderBar
         isAuthenticated={isAuthenticated}
         collapsed={collapsed}
         setCollapsed={setCollapsed}/>
+        : null}
       <StyledFlexFullRow height='100%'>
         {/* Muestra la barra lateral si esta logueado*/}
         {isAuthenticated ? 
