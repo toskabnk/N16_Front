@@ -143,7 +143,7 @@ function CalendarByClassroom() {
             console.log(response);
             setCompaniesData(response.data);
             setCompanyLoading(false);
-            if(role === 'professor'){
+            if(role === 'professor' || role === 'admin'){
                 //Buscamos el nombre de la compañia del usuario si es profesor para filtrar las aulas
                 let companyName = response.data.filter((company) => company._id === myCompany);
                 setCompanyName([companyName[0].name]);
@@ -244,21 +244,19 @@ function CalendarByClassroom() {
                         //Actualizamos el evento
                         let values = { start_date: startDate, end_date: endDate };
                         const response = await eventService.updateEventDate(token, eventId, values);
-                        //Si se modifica correctamente la fecha, actualizamos el evento en la lista de eventos
-                        setEventsDataByDate(eventsDataByDate.map((event) => event.id === eventId ? { ...event, start: startDate, end: endDate, start_date: startDate, end_date: endDate } : event));
                         console.log("Update event date:", eventId, values);
-                        showSnackbar('Event updated successfully', {
-                            variant: 'success',
-                            autoHideDuration: 6000,
-                            action: (key) => (
-                                <Fragment>
-                                    <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
-                                        Dismiss
-                                    </Button>
-                                </Fragment>
-                            ),
-                        });
                     }
+                    showSnackbar('Event updated successfully', {
+                        variant: 'success',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
                 } catch (error) {
                     console.error("Error during updateEvent, revisa:", error);
                     showSnackbar('Something went wrong, please try again later', {
@@ -278,9 +276,6 @@ function CalendarByClassroom() {
                             </Fragment>
                         ),
                     });
-                } finally {
-                    console.log(calendarRef.current.getApi().getEventSources());
-                    calendarRef.current.getApi().refetchEvents();
                 }
 
             } else {
@@ -372,7 +367,8 @@ function CalendarByClassroom() {
      */
     const loadTeachers = async () => {
         try {
-            const response = await teacherService.getAll(token);
+            const queryParams = { company_id: '' };
+            const response = await teacherService.getTeachersWithFilters(token, queryParams);
             setTeachers(response.data);
         } catch (error) {
             console.error("Error during loadTeachers:", error);

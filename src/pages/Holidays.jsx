@@ -19,8 +19,8 @@ function Holidays() {
     //Columns for the table
     const [columns, setColumns] = useState([
         { field: 'teacher_name', headerName: 'Teacher', flex: 1, overflow: 'hidden' },
-        { field: 'start_date', headerName: 'Date start', flex: 1, overflow: 'hidden' },
-        { field: 'end_date', headerName: 'Date end', flex: 1, overflow: 'hidden' },
+        { field: 'start_date', headerName: 'Date start', flex: 1, overflow: 'hidden', type: 'date', valueGetter: (value) => value && new Date(value), },
+        { field: 'end_date', headerName: 'Date end', flex: 1, overflow: 'hidden', type: 'date', valueGetter: (value) => value && new Date(value), },
         { field: 'status', headerName: 'Status', flex: 1, overflow: 'hidden' },
         { field: 'absence_type', headerName: 'Absence type', flex: 1, overflow: 'hidden' },
         { field: 'information', headerName: 'Information', flex: 1, overflow: 'hidden',

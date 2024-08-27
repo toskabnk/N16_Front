@@ -1,4 +1,4 @@
-import { Button, Grid } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import KpiComponent from "../components/DashboardComponents/KpiComponent";
 import { useSelector } from "react-redux";
@@ -83,6 +83,8 @@ function Dashboard() {
             let totalHours = 0;
             for (const item of response.data) {
                 totalHours += calculateHours(item.start_date, item.end_date);
+                //Redondea a entero
+                totalHours = Math.round(totalHours);
             }
             //Añade la unidad de medida
             const totalHoursString = `${totalHours}h`;
@@ -141,7 +143,7 @@ function Dashboard() {
                         alignItems="center"
                         gap={4}
                         p={2}>
-                            <h3>Welcome to Dashboard</h3>
+                            <Typography variant="h4">Welcome to the Dashboard</Typography>
                     </Box>
                 </Grid>
                 <Grid item xs={12} md={4}>

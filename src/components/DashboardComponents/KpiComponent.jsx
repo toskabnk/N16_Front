@@ -14,14 +14,14 @@ const KpiComponent = ({ display, data, loading}) => {
         <Paper
             elevation={3}
             sx={{ height:"100px"}}>
-            <>
-                <Typography variant="h6" gutterBottom sx={{marginLeft: '10px'}}>{display}</Typography>
+            <Box>
+                <Typography variant="h6"  gutterBottom sx={{marginLeft: '10px', paddingTop: '5px', paddingLeft: '10px'}}>{display}</Typography>
                 {loading ? <CircularProgress sx={{marginLeft: '45%'}} /> : 
                   <Typography align='center' variant="h3" gutterBottom>
                           {data}
                   </Typography>
                 }
-            </>
+            </Box>
         </Paper>
     </Box>
   );

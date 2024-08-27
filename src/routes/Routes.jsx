@@ -30,6 +30,7 @@ import ErrorBoundaryWrapper from '../components/ErrorBoundary/ErrorBoundaryWrapp
 import ProtectedSuperAdminRoutes from './ProtectedSuperAdminRoutes.jsx';
 import ProtectedTeacherRoutes from './ProtectedTeacherRoutes.jsx';
 import ProtectedHolidayRoutes from './ProtectedHolidayRoutes.jsx';
+import NotFound from '../pages/NotFound.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -79,6 +80,7 @@ const Routes = () => {
                         <Route path="/logs" element={<Logs/>} />
                         <Route path="/event-logs" element={<EventLogs/>} />
                     </Route>
+                <Route path="*" element={<NotFound/>} />    
                 </Route>
             </ReactRoutes>
         </ErrorBoundaryWrapper>
