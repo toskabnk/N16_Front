@@ -268,7 +268,8 @@ function NewEvent () {
                     </Fragment>
                 ),
             });
-            //Reset formulario y estados
+            //Si el submitType es save, resetear el formulario
+            if(formik.values.submitType === 'save'){
             formik.resetForm();
             setStartDate(null);
             setEndDate(null);
@@ -287,6 +288,7 @@ function NewEvent () {
             setGroupValue('');
             setTeacherValue('');
             setClassroomValue('');
+            }
 
 
         } catch (error) {
@@ -806,10 +808,22 @@ function NewEvent () {
                                         sx={{marginRight: 2}}
                                         color="success"
                                         loading={loading}
-                                        onClick={formik.handleSubmit}
                                         loadingPosition="start"
                                         startIcon={<SaveIcon />}
+                                        name="submitType"
+                                        value="save"
                                     >Submit</LoadingButton>
+                                    <LoadingButton
+                                        type="submit"
+                                        variant="contained"
+                                        sx={{marginRight: 2}}
+                                        color="info"
+                                        loading={loading}
+                                        loadingPosition="start"
+                                        startIcon={<SaveIcon />}
+                                        name="submitType"
+                                        value="save"
+                                    >Submit and add similar</LoadingButton>
                                     <Button
                                         variant="contained"
                                         color="secondary"

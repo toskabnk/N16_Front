@@ -586,7 +586,7 @@ function CalendarByClassroom() {
                     </IconButton>
                     <DialogContent>
                         {role === 'admin' || 'super_admin' || 'company_admin' ? 
-                            <EditEventStepper teachers={teachers} classrooms={classroomData} departments={departments} eventTypes={eventTypes} event={event} events={eventsDataByDate} setEvents={setEventsDataByDate} token={token}/>
+                            <EditEventStepper teachers={teachers} classrooms={classroomData} departments={departments} eventTypes={eventTypes} event={event} events={eventsDataByDate} setEvents={setEventsDataByDate} closeDialog={setEventEdit} token={token}/>
                             : <ClassSummary event={event} />}
                     </DialogContent>
             </Dialog>

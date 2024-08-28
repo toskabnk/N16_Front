@@ -37,7 +37,7 @@ function TeacherForm() {
 
     const [roles, setRoles] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [isNewTeacher, setIsNewTeacher] = useState(!id);
+    const [isNewTeacher, setIsNewTeacher] = useState(true);
     const [showMainColorPicker, setShowMainColorPicker] = useState(false);
     const [showTextColorPicker, setShowTextColorPicker] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
@@ -76,7 +76,7 @@ function TeacherForm() {
                     company_id: validCompanyId
                 });
                 setIsNewTeacher(false);
-            } else if (!id) { // Modo creación
+            } else { // Modo creación
                 setTeacher({
                     name: '',
                     surname: '',
@@ -251,11 +251,11 @@ function TeacherForm() {
     return (
         <Box sx={{ p: 3, width: '100%' }}>
             <Typography variant="h10" sx={{ mb: 3 }}>
-                <Link to="/teacher" color="primary" underline="hover">
-                    Teachers
+                <Link to="/teacher" color="primary" underline="hover" style={{textDecoration: "none"}}>
+                    Teachers /
                 </Link>
 
-                {isNewTeacher ? '/new' : '/edit'}
+                &nbsp;{isNewTeacher ? 'New' : 'Edit'}
             </Typography>
 
             <Grid container spacing={3} sx={{ width: '100%', mt: 2 }}>

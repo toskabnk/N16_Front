@@ -32,7 +32,7 @@ function UserForm() {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [roles, setRoles] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [isNewUser, setIsNewUser] = useState(!id);
+    const [isNewUser, setIsNewUser] = useState(true);
     const [loading, setLoading] = useState(true);
 
     //redirect if location id null
@@ -71,7 +71,7 @@ function UserForm() {
                     company_id: validCompanyId
                 });
                 setIsNewUser(false);
-            } else if (!id) { //create mode
+            } else { //create mode
                 setUser({
                     name: '',
                     surname: '',
@@ -86,6 +86,9 @@ function UserForm() {
         fetchData();
     }, [id, location.state, token]);
 
+    useEffect(() => {
+        console.log('isNewUser:', isNewUser);
+    }, [isNewUser]);
 
     async function getcompanyData() {
         try {
@@ -268,11 +271,11 @@ function UserForm() {
     return (
         <Box sx={{ p: 3, width: '100%' }}>
             <Typography variant="h10" sx={{ mb: 3 }}>
-                <Link to="/user" color="primary" underline="hover">
-                    Users
+                <Link to="/user" color="primary" underline="hover" style={{textDecoration: "none"}}>
+                    Users /
                 </Link>
 
-                {isNewUser ? '/new' : '/edit'}
+                &nbsp;{isNewUser ? 'New' : 'Edit'}
             </Typography>
 
             <Grid container spacing={3} sx={{ width: '100%', mt: 2 }}>
