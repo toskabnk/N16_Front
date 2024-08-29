@@ -61,8 +61,7 @@ function TeacherForm() {
                 // Obtiene los datos de la compañía
                 const companyData = await getcompanyData();
                 setCompanies(companyData);
-
-                const objectID = location.state.objectID;
+                const objectID = location.state?.objectID ?? {};
 
                 // Valida si el company_id del objeto es válido
                 const validCompanyId = companyData.some(company => company.id === objectID.company_id)
@@ -72,11 +71,11 @@ function TeacherForm() {
                 // Actualiza el estado de teacher solo con las propiedades necesarias
                 setTeacher(prevTeacher => ({
                     ...prevTeacher,
-                    company_id: validCompanyId
+                    company_id: validCompanyId || '',
                 }));
 
             } catch (error) {
-                console.error('Error al obtener los datos de la compañía:', error);
+                console.error('Error fetching companies:', error);
             }
         };
 
@@ -85,14 +84,16 @@ function TeacherForm() {
         // Modo edición
         if (id && location.state?.objectID) {
             const { company_id, ...rest } = location.state.objectID;
-
-            // Actualiza teacher con las propiedades de rest
+            //saneamos el rest para quitar null values
+            const sanitizedRest = Object.fromEntries(
+                Object.entries(rest).map(([key, value]) => [key, value ?? ''])
+            );
             setTeacher({
-                ...rest,
+                ...sanitizedRest,
                 company_id: '', // Inicializa company_id como vacío
             });
 
-            fetchData(); // Obtiene y valida company_id
+
 
             setIsNewTeacher(false);
         } else { // Modo creación
@@ -113,7 +114,7 @@ function TeacherForm() {
 
             setIsNewTeacher(true);
         }
-
+        fetchData(); // Obtiene y valida company_id
         setLoading(false); // Finaliza la carga
     }, [id, location.state, token]);
     // Función para obtener los datos de las compañías

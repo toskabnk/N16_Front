@@ -58,32 +58,50 @@ function UserForm() {
     //TO DO loading effect  
     useEffect(() => {
         const fetchData = async () => {
+            try {
+                const companyData = await getcompanyData();
+                setCompanies(companyData);
 
-            const companyData = await getcompanyData();
-            setCompanies(companyData);
-            if (id && location.state?.objectID) { //edit mode
-                const objectID = location.state.objectID;
+                const objectID = location.state?.objectID ?? {};
                 const validCompanyId = companyData.some(company => company.id === objectID.company_id)
                     ? objectID.company_id
                     : '';
-                setUser({
-                    ...objectID,
-                    company_id: validCompanyId
-                });
-                setIsNewUser(false);
-            } else { //create mode
-                setUser({
-                    name: '',
-                    surname: '',
-                    email: '',
-                    user_role: '',
-                    company_id: '',
-                });
-                setIsNewUser(true);
+
+                setUser(prevUser => ({
+                    ...prevUser,
+                    company_id: validCompanyId || '',
+                }));
+
+
+            } catch (error) {
+                console.error('Error fetching companies:', error);
             }
-            setLoading(false); // Finaliza la carga
         };
+
+        if (id && location.state?.objectID) { //edit mode
+            const { company_id, ...rest } = location.state.objectID;
+            const sanitizedRest = Object.fromEntries(
+                Object.entries(rest).map(([key, value]) => [key, value ?? ''])
+            );
+            setUser({
+                ...sanitizedRest,
+                company_id: '', // Inicializa company_id como vacío
+            });
+            setIsNewUser(false);
+        } else { //create mode
+            setUser({
+                name: '',
+                surname: '',
+                email: '',
+                user_role: '',
+                company_id: '',
+            });
+            setIsNewUser(true);
+        }
         fetchData();
+        setLoading(false); // Finaliza la carga
+
+        setLoading(false); // Finaliza la carg
     }, [id, location.state, token]);
 
     useEffect(() => {
@@ -271,7 +289,7 @@ function UserForm() {
     return (
         <Box sx={{ p: 3, width: '100%' }}>
             <Typography variant="h10" sx={{ mb: 3 }}>
-                <Link to="/user" color="primary" underline="hover" style={{textDecoration: "none"}}>
+                <Link to="/user" color="primary" underline="hover" style={{ textDecoration: "none" }}>
                     Users /
                 </Link>
 
