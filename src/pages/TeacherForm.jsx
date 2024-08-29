@@ -7,6 +7,7 @@ import TeacherService from "../services/teacherService";
 import CompanyService from "../services/companyService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import Swal from "sweetalert2";
+import { rest } from 'lodash';
 
 function TeacherForm() {
     //Token
@@ -56,49 +57,65 @@ function TeacherForm() {
 
     useEffect(() => {
         const fetchData = async () => {
-            // Establece los roles
-            setRoles(['super_admin', 'admin', 'teacher', 'director']);
+            try {
+                // Obtiene los datos de la compañía
+                const companyData = await getcompanyData();
+                setCompanies(companyData);
 
-            // Obtiene los datos de las compañías
-            const companyData = await getcompanyData();
-            setCompanies(companyData);
-
-            if (id && location.state?.objectID) { // Modo edición
                 const objectID = location.state.objectID;
 
-                // Valida el company_id del objeto teacher antes de establecerlo
+                // Valida si el company_id del objeto es válido
                 const validCompanyId = companyData.some(company => company.id === objectID.company_id)
                     ? objectID.company_id
                     : '';
 
-                setTeacher({
-                    ...objectID,
+                // Actualiza el estado de teacher solo con las propiedades necesarias
+                setTeacher(prevTeacher => ({
+                    ...prevTeacher,
                     company_id: validCompanyId
-                });
-                setIsNewTeacher(false);
-            } else { // Modo creación
-                setTeacher({
-                    name: '',
-                    surname: '',
-                    email: '',
-                    start_date: '',
-                    leave_date: '',
-                    colour: '',
-                    text_colour: '',
-                    start_hours: '',
-                    contract_hours: '',
-                    company_id: '',
-                    user_role: '',
-                });
-                setIsNewTeacher(true);
-            }
+                }));
 
-            setLoading(false); // Finaliza la carga
+            } catch (error) {
+                console.error('Error al obtener los datos de la compañía:', error);
+            }
         };
 
-        fetchData();
-    }, [id, location.state, token]);
+        setRoles(['super_admin', 'admin', 'teacher', 'director']); // Establece los roles
 
+        // Modo edición
+        if (id && location.state?.objectID) {
+            const { company_id, ...rest } = location.state.objectID;
+
+            // Actualiza teacher con las propiedades de rest
+            setTeacher({
+                ...rest,
+                company_id: '', // Inicializa company_id como vacío
+            });
+
+            fetchData(); // Obtiene y valida company_id
+
+            setIsNewTeacher(false);
+        } else { // Modo creación
+            // Establece teacher con valores predeterminados
+            setTeacher({
+                name: '',
+                surname: '',
+                email: '',
+                start_date: '',
+                leave_date: '',
+                colour: '',
+                text_colour: '',
+                start_hours: '',
+                contract_hours: '',
+                company_id: '',
+                user_role: '',
+            });
+
+            setIsNewTeacher(true);
+        }
+
+        setLoading(false); // Finaliza la carga
+    }, [id, location.state, token]);
     // Función para obtener los datos de las compañías
     async function getcompanyData() {
         try {
@@ -251,7 +268,7 @@ function TeacherForm() {
     return (
         <Box sx={{ p: 3, width: '100%' }}>
             <Typography variant="h10" sx={{ mb: 3 }}>
-                <Link to="/teacher" color="primary" underline="hover" style={{textDecoration: "none"}}>
+                <Link to="/teacher" color="primary" underline="hover" style={{ textDecoration: "none" }}>
                     Teachers /
                 </Link>
 
