@@ -316,7 +316,7 @@ function CalendarByTeacher() {
                                     p={2}
                                     >
                                     <FormControlLabel control={<Switch checked={fullWidth} onChange={handleSwitchChange} name="fullWidth"/>} label="Allow Scroll" />
-                                    {role === 'admin' || 'super_admin' || 'company_admin' ? 
+                                    {role === 'admin' || role === 'super_admin' ? 
                                     <>
                                         <FormControlLabel control={<Switch checked={allowEdit} onChange={handleSwitchChange} name="allowEdit"/>} label="Allow Edit" />
                                         <FormControlLabel control={<Switch disabled={!allowEdit} checked={updateFuture} onChange={handleSwitchChange} name="update"/>} label="Update this and future classes" name="update"/>

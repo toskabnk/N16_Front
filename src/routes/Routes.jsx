@@ -30,6 +30,7 @@ import ErrorBoundaryWrapper from '../components/ErrorBoundary/ErrorBoundaryWrapp
 import ProtectedSuperAdminRoutes from './ProtectedSuperAdminRoutes.jsx';
 import ProtectedTeacherRoutes from './ProtectedTeacherRoutes.jsx';
 import ProtectedHolidayRoutes from './ProtectedHolidayRoutes.jsx';
+import ProtectedCompanyRoutes from './ProtectedCompanyRoutes.jsx';
 import NotFound from '../pages/NotFound.jsx';
 
 /**
@@ -56,11 +57,13 @@ const Routes = () => {
                         <Route path="/myCalendar" element={<MyCalendar/>} />
                     </Route>
                     {/* Rutas solo para admin y super_admin */}
-                    <Route element={<ProtectedAdminRoutes/>}>
+                    <Route element={<ProtectedCompanyRoutes/>}>
                         <Route path="/dashboard" element={<Dashboard/>} />
-                        <Route path="/newEvent" element={<NewEvent/>} />
                         <Route path="/teachingHours" element={<TeachingHours/>} />
                         <Route path="/calendarByTeacher" element={<CalendarByTeacher/>} />
+                        <Route element={<ProtectedCompanyRoutes/>}>
+                            <Route path="/newEvent" element={<NewEvent/>} />
+                        </Route>
                     </Route>
                     {/* Rutas solo para super_admin */}
                     <Route element={<ProtectedSuperAdminRoutes/>}>

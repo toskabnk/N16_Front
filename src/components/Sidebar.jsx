@@ -64,7 +64,7 @@ function SidebarComponent({ openSidebar }) {
         <Menu>
           <CustomMenuItem active={location.pathname === '/dashboard'} component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</CustomMenuItem>
           <CustomMenuItem active={location.pathname === '/calendar'} component={<Link to="/calendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By classroom" color="primary" size="small" /></CustomMenuItem>
-          {role === 'admin' || role === 'super_admin' ? <CustomMenuItem active={location.pathname === '/calendarByTeacher'} component={<Link to="/calendarByTeacher" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By teacher" color="primary" size="small" /></CustomMenuItem> : null}
+          {role === 'admin' || role === 'super_admin' || role === 'director' ? <CustomMenuItem active={location.pathname === '/calendarByTeacher'} component={<Link to="/calendarByTeacher" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="By teacher" color="primary" size="small" /></CustomMenuItem> : null}
           {role === 'teacher' ? <CustomMenuItem active={location.pathname === '/myCalendar'} component={<Link to="/myCalendar" />} icon={<CalendarTodayIcon />}> Calendar <Chip label="My calendar" color="primary" size="small" /></CustomMenuItem> : null}
           {role === 'super_admin' ? (
             <>
@@ -92,7 +92,7 @@ function SidebarComponent({ openSidebar }) {
             </>
           ) : null}
           {role === 'teacher' || role === 'super_admin' ? <CustomMenuItem active={location.pathname === '/holiday'} component={<Link to="/holiday" />} icon={<LightModeIcon />}> Holidays</CustomMenuItem> : null}
-          {role === 'admin' || role === 'super_admin' ? <CustomMenuItem active={location.pathname === '/techingHours'} component={<Link to="/teachingHours" />} icon={<AccessTimeIcon />}> Teaching hours</CustomMenuItem> : null}
+          {role === 'admin' || role === 'super_admin' || role === 'director' ? <CustomMenuItem active={location.pathname === '/techingHours'} component={<Link to="/teachingHours" />} icon={<AccessTimeIcon />}> Teaching hours</CustomMenuItem> : null}
           {role === 'super_admin' ? (
             <>
               <SubMenu label="Logs" icon={<ListIcon />}>

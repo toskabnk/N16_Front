@@ -331,35 +331,42 @@ function CalendarByClassroom() {
         setOpenBackDrop(true);
         setEvent(info.event);
 
-        // Cargamos los profesores, departamentos y tipos de evento antes de abrir el diálogo
-        Promise.all([loadTeachers(), loadDepartments(), loadEventTypes()])
-        .then(() => {
-            // Todas las llamadas se completaron correctamente
+        //Si es admin o super_admin cargamos los datos
+        if (role === 'admin' || role === 'super_admin') {
+            // Cargamos los profesores, departamentos y tipos de evento antes de abrir el diálogo
+            Promise.all([loadTeachers(), loadDepartments(), loadEventTypes()])
+            .then(() => {
+                // Todas las llamadas se completaron correctamente
+                setOpenBackDrop(false);
+                setEventEdit(true);
+            })
+            .catch((error) => {
+                // Si alguna llamada falla, ya se maneja dentro de cada función
+                console.error("Ocurrió un error en alguna de las llamadas:", error);
+                showSnackbar('Something went wrong, please try again later', {
+                    variant: 'error',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button
+                                size='small'
+                                onClick={() => alert(`Error: ${error.message}`)}
+                            >
+                                Detail
+                            </Button>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
+                // No necesitamos setOpenBackDrop(false) aquí porque se maneja en las funciones individuales
+            });
+            //Si no, solo abrimos el diálogo con los datos del event
+        } else {
             setOpenBackDrop(false);
             setEventEdit(true);
-        })
-        .catch((error) => {
-            // Si alguna llamada falla, ya se maneja dentro de cada función
-            console.error("Ocurrió un error en alguna de las llamadas:", error);
-            showSnackbar('Something went wrong, please try again later', {
-                variant: 'error',
-                autoHideDuration: 6000,
-                action: (key) => (
-                    <Fragment>
-                        <Button
-                            size='small'
-                            onClick={() => alert(`Error: ${error.message}`)}
-                        >
-                            Detail
-                        </Button>
-                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
-                            Dismiss
-                        </Button>
-                    </Fragment>
-                ),
-            });
-            // No necesitamos setOpenBackDrop(false) aquí porque se maneja en las funciones individuales
-        });
+        }
     }
 
     /**
@@ -517,7 +524,7 @@ function CalendarByClassroom() {
                                     p={2}
                                     >
                                     <FormControlLabel control={<Switch checked={fullWidth} onChange={handleSwitchChange} name="fullWidth"/>} label="Allow Scroll" />
-                                    {role === 'admin' || 'super_admin' || 'company_admin' ? 
+                                    {role === 'admin' || role === 'super_admin' ? 
                                     <>
                                         <FormControlLabel control={<Switch checked={allowEdit} onChange={handleSwitchChange} name="allowEdit"/>} label="Allow Edit" />
                                         <FormControlLabel control={<Switch disabled={!allowEdit} checked={updateFuture} onChange={handleSwitchChange} name="update"/>} label="Update this and future classes" name="update"/>
@@ -569,7 +576,7 @@ function CalendarByClassroom() {
                 onClose={() => setEventEdit(false)}
                 sx={{ zIndex: 1300}}>
                     <DialogTitle sx={{ m: 0, p: 2 }} id="dialog">
-                        {role === 'admin' || 'super_admin' || 'company_admin' ? 
+                        {role === 'admin' || role === 'super_admin' ? 
                             "Edit event"
                             : "Class summary"}
                     </DialogTitle>
@@ -585,7 +592,7 @@ function CalendarByClassroom() {
                             <CloseIcon/>
                     </IconButton>
                     <DialogContent>
-                        {role === 'admin' || 'super_admin' || 'company_admin' ? 
+                        {role === 'admin' || role === 'super_admin' ? 
                             <EditEventStepper teachers={teachers} classrooms={classroomData} departments={departments} eventTypes={eventTypes} event={event} events={eventsDataByDate} setEvents={setEventsDataByDate} closeDialog={setEventEdit} token={token}/>
                             : <ClassSummary event={event} />}
                     </DialogContent>
