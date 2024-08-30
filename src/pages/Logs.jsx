@@ -40,10 +40,10 @@ function Logs() {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true); // Estado de carga
     const historyColumns = [
-        { field: 'user', headerName: 'user', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'action', headerName: 'action', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'entity', headerName: 'entity', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'updated_at', headerName: 'updated_at', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'user', headerName: 'User', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'action', headerName: 'Action', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'entity', headerName: 'Entity', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'updated_at', headerName: 'Updated_at', flex: 1, resizable: true, overflow: 'hidden' },
         {
             field: 'details',
             headerName: 'Details',
