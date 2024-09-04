@@ -5,7 +5,6 @@ import FormikTextField from "../components/FormikTextField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
-import eventTypeService from "../services/eventTypeService";
 import Swal from "sweetalert2";
 import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 import FormGrid from "../components/FormGrid";

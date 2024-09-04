@@ -10,10 +10,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Alert, IconButton } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import { StyledFullCenter } from '../styles/StyledContainers';
 import { login } from '../services/authService';
 import backgroundImage from '../assets/background.jpg';
-import logoImage from '../assets/n16.webp';
 
 /**
  * Pagina de login

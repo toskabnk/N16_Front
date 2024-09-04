@@ -7,7 +7,6 @@ import TeacherService from "../services/teacherService";
 import CompanyService from "../services/companyService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import Swal from "sweetalert2";
-import { rest } from 'lodash';
 
 function TeacherForm() {
     //Token

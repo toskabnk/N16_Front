@@ -100,8 +100,6 @@ function UserForm() {
         }
         fetchData();
         setLoading(false); // Finaliza la carga
-
-        setLoading(false); // Finaliza la carg
     }, [id, location.state, token]);
 
     useEffect(() => {
