@@ -3,7 +3,7 @@ import ListDataGrid from "../components/ListDataGrid";
 
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, Fragment, } from "react";
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import LogsService from "../services/historyLogService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import UserService from "../services/userService";
@@ -12,17 +12,20 @@ import Swal from "sweetalert2";
 function Logs() {
 
     //Funcion para formatear los valores sin comparar. Originales basicamente.
-    const formatValue = (value) => {
+    const formatValue = (value, level = 0) => {
+
+        const indent = '&nbsp;'.repeat(level * 4);
+        
         if (value === undefined || value === null) {
             return 'null';
         } else if (typeof value === 'object' && value.$date) {
             return formatDateFromJson(value); //epoch. ver comment abajo
         } else if (typeof value === 'object') {
-            let result = '';
+            let result = `<br />`;
             for (const key in value) {
                 if (value.hasOwnProperty(key)) {
-                    const formattedValue = formatValue(value[key]); // recursividad maravillosa por si acaso hay datos anidados. esto hace tambien que se pinte de la misma forma que el updated entity, ya que se tratan igual.
-                    result += `<strong>${key}:</strong> ${formattedValue}<br />`;
+                    const formattedValue = formatValue(value[key], level + 1); // recursividad maravillosa por si acaso hay datos anidados. esto hace tambien que se pinte de la misma forma que el updated entity, ya que se tratan igual.
+                    result += `${indent}<strong>${key}:</strong> ${formattedValue}<br />`;
                 }
             }
             return result; // Retornamos el texto final formateado con <br />
@@ -53,7 +56,7 @@ function Logs() {
     };
     //comparacion de objetos para pintar las diferencias.
     const formatJsonWithHighlightedDiff = (originalObj, updatedObj) => {
-        let result = '';
+        let result = `<br />`;
         //pasamos el obj/json entero como clave/valor
         const allKeys = new Set([...Object.keys(originalObj || {}), ...Object.keys(updatedObj || {})]);
         allKeys.forEach(key => {
@@ -64,7 +67,7 @@ function Logs() {
             if (updatedValue && typeof updatedValue === 'object' && updatedValue.$date) {
                 updatedValue = formatDateFromJson(updatedValue);
             }
-    
+
             if (originalValue && typeof originalValue === 'object' && originalValue.$date) {
                 originalValue = formatDateFromJson(originalValue);
             }
@@ -72,7 +75,7 @@ function Logs() {
 
             const safeOriginalValue = originalValue !== undefined && originalValue !== null ? originalValue : 'null';
             const safeUpdatedValue = updatedValue !== undefined && updatedValue !== null ? updatedValue : 'null';
-    
+
             // buscamos diferencias y las pintamos (o no)
             if (safeOriginalValue !== safeUpdatedValue) {
                 result += `<strong>${key}:</strong> <span style="color: red;">${formatValue(safeUpdatedValue)}</span><br />`;
