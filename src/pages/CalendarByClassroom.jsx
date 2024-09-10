@@ -560,6 +560,7 @@ function CalendarByClassroom() {
                             endParam='end_date'
                             slotMinTime='07:00:00'
                             slotMaxTime='23:00:00'
+                            eventMinHeight={10}
                             allDaySlot={false}
                             initialView='resourceTimeGridDay'
                             events={eventsDataByDate}

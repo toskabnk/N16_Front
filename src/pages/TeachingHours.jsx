@@ -377,6 +377,7 @@ function TeachingHours() {
                                             <Typography variant="h7">Filter By Company</Typography>
                                             <Autocomplete
                                                 fullWidth
+                                                autoHighlight
                                                 loading={loadingCompanies}
                                                 id="company_id"
                                                 options={companies}
@@ -460,6 +461,7 @@ function TeachingHours() {
                                                 <Stack direction="row" spacing={2}>
                                                     <Autocomplete
                                                         fullWidth
+                                                        autoHighlight
                                                         multiple
                                                         disableCloseOnSelect
                                                         options={eventTypes}
@@ -517,6 +519,7 @@ function TeachingHours() {
                                                 <Stack direction="row" spacing={2}>
                                                     <Autocomplete
                                                         fullWidth
+                                                        autoHighlight
                                                         multiple
                                                         disableCloseOnSelect
                                                         options={departments}

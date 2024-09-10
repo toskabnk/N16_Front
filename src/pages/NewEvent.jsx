@@ -35,6 +35,7 @@ function NewEvent () {
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     //Estados para las aulas
     const [classrooms, setClassrooms] = useState([]);
+    const [unfilteredClassrooms, setUnfilteredClassrooms] = useState([]);
     const [classroomValue, setClassroomValue] = useState('');
     const [selectedClassroom, setSelectedClassroom] = useState(null);
     //Estados para los grupos
@@ -125,6 +126,7 @@ function NewEvent () {
         try {
             const response = await classroomService.getAll(token);
             setClassrooms(response.data);
+            setUnfilteredClassrooms(response.data);
             console.log(response);
             setLoadingClassrooms(false);
         }
@@ -413,6 +415,16 @@ function NewEvent () {
         }
     }, [selectedGroup]);
 
+    useEffect(() => {
+        //Filtra las aulas cuando hay una compañia seleccionada
+        if(selectedCompany){
+            const filteredClassrooms = unfilteredClassrooms.filter((classroom) => classroom.company_id === selectedCompany.id);
+            setClassrooms(filteredClassrooms);
+        } else {
+            setClassrooms(unfilteredClassrooms);
+        }
+    }, [selectedCompany]);
+
     const generateDates = () => {
         //Genera un range de fechas entre startDate y endDate con los días de la semana seleccionados en daysOfWeek
         let dates = [];
@@ -498,6 +510,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingEventTypes}
                                     id="event_type_id"
                                     options={eventTypes}
@@ -543,6 +556,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingCompanies}
                                     id="company_id"
                                     options={companies}
@@ -587,6 +601,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingClassrooms}
                                     id="classroom_id"
                                     options={classrooms}
@@ -632,6 +647,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingTeachers}
                                     id="teacher_id"
                                     options={teachers}
@@ -677,6 +693,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingGroups}
                                     id="group_id"
                                     options={groups}
@@ -727,6 +744,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingDepartments}
                                     id="department_id"
                                     options={departments}

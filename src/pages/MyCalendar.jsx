@@ -124,6 +124,7 @@ function MyCalendar() {
                                 right: 'prev,next today timeGridWeek,timeGridDay'
                             }}
                             events={events}
+                            eventMinHeight={10}
                             datesSet={handleDatesSet}
                             allDaySlot={false}
                             startParam='start_date'

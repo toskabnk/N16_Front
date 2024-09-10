@@ -212,6 +212,7 @@ function ClassroomForm(){
                 <Grid item xs={12} md={12}>
                     <Autocomplete
                         fullWidth
+                        autoHighlight
                         loading={loadingCompanies}
                         id="company_id"
                         options={companies}
