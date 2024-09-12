@@ -1,4 +1,5 @@
-import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl, FormLabel, FormHelperText, } from '@mui/material';
+import { Box, TextField, Paper, Typography, InputLabel, Grid, MenuItem, Select, Button, FormControl, FormLabel, FormHelperText, InputAdornment, IconButton } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { HexColorPicker } from 'react-colorful';
 import { useSelector } from "react-redux";
 import React, { useEffect, useState, Fragment, } from "react";
@@ -7,6 +8,28 @@ import TeacherService from "../services/teacherService";
 import CompanyService from "../services/companyService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import Swal from "sweetalert2";
+
+const getBrightness = (hexColor) => {
+    // Eliminar el símbolo '#'
+    let color = hexColor.replace('#', '');
+    if (color.length === 3) {
+        color = color.split('').map(c => c + c).join('');
+    }
+    // Convertir el color a componentes RGB
+    const r = parseInt(color.substring(0, 2), 16);
+    const g = parseInt(color.substring(2, 4), 16);
+    const b = parseInt(color.substring(4, 6), 16);
+
+    // Calcular el brillo
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+};
+
+
+const isValidHex = (hex) => {
+    // color hex 
+    return /^#([0-9A-F]{3}){1,2}$/i.test(hex);
+};
+
 
 function TeacherForm() {
     //Token
@@ -135,21 +158,40 @@ function TeacherForm() {
     };
 
     const handleColorChange = (colorType) => (color) => {
+        // Asegurarse de que el color comience con '#'
+        let updatedColor = color;
+        if (updatedColor && !updatedColor.startsWith('#')) {
+            updatedColor = `#${updatedColor}`;
+        }
+        // Limitar a 7 caracteres (incluyendo '#')
+        updatedColor = updatedColor.slice(0, 7);
         setTeacher({
             ...teacher,
-            [colorType]: color,
+            [colorType]: updatedColor,
         });
-        if (colorType === 'colour' && color !== '') {
-            setColour(true);
+
+        // Validar el color hex
+        if (isValidHex(updatedColor)) {
+   
+            if (colorType === 'colour' && updatedColor !== '') {
+                setColour(true);
+            }
+    
+            if (colorType === 'text_colour' && updatedColor !== '') {
+                settext_colour(true);
+            }
+        } else {
+            // Manejar el caso en que el color no es válido
+            if (colorType === 'colour') {
+                setColour(false);
+            }
+    
+            if (colorType === 'text_colour') {
+                settext_colour(false);
+            }
         }
-
-        if (colorType === 'text_colour' && color !== '') {
-            settext_colour(true);
-        }
-
-
-
     };
+    
 
     //Función para borrar un teacher. Muestra un mensaje de confirmación antes de borrar.
     const handleDelete = async () => {
@@ -265,6 +307,10 @@ function TeacherForm() {
         }
     };
 
+    const handleCopyToClipboard = (text) => {
+        navigator.clipboard.writeText(text);
+    };
+
     return (
         <Box sx={{ p: 3, width: '100%' }}>
             <Typography variant="h10" sx={{ mb: 3 }}>
@@ -353,36 +399,83 @@ function TeacherForm() {
                                 </FormControl>
                             </Box>
 
-
                             {/* Main Color Picker */}
                             <Box sx={{ mb: 2 }}>
                                 <FormLabel component="legend">Main Color</FormLabel>
                                 {(colourmissing && !colour_set) && (
                                     <FormHelperText sx={{ color: 'red' }}> Please select a colour</FormHelperText>
                                 )}
-                                <Box
-                                    sx={{
-                                        mt: 2,
-                                        height: 40,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'left',
-                                        pl: 2,
-                                        backgroundColor: teacher.colour,
-                                        borderRadius: 1,
-                                        border: '1px solid #ccc',
-                                        cursor: 'pointer',
-                                        mb: 2,
-                                    }}
-                                    onClick={() => setShowMainColorPicker(!showMainColorPicker)}
-                                >
-                                    <Typography variant="body2" sx={{ color: '#fff', fontWeight: 'bold' }}>
-                                        Hex: {teacher.colour ? teacher.colour.toUpperCase() : ''}
-                                    </Typography>
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                    <Box
+                                        sx={{
+                                            mt: 2,
+                                            height: 40,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            backgroundColor: teacher.colour,
+                                            borderRadius: 1,
+                                            border: '1px solid #ccc',
+                                            cursor: 'pointer',
+                                            flex: 1, // Ocupa todo el espacio disponible
+                                            mr: 1, // Margen a la derecha para separar del botón
+                                        }}
+                                        onClick={() => setShowMainColorPicker(!showMainColorPicker)} // Despliega el color picker al hacer clic
+                                    >
+                                        <TextField
+                                            variant="outlined"
+                                            size="small"
+                                            value={teacher.colour ? teacher.colour.toUpperCase() : ''}
+                                            onChange={(e) => handleColorChange('colour')(e.target.value)}
+                                            onFocus={(e) => e.target.select()}
+                                            inputProps={{ maxLength: 7 }} // Limita la entrada a 7 caracteres
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <Typography sx={{ color: !isValidHex(teacher.colour) ? '#000' : (getBrightness(teacher.colour) < 0.5 ? '#fff' : '#000') }}>
+                                                            Hex:
+                                                        </Typography>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            sx={{
+                                                width: '150px',
+                                                border: 'none',
+                                                backgroundColor: 'transparent',
+                                                input: {
+                                                    color: !isValidHex(teacher.colour) ? '#000' : (getBrightness(teacher.colour) < 0.5 ? '#fff' : '#000'),
+                                                    fontWeight: 'bold',
+                                                    padding: 0,
+                                                },
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    border: 'none',
+                                                },
+                                            }}
+                                        />
+                                    </Box>
+
+                                    {/* Botón para copiar */}
+                                    <IconButton
+                                        onClick={() => handleCopyToClipboard(teacher.colour)}
+                                        edge="end"
+                                        sx={{
+                                            height: 40, // Asegúrate de que el botón tenga la misma altura que el TextField
+                                            color: '#000',
+                                            backgroundColor: '#f0f0f0',
+                                            borderRadius: 1,
+                                            border: '1px solid #ccc',
+                                            mt: 2,
+                                            mr: 1
+                                        }}
+                                    >
+                                        <ContentCopyIcon />
+                                    </IconButton>
                                 </Box>
+
                                 {showMainColorPicker && (
                                     <FormControl fullWidth>
                                         <HexColorPicker
+                                            style={{ width: '100%', marginTop: 4 }}
                                             color={teacher.colour}
                                             onChange={handleColorChange('colour')}
                                         />
@@ -390,42 +483,91 @@ function TeacherForm() {
                                 )}
                             </Box>
 
+
                             {/* Text Color Picker */}
                             <Box sx={{ mb: 2 }}>
                                 <FormLabel component="legend">Text Color</FormLabel>
                                 {(colourmissing && !text_colour_set) && (
                                     <FormHelperText sx={{ color: 'red' }}> Please select a colour</FormHelperText>
                                 )}
-                                <Box
-                                    sx={{
-                                        mt: 2,
-                                        height: 40,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'left',
-                                        pl: 2,
-                                        backgroundColor: teacher.text_colour,
-                                        borderRadius: 1,
-                                        border: '1px solid #ccc',
-                                        cursor: 'pointer',
-                                        mb: 2,
-                                    }}
-                                    onClick={() => setShowTextColorPicker(!showTextColorPicker)}
-                                >
-                                    <Typography variant="body2" sx={{ color: '#fff', fontWeight: 'bold' }}>
-                                        Hex: {teacher.text_colour ? teacher.text_colour.toUpperCase() : ''}
-                                    </Typography>
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                    <Box
+                                        sx={{
+                                            mt: 2,
+                                            height: 40,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            backgroundColor: teacher.text_colour,
+                                            borderRadius: 1,
+                                            border: '1px solid #ccc',
+                                            cursor: 'pointer',
+                                            flex: 1, // Ocupa todo el espacio disponible
+                                            mr: 1, // Margen a la derecha para separar del botón
+                                        }}
+
+                                        onClick={() => setShowTextColorPicker(!showTextColorPicker)}
+                                    >
+                                        <TextField
+                                            variant="outlined"
+                                            size="small"
+                                            value={teacher.text_colour ? teacher.text_colour.toUpperCase() : ''}
+                                            onChange={(e) => handleColorChange('text_colour')(e.target.value)}
+                                            onFocus={(e) => e.target.select()}
+                                            inputProps={{ maxLength: 7 }} // Limita la entrada a 7 caracteres
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <Typography sx={{ color: !isValidHex(teacher.text_colour) ? '#000' : (getBrightness(teacher.text_colour) < 0.5 ? '#fff' : '#000') }}>
+                                                            Hex:
+                                                        </Typography>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            sx={{
+                                                width: '150px',
+                                                border: 'none',
+                                                backgroundColor: 'transparent',
+                                                input: {
+                                                    color: !isValidHex(teacher.text_colour) ? '#000' : (getBrightness(teacher.text_colour) < 0.5 ? '#fff' : '#000'), //si el color no es valido, el box es blanco asi que fijamos el texto negro. Si es valido calculamos el brillo para que se pueda leer en B o N.
+                                                    fontWeight: 'bold',
+                                                    padding: 0,
+                                                },
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    border: 'none',
+                                                }
+                                            }}
+                                        />
+                                    </Box>
+
+                                    {/* Botón para copiar */}
+                                    <IconButton
+                                        onClick={() => handleCopyToClipboard(teacher.text_colour)}
+                                        edge="end"
+                                        sx={{
+                                            height: 40, // Asegúrate de que el botón tenga la misma altura que el TextField
+                                            color: '#000',
+                                            backgroundColor: '#f0f0f0',
+                                            borderRadius: 1,
+                                            border: '1px solid #ccc',
+                                            mt: 2,
+                                            mr: 1
+
+                                        }}
+                                    >
+                                        <ContentCopyIcon />
+                                    </IconButton>
                                 </Box>
                                 {showTextColorPicker && (
                                     <FormControl fullWidth>
                                         <HexColorPicker
+                                            style={{ width: '100%', marginTop: 4 }}
                                             color={teacher.text_colour}
                                             onChange={handleColorChange('text_colour')}
                                         />
                                     </FormControl>
                                 )}
                             </Box>
-
 
                             <Box sx={{ mb: 2 }}>
                                 <FormControl fullWidth>
@@ -490,7 +632,7 @@ function TeacherForm() {
                     </Paper>
                 </Grid>
             </Grid>
-        </Box>
+        </Box >
     );
 }
 
