@@ -412,6 +412,19 @@ function NewEvent () {
             //Days of week
             setDaysOfWeek(selectedGroup?.days_of_the_week);
             formik.setFieldValue('daysOfWeek', selectedGroup?.days_of_the_week);
+            //Start time
+            if(selectedGroup.start_time){
+                const [horas, minutos] = selectedGroup.start_time.split(":");
+                setStartHour(dayjs().hour(horas).minute(minutos));
+                formik.setFieldValue('start_time', dayjs().hour(horas).minute(minutos));
+            }
+            //End time
+            if(selectedGroup.end_time){
+                const [horas, minutos] = selectedGroup.end_time.split(":");
+                setEndHour(dayjs().hour(horas).minute(minutos));
+                formik.setFieldValue('end_time', dayjs().hour(horas).minute(minutos));
+            }
+
         }
     }, [selectedGroup]);
 
