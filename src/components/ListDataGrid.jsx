@@ -1,9 +1,9 @@
 import { Button, Grid, Paper, Typography } from "@mui/material"
-import { Box } from "@mui/system"
+import { Box, Stack } from "@mui/system"
 import { DataGrid } from "@mui/x-data-grid"
 import { Link, useNavigate } from "react-router-dom";
 
-const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, loading = false, noClick = false, createButton = true, filterComponent = null }) => {
+const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, loading = false, noClick = false, createButton = true , filterComponent = [], sort = []  }) => {
     //Hooks
     const navigate = useNavigate();
 
@@ -12,6 +12,9 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
         console.log(params.row);
         navigate(`${url}/${params.id}`, { state: { objectID: params.row } });
     };
+
+    const components = [filterComponent]
+
 
     return (
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
@@ -46,12 +49,17 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                                     <Button variant="contained" color="primary" onClick={() => navigate(`${url}/new`)}>{buttonName}</Button>
                                 ) : null}
                             </Box>
-                            <Box
-                                sx={{ display: 'flex', justifyContent: 'space-between' }}
-                                gap={4}
-                                px={2}>
-                                {filterComponent}
-                            </Box>
+                            <Stack direction="row" spacing={2}>
+                            {components.map((filterComponentT, index) => (
+                                <Box
+                                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                                    gap={4}
+                                    px={2}
+                                    key={index}>
+                                    {filterComponentT}
+                                </Box>
+                            ))}
+                            </Stack>
                         </Grid>
 
                         <Grid item xs={12} md={12}>
@@ -65,6 +73,9 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                                     initialState={{
                                         pagination: {
                                             paginationModel: { page: 0, pageSize: 10 },
+                                        },
+                                        sorting: {
+                                            sortModel: [sort],
                                         },
                                     }}
                                     pageSizeOptions={[5, 10, 20, 50]}
