@@ -549,7 +549,7 @@ function CalendarByClassroom() {
                                         ]}
                             resources={(companyName.length!=0 || classroomNameSearch.length!=0)  ? classroomDataFiltered: classroomData}
                             //No cambiar, asi muestra las aulas en el orden de la API
-                            resourceOrder="_IDD"
+                            resourceOrder="order"
                             {...(fullWidth ? { dayMinWidth: 100 } : {})} // Condicional para dayMinWidth
                             stickyFooterScrollbar={true}
                             expandRows={true}
