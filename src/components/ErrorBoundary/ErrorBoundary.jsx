@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
 import { Box, Stack } from '@mui/system';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import image from '/src/assets/navegador.webp';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -47,7 +48,7 @@ class ErrorBoundary extends Component {
           sx={{ margin: 'auto', width: '60%' }}
         >
           <Box component="img" 
-            src="/src/assets/navegador.webp" 
+            src={image}
             alt="Error" 
             margin={2}
             sx={{
