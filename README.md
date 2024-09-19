@@ -31,6 +31,11 @@ Once the dependencies are installed, you can run the project in a local environm
 npm run dev
 ```
 
+Also, you can expose the proyect to your network by executing the following command in a terminal:
+```shell
+npm run host
+```
+
 ## Compilation
 
 To compile the project, run the following command in a terminal
