@@ -1,5 +1,4 @@
 import { Box, TextField, Paper, Grid, Button, Select, InputLabel, FormControl, Typography, Autocomplete, Link } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 import ListDataGrid from "../components/ListDataGrid";
 
 import { useSelector } from "react-redux";
@@ -9,26 +8,86 @@ import LogsService from "../services/historyLogService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import UserService from "../services/userService";
 import Swal from "sweetalert2";
-import { startCase } from 'lodash';
 
 function Logs() {
 
-    // Función para convertir fechas y objetos en cadenas legibles
-    const formatValue = (value) => {
+    //Funcion para formatear los valores sin comparar. Originales basicamente.
+    const formatValue = (value, level = 0) => {
 
-        if (value instanceof Date) {
-            try {
-                return value.toISOString(); // O usa algún formato de fecha específico
-            }
-            catch (error) {
-                return value.toString();
-            }
+        const indent = '&nbsp;'.repeat(level * 4);
+        
+        if (value === undefined || value === null) {
+            return 'null';
+        } else if (typeof value === 'object' && value.$date) {
+            return formatDateFromJson(value); //epoch. ver comment abajo
         } else if (typeof value === 'object') {
-            return JSON.stringify(value, null, 4); // Convierte objetos en cadenas JSON
+            let result = `<br />`;
+            for (const key in value) {
+                if (value.hasOwnProperty(key)) {
+                    const formattedValue = formatValue(value[key], level + 1); // recursividad maravillosa por si acaso hay datos anidados. esto hace tambien que se pinte de la misma forma que el updated entity, ya que se tratan igual.
+                    result += `${indent}<strong>${key}:</strong> ${formattedValue}<br />`;
+                }
+            }
+            return result; // Retornamos el texto final formateado con <br />
         } else {
-            return value; // Retorna el valor tal cual si no es objeto
+            return value.toString(); // Para otros tipos de datos, los convertimos a string
         }
     };
+    //Funcion para formatear las fechas en que nos vienen en epoch del back. En teoria si el back se actualiza esto deja de detectarlo y deberia funcionar solo.
+    const formatDateFromJson = (dateObj) => {
+        if (dateObj && dateObj.$date && dateObj.$date.$numberLong) {
+            //INT>DATE>ISO
+            const timestamp = parseInt(dateObj.$date.$numberLong, 10);
+            const date = new Date(timestamp);
+            return date.toISOString();
+        }
+        return dateObj; //just in case
+    };
+    //comparacion simple de valores para pintar las diferencias.
+    const formatValueWithDiff = (originalValue, updatedValue) => {
+        const originalFormatted = formatValue(originalValue);
+        const updatedFormatted = formatValue(updatedValue);
+
+        if (originalFormatted !== updatedFormatted) {
+            return `
+                <span style="color: red;">${updatedFormatted}</span>`;
+        }
+        return updatedFormatted;
+    };
+    //comparacion de objetos para pintar las diferencias.
+    const formatJsonWithHighlightedDiff = (originalObj, updatedObj) => {
+        let result = `<br />`;
+        //pasamos el obj/json entero como clave/valor
+        const allKeys = new Set([...Object.keys(originalObj || {}), ...Object.keys(updatedObj || {})]);
+        allKeys.forEach(key => {
+            let originalValue = originalObj ? originalObj[key] : undefined;
+            let updatedValue = updatedObj ? updatedObj[key] : undefined;
+
+            // si tenemos fechas epoch las pasamos a ISO con la funcion de arriba
+            if (updatedValue && typeof updatedValue === 'object' && updatedValue.$date) {
+                updatedValue = formatDateFromJson(updatedValue);
+            }
+
+            if (originalValue && typeof originalValue === 'object' && originalValue.$date) {
+                originalValue = formatDateFromJson(originalValue);
+            }
+
+
+            const safeOriginalValue = originalValue !== undefined && originalValue !== null ? originalValue : 'null';
+            const safeUpdatedValue = updatedValue !== undefined && updatedValue !== null ? updatedValue : 'null';
+
+            // buscamos diferencias y las pintamos (o no)
+            if (safeOriginalValue !== safeUpdatedValue) {
+                result += `<strong>${key}:</strong> <span style="color: red;">${formatValue(safeUpdatedValue)}</span><br />`;
+            } else {
+                result += `<strong>${key}:</strong> ${formatValue(safeUpdatedValue)}<br />`;
+            }
+        });
+
+        return result;
+    };
+
+
     //Hooks
     const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Token
@@ -51,45 +110,52 @@ function Logs() {
             renderCell: (params) => {
                 const handleClick = () => {
                     const { original_entity, updated_entity } = params.row;
-                    const originalEntityEmpty = !original_entity || Object.keys(original_entity).length === 0;
-                    const updatedEntityEmpty = !updated_entity || Object.keys(updated_entity).length === 0;
-
+                    const originalEntityEmpty = !original_entity || Object.keys(original_entity).length === 0 || params.row.action === 'create';
+                    const updatedEntityEmpty = !updated_entity || Object.keys(updated_entity).length === 0 || params.row.action === 'delete';
+                    console.log('original_entity', original_entity);
+                    console.log('updated_entity', updated_entity);
                     // Crear contenido del popup
                     const originalEntityDetails = !originalEntityEmpty ? `
+                        <div style="width: 80%; text-align: left;">
+                        <h3>Original Entity</h3>
                         <strong>Name:</strong> ${formatValue(original_entity.name)}<br />
-                         <strong>Data:</strong> <pre style="text-align: left; white-space: pre-wrap;"> ${formatValue(original_entity)}</pre><br />
+                        <strong>Data:</strong> <pre style="text-align: left; white-space: pre-wrap;"> ${formatValue(original_entity)}</pre><br />
                         <strong>_id:</strong> ${formatValue(original_entity._id)}<br />
                         <strong>Updated at:</strong> ${formatValue(original_entity.updated_at)}<br />
                         <strong>Created at:</strong> ${formatValue(original_entity.created_at)}<br />
-                    ` : 'No Original Entity Data';
+                        </div>
+                    ` : '';
 
                     const updatedEntityDetails = !updatedEntityEmpty ? `
-                        <strong>Name:</strong> ${formatValue(updated_entity.name)}<br />
-                         <strong>Data:</strong> <pre style="text-align: left; white-space: pre-wrap;"> ${formatValue(updated_entity)}</pre><br />
-                        <strong>_id:</strong> ${formatValue(updated_entity._id)}<br />
-                        <strong>Updated at:</strong> ${formatValue(updated_entity.updated_at)}<br />
-                        <strong>Created at:</strong> ${formatValue(updated_entity.created_at)}<br />
-                    ` : 'No Updated Entity Data';
+                        <div style="width: 80%; text-align: left;">
+                        <h3>Updated Entity</h3>
+                        <strong>Name:</strong> ${formatValueWithDiff(original_entity.name, updated_entity.name)}<br />
+                        <strong>Data:</strong> <pre style="text-align: left; white-space: pre-wrap;"> ${formatJsonWithHighlightedDiff(original_entity, updated_entity)}</pre><br />
+                        <strong>_id:</strong> ${formatValueWithDiff(original_entity._id, updated_entity._id)}<br />
+                        <strong>Updated at:</strong> ${formatValueWithDiff(original_entity.updated_at, updated_entity.updated_at)}<br />
+                        <strong>Created at:</strong> ${formatValueWithDiff(original_entity.created_at, updated_entity.created_at)}<br />
+                        </div>
+                    ` : '';
+
+                    const containerStyle = (originalEntityDetails && updatedEntityDetails) ?
+                        'display: flex; justify-content: space-between;' :
+                        'display: flex; justify-content: center;';
+                    const swalWidth = (originalEntityDetails && updatedEntityDetails) ? 1200 : 1000;
+
 
                     // Mostrar el popup con SweetAlert2
                     Swal.fire({
                         title: 'Entity Details',
                         html: `
-                            <div style="display: flex; justify-content: space-between;">
-                                <div style="width: 45%; text-align: left;">
-                                    <h3>Original Entity</h3>
-                                    ${originalEntityDetails}
-                                </div>
-                                <div style="width: 45%; text-align: left;">
-                                    <h3>Updated Entity</h3>
-                                    ${updatedEntityDetails}
-                                </div>
+                            <div style="${containerStyle}">
+                                ${originalEntityDetails}
+                                ${updatedEntityDetails}
                             </div>
                         `,
-                        width: 1200,
+                        width: swalWidth,
                         padding: '3em',
                         confirmButtonText: 'Close',
-                        confirmButtonColor: '#3085d6',
+                        confirmButtonColor: 'primary',
                     });
                 };
 
@@ -221,7 +287,7 @@ const FilterComponent = ({ filterText, setFilterText, userData, user_id, setUser
             </FormControl>
             <FormControl fullWidth>
                 <TextField
-                 size='small'
+                    size='small'
                     label="Filter"
                     variant="outlined"
                     margin='none'

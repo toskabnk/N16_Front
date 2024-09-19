@@ -1,5 +1,5 @@
-import { Autocomplete, Button, Checkbox, Chip, CircularProgress, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Paper, Select, TextField, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Autocomplete, Button, Checkbox, Chip, CircularProgress, FormControl, FormControlLabel, FormGroup, Grid, InputLabel, MenuItem, OutlinedInput, Paper, Select, Switch, TextField, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/system";
 import FormikTextField from "../components/FormikTextField";
 import { useFormik } from "formik";
 import * as Yup from 'yup';
@@ -19,7 +19,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import eventService from "../services/eventService";
 import { Link, useNavigate } from "react-router-dom";
 import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
-
+import MultipleDatesPicker from '@ambiot/material-ui-multiple-dates-picker'
 
 function NewEvent () {
     //Hooks
@@ -35,6 +35,7 @@ function NewEvent () {
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     //Estados para las aulas
     const [classrooms, setClassrooms] = useState([]);
+    const [unfilteredClassrooms, setUnfilteredClassrooms] = useState([]);
     const [classroomValue, setClassroomValue] = useState('');
     const [selectedClassroom, setSelectedClassroom] = useState(null);
     //Estados para los grupos
@@ -68,7 +69,6 @@ function NewEvent () {
         {id: 4, name: 'Thursday'},
         {id: 5, name: 'Friday'},
         {id: 6, name: 'Saturday'},
-        {id: 7, name: 'Sunday'},
     ];
     //Estado para la hora
     const [startHour, setStartHour] = useState(dayjs('2024-08-12T00:00'));
@@ -77,6 +77,12 @@ function NewEvent () {
     const [loading, setLoading] = useState(false);
     //Token de autenticación
     const token = useSelector((state) => state.user.token);
+    //Multiple dates
+    const [dateArray, setDateArray] = useState([]);
+    const [dateAll, setDateAll] = useState([]);
+    const [open, setOpen] = useState(false);
+    //State checkbox
+    const [checked, setChecked] = useState(false);
 
     //Al cargar la pagina se obtienen los datos necesarios
     useEffect(() => {
@@ -120,6 +126,7 @@ function NewEvent () {
         try {
             const response = await classroomService.getAll(token);
             setClassrooms(response.data);
+            setUnfilteredClassrooms(response.data);
             console.log(response);
             setLoadingClassrooms(false);
         }
@@ -218,7 +225,21 @@ function NewEvent () {
             end_time: Yup.string().required('End time is required'),
         }),
         onSubmit: async (values) => {
-            await handleSubmit(values);
+            if(checked && dateArray.length === dateAll.length){
+                showSnackbar('You must select some dates to delete', {
+                    variant: 'error',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
+            } else {
+                await handleSubmit(values);
+            }
           }
     });
 
@@ -235,6 +256,7 @@ function NewEvent () {
         let formated_start_time = dayjs(values.start_time).format('HH:mm');
         let formated_end_time = dayjs(values.end_time).format('HH:mm');
 
+        console.log("Values:", values);
         //Datos a enviar
         let data = {
             name: values.name,
@@ -290,6 +312,61 @@ function NewEvent () {
             setClassroomValue('');
             }
 
+            if(checked){
+                //Guardamos la diferencia entre los dos arrays de fechas
+                let difference = dateAll.filter(x => !dateArray.includes(x));
+                console.log(difference);
+                //Array de fechas que no se han podido borrar
+                let notDeleted = [];
+                //Recorremos el array de fechas a borrar
+                difference.forEach(async (date) => {
+                    //Buscamos el _id en la respuesta que coincida con la fecha
+                    let id = response.find((element) => dayjs(element.start).format('YYYY-MM-DD') === dayjs(date).format('YYYY-MM-DD'))._id;
+                    //Enviamos la petición
+                    try{
+                        const response = await eventService.delete(token, id);
+                        console.log(response);
+                    } catch (error) {
+                        console.error(error);
+                        notDeleted.push(date);
+                    }
+                });
+
+                if(notDeleted.length > 0){
+                    showSnackbar('Some dates could not be deleted', {
+                        variant: 'warning',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button
+                                    size='small'
+                                    onClick={() => {
+                                        const notDeletedString = notDeleted.map((date) => dayjs(date).format('YYYY-MM-DD')).join(', ');
+                                        alert(`Error: ${notDeletedString}`)}
+                                    }
+                                >
+                                    Detail
+                                </Button>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
+                } else {
+                    showSnackbar('Dates deleted successfully', {
+                        variant: 'success',
+                        autoHideDuration: 6000,
+                        action: (key) => (
+                            <Fragment>
+                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                    Dismiss
+                                </Button>
+                            </Fragment>
+                        ),
+                    });
+                }
+            }
 
         } catch (error) {
             console.error(error);
@@ -335,8 +412,76 @@ function NewEvent () {
             //Days of week
             setDaysOfWeek(selectedGroup?.days_of_the_week);
             formik.setFieldValue('daysOfWeek', selectedGroup?.days_of_the_week);
+            //Start time
+            if(selectedGroup.start_time){
+                const [horas, minutos] = selectedGroup.start_time.split(":");
+                setStartHour(dayjs().hour(horas).minute(minutos));
+                formik.setFieldValue('start_time', dayjs().hour(horas).minute(minutos));
+            }
+            //End time
+            if(selectedGroup.end_time){
+                const [horas, minutos] = selectedGroup.end_time.split(":");
+                setEndHour(dayjs().hour(horas).minute(minutos));
+                formik.setFieldValue('end_time', dayjs().hour(horas).minute(minutos));
+            }
+
         }
     }, [selectedGroup]);
+
+    useEffect(() => {
+        //Filtra las aulas cuando hay una compañia seleccionada
+        if(selectedCompany){
+            const filteredClassrooms = unfilteredClassrooms.filter((classroom) => classroom.company_id === selectedCompany.id);
+            setClassrooms(filteredClassrooms);
+        } else {
+            setClassrooms(unfilteredClassrooms);
+        }
+    }, [selectedCompany]);
+
+    const generateDates = () => {
+        //Genera un range de fechas entre startDate y endDate con los días de la semana seleccionados en daysOfWeek
+        let dates = [];
+        let currentDate = startDate.toDate();
+        let finishDate = endDate.toDate();
+        if(startDate && endDate){
+            while(currentDate <= finishDate){
+                //Obtener el día de la semana
+                let dayOfWeek = currentDate.getDay();
+                //Si el día de la semana está en daysOfWeek, añadirlo a dates
+                if(daysOfWeek.includes(dayOfWeek)){
+                    dates.push(currentDate);
+                }
+                //Incrementar la fecha en 1 día
+                currentDate = new Date(currentDate.getTime() + 24*60*60*1000);
+            }
+        }
+        setDateArray(dates);
+        setDateAll(dates);
+    };
+
+    useEffect(() => {
+        if(startDate && endDate && daysOfWeek.length > 0){
+            generateDates();
+        }
+    }, [startDate, endDate, daysOfWeek]);
+
+    const handleOpen = () => {
+        if(startDate && endDate && daysOfWeek.length > 0){
+            setOpen(true);
+        } else {
+            showSnackbar('You must select the start date, end date and days of week before select the dates', {
+                variant: 'warning',
+                autoHideDuration: 6000,
+                action: (key) => (
+                    <Fragment>
+                        <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                            Dismiss
+                        </Button>
+                    </Fragment>
+                ),
+            });
+        }
+    }
 
     return (
     <Box sx={{ flexGrow:1 }}>
@@ -378,6 +523,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingEventTypes}
                                     id="event_type_id"
                                     options={eventTypes}
@@ -423,6 +569,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingCompanies}
                                     id="company_id"
                                     options={companies}
@@ -467,6 +614,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingClassrooms}
                                     id="classroom_id"
                                     options={classrooms}
@@ -512,6 +660,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingTeachers}
                                     id="teacher_id"
                                     options={teachers}
@@ -557,6 +706,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingGroups}
                                     id="group_id"
                                     options={groups}
@@ -607,8 +757,9 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingDepartments}
-                                    id="deparment_id"
+                                    id="department_id"
                                     options={departments}
                                     inputValue={departmentValue}
                                     value={selectedDepartment}
@@ -616,10 +767,10 @@ function NewEvent () {
                                         console.log(newValue);
                                         if(newValue){
                                             setSelectedDepartment(newValue);
-                                            formik.setFieldValue('deparment_id', newValue.id);
+                                            formik.setFieldValue('department_id', newValue.id);
                                         } else {
                                             setSelectedDepartment(null);
-                                            formik.setFieldValue('deparment_id', '');
+                                            formik.setFieldValue('department_id', '');
                                         }
                                     }}
                                     onInputChange={(event, newInputValue) => {
@@ -633,8 +784,8 @@ function NewEvent () {
                                         label="Department"
                                         margin='normal'
                                         onBlur={formik.handleBlur}
-                                        error={formik.touched['deparment_id'] && Boolean(formik.errors['deparment_id'])}
-                                        helperText={formik.touched['deparment_id'] && formik.errors['deparment_id']}
+                                        error={formik.touched['department_id'] && Boolean(formik.errors['department_id'])}
+                                        helperText={formik.touched['department_id'] && formik.errors['department_id']}
                                         InputProps={{
                                             ...params.InputProps,
                                             endAdornment: (
@@ -707,6 +858,25 @@ function NewEvent () {
                                         }
                                     }}
                                 />
+                            </Grid>
+                            {/* Checkbox */}
+                            <Grid item xs={12} md={6}>
+                                <Stack sx={{marginLeft: '5px', marginTop: { xs: '0px', md: '25px' }, marginBottom:'5px' }} spacing={2} direction={'row'}>
+                                <FormGroup>
+                                    <FormControlLabel control={<Switch checked={checked} onChange={() => setChecked(!checked)} />} label="Delete some dates"/>
+                                </FormGroup>
+                                <Button disabled={!checked} variant="contained" onClick={handleOpen}>
+                                    Select Dates
+                                </Button>
+                                <MultipleDatesPicker
+                                    open={open}
+                                    selectedDates={dateArray}
+                                    onCancel={() => setOpen(false)}
+                                    onSubmit={dates => {
+                                        setOpen(false);
+                                        setDateArray(dates)}}
+                                />
+                                </Stack>
                             </Grid>
                             {/* Select Days of Week */}
                             <Grid item xs={12} md={12}>

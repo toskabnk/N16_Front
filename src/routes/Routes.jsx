@@ -61,7 +61,7 @@ const Routes = () => {
                         <Route path="/dashboard" element={<Dashboard/>} />
                         <Route path="/teachingHours" element={<TeachingHours/>} />
                         <Route path="/calendarByTeacher" element={<CalendarByTeacher/>} />
-                        <Route element={<ProtectedCompanyRoutes/>}>
+                        <Route element={<ProtectedAdminRoutes/>}>
                             <Route path="/newEvent" element={<NewEvent/>} />
                         </Route>
                     </Route>

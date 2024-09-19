@@ -74,6 +74,12 @@ function Classrooms() {
         url="/classroom"
         buttonName="New Classroom"
         loading={loading}
+        sort={
+            {
+              field: 'order',
+              sort: 'asc', 
+            }
+        }
     />
     );
 }

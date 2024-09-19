@@ -137,6 +137,7 @@ function SuspendEvents() {
                             <Grid item xs={12} md={6}>
                                 <Autocomplete
                                     fullWidth
+                                    autoHighlight
                                     loading={loadingCompanies}
                                     id="company_id"
                                     options={companies}

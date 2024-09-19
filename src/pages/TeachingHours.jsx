@@ -1,7 +1,7 @@
-import { Autocomplete, CircularProgress, Grid, MenuItem, Paper, Select, TextField, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Autocomplete, Button, Checkbox, CircularProgress, FormControlLabel, FormGroup, Grid, MenuItem, Paper, Select, Switch, TextField, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/system";
 import { DateRangePicker } from "@mui/x-date-pickers-pro";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import dayjs from 'dayjs';
 import companyService from "../services/companyService";
@@ -10,9 +10,14 @@ import eventTypeService from "../services/eventTypeService";
 import departmentservice from "../services/departmentservice";
 import { DataGrid } from "@mui/x-data-grid";
 import teachingHourService from "../services/teachingHourService";
-
+import FunctionsIcon from '@mui/icons-material/Functions';
+import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 function TeachingHours() {
+    //Hooks
+    const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
     //Fecha actual en formato dayjs YYYY-MM-DD
     const today = dayjs().format('YYYY-MM-DD');
     //Fecha actual menos 7 días en formato dayjs YYYY-MM-DD
@@ -29,11 +34,11 @@ function TeachingHours() {
     //Estado para los tipos de eventos
     const [eventTypes, setEventTypes] = useState([]);
     const [eventTypeValue, setEventTypeValue] = useState('');
-    const [selectedEventType, setSelectedEventType] = useState(null);
+    const [selectedEventType, setSelectedEventType] = useState([]);
     //Estado para los departamentos
     const [departments, setDepartments] = useState([]);
     const [departmentValue, setDepartmentValue] = useState('');
-    const [selectedDepartment, setSelectedDepartment] = useState(null);
+    const [selectedDepartment, setSelectedDepartment] = useState([]);
     //Loading de las compañias
     const [loadingCompanies, setLoadingCompanies] = useState(true);
     //Token de usuario
@@ -69,8 +74,16 @@ function TeachingHours() {
     ];
     //Columnas y datos de la tabla
     const [rows, setRows] = useState([]);
+    const [filterRows, setFilterRows] = useState([]);
     const [rowsAux, setRowsAux] = useState([]);
+    const [rowsSum, setRowsSum] = useState([]);
     const [columns, setColumns] = useState(defaultTable);
+    //Estado del switch para el sumatorio
+    const [checkedSum, setCheckedSum] = useState(false);
+    const [checkedSumDept, setCheckedSumDept] = useState(false);
+    //Iconos para el checkbox
+    const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+    const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
     //Obtiene las compañias al cargar la página
     useEffect(() => {
@@ -133,43 +146,90 @@ function TeachingHours() {
             } else if(groupBy === 'department'){
                 setColumns(defaultTable);
             }
+            //Borra los filtros de evento y departamento
+            setSelectedEventType([]);
+            setSelectedDepartment([]);
+            setFilter('');
+            //Obtiene los datos de la tabla
             getTeachingHours();
+            //Si el sumatorio está activado se desactiva
+            if(checkedSum || checkedSumDept){
+                showSnackbar('The hours summation has been turned off', {
+                    variant: 'info',
+                    autoHideDuration: 6000,
+                    action: (key) => (
+                        <Fragment>
+                            <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
+                                Dismiss
+                            </Button>
+                        </Fragment>
+                    ),
+                });
+            }
+            setCheckedSum(false);
+            setCheckedSumDept(false);
         }
     }, [groupBy, token, value, selectedCompany]);
 
     //Al cambiar el filtro se filtran las filas de la tabla
     useEffect(() => {
         if(filter !== ''){
-            const filteredRows = rowsAux.filter((row) => {
+            //Valores a filtrar, por defecto todas
+            let toFilter = rowsAux;
+            //Si hay un filtro de evento o departamento se filtran las filas de la tabla filtrada
+            if(selectedDepartment.length > 0 || selectedEventType.length > 0){
+                toFilter = filterRows;
+            }
+            //Si el sumatorio está activado se filtran las filas de la tabla sumada
+            if(checkedSum || checkedSumDept){
+                toFilter = rowsSum;
+            }
+            //Filtra las filas de la tabla
+            const filteredRows = toFilter.filter((row) => {
                 return Object.values(row).some(value =>
                     value.toString().toLowerCase().includes(filter.toLowerCase())   
                 );
             });
             setRows(filteredRows);
         } else {
-            setRows(rowsAux);
+            //Si no hay filtro se muestran todas las filas
+            let unfiltered = rowsAux;
+            if(selectedDepartment.length > 0 || selectedEventType.length > 0){
+                unfiltered = filterRows;
+            }
+            if(checkedSum || checkedSumDept){
+                unfiltered = rowsSum;
+            }
+            setRows(unfiltered);
         }
     }, [filter]);
 
     //Al cambiar el tipo de evento o el departamento se filtran las filas de la tabla
     useEffect(() => {
         if(groupBy === 'teacher_and_event_type'){
-            if(selectedEventType){
+            if(selectedEventType.length > 0){
                 const filteredRows = rowsAux.filter((row) => {
-                    return row.event_type === selectedEventType.name;
+                    return selectedEventType.some((eventType) => eventType.name === row.event_type);
                 });
+                console.log(filteredRows);
+                setFilterRows(filteredRows);
                 setRows(filteredRows);
             } else {
                 setRows(rowsAux);
+                setFilterRows(rowsAux);
             }
         } else if(groupBy === 'teacher_and_department'){
-            if(selectedDepartment){
+            console.log(selectedDepartment);
+            if(selectedDepartment.length > 0){
                 const filteredRows = rowsAux.filter((row) => {
-                    return row.department === selectedDepartment.name;
+                    return selectedDepartment.some((department) => department.name === row.department);
                 });
+                console.log(filteredRows);
+                setFilterRows(filteredRows);
                 setRows(filteredRows);
             } else {
                 setRows(rowsAux);
+                setFilterRows(rowsAux);
             }
         }
     }, [selectedEventType, selectedDepartment]);
@@ -196,10 +256,81 @@ function TeachingHours() {
             });
             setRows(transformedData);
             setRowsAux(transformedData);
+            setFilterRows(transformedData);
             console.log(response);
         }
         catch (error) {
             console.error(error);
+        }
+    }
+
+    //Maneja el cambio del switch
+    const handleSwitchChangeEvent = (event) => {
+        setFilter('');
+        setCheckedSum(event.target.checked);
+        if(event.target.checked){
+            let rowsToSum = rowsAux;
+            if(selectedEventType.length > 0){
+                rowsToSum = filterRows;  
+            }
+            //Hace el sumatorio de las horas de los eventos agrupandolas por profesor.
+            const sumRows = rowsToSum.reduce((acc, row) => {
+                const existingRow = acc.find((accRow) => accRow.name === row.name);
+                if(existingRow){
+                    existingRow.time += row.time;
+                } else {
+                    acc.push({...row});
+                }
+                return acc;
+            }
+            , []);
+            //Elimina la columna del tipo de evento
+            const newColumns = columns.filter((column) => column.field !== 'event_type');
+            setColumns(newColumns);
+            setRows(sumRows);
+            setRowsSum(sumRows);
+        } else {
+            setColumns(teacherAndeventTypeTable);
+            if(selectedEventType.length > 0){
+                setRows(filterRows);
+            } else {
+                setRows(rowsAux);
+            }
+        }
+    }
+
+    //Maneja el cambio del switch de departament
+    const handleSwitchChangeDepartment = (event) => {
+        setFilter('');
+        setCheckedSumDept(event.target.checked);
+        if(event.target.checked){
+            let rowsToSum = rowsAux;
+            if(selectedDepartment.length > 0){
+                rowsToSum = filterRows;  
+            }
+            //Hace el sumatorio de las horas de los eventos agrupandolas por profesor.
+            const sumRows = rowsToSum.reduce((acc, row) => {
+                const existingRow = acc.find((accRow) => accRow.name === row.name);
+                if(existingRow){
+                    existingRow.time += row.time;
+                } else {
+                    acc.push({...row});
+                }
+                return acc;
+            }
+            , []);
+            //Elimina la columna de department
+            const newColumns = columns.filter((column) => column.field !== 'department');
+            setColumns(newColumns);
+            setRows(sumRows);
+            setRowsSum(sumRows);
+        } else {
+            setColumns(teacherAndDepartmentTable);
+            if(selectedDepartment.length > 0){
+                setRows(filterRows);
+            } else {
+                setRows(rowsAux);
+            }
         }
     }
 
@@ -246,6 +377,7 @@ function TeachingHours() {
                                             <Typography variant="h7">Filter By Company</Typography>
                                             <Autocomplete
                                                 fullWidth
+                                                autoHighlight
                                                 loading={loadingCompanies}
                                                 id="company_id"
                                                 options={companies}
@@ -326,30 +458,53 @@ function TeachingHours() {
                                         <Box
                                             p={2}>
                                                 <Typography variant="h7">Filter By Event Type</Typography>
-                                                <Autocomplete
-                                                    fullWidth
-                                                    options={eventTypes}
-                                                    inputValue={eventTypeValue}
-                                                    getOptionLabel={(option) => option.name}
-                                                    value={selectedEventType}
-                                                    onChange={(event, newValue) => {
-                                                        console.log(newValue);
-                                                        if(newValue){
-                                                            setSelectedEventType(newValue);
-                                                        } else {
-                                                            setSelectedEventType(null);
-                                                        }
-                                                    }}
-                                                    onInputChange={(event, newInputValue) => {
-                                                        console.log(newInputValue);
-                                                        setEventTypeValue(newInputValue);
-                                                    }}
-                                                    renderInput={(params) => (
-                                                        <TextField
-                                                        {...params}
-                                                        sx={{ marginTop: 1 }}
-                                                    />
-                                                    )}/>
+                                                <Stack direction="row" spacing={2}>
+                                                    <Autocomplete
+                                                        fullWidth
+                                                        autoHighlight
+                                                        multiple
+                                                        disableCloseOnSelect
+                                                        options={eventTypes}
+                                                        inputValue={eventTypeValue}
+                                                        getOptionLabel={(option) => option.name}
+                                                        value={selectedEventType}
+                                                        onChange={(event, newValue) => {
+                                                            console.log(newValue);
+                                                            if(newValue){
+                                                                setSelectedEventType(newValue);
+                                                            } else {
+                                                                setSelectedEventType(null);
+                                                            }
+                                                        }}
+                                                        onInputChange={(event, newInputValue) => {
+                                                            console.log(newInputValue);
+                                                            setEventTypeValue(newInputValue);
+                                                        }}
+                                                        renderOption={(props, option, { selected }) => {
+                                                            const { key, ...optionProps } = props;
+                                                            return (
+                                                              <li key={key} {...optionProps}>
+                                                                <Checkbox
+                                                                  icon={icon}
+                                                                  checkedIcon={checkedIcon}
+                                                                  style={{ marginRight: 8 }}
+                                                                  checked={selected}
+                                                                />
+                                                                {option.name}
+                                                              </li>
+                                                            );
+                                                          }}
+                                                        renderInput={(params) => (
+                                                            <TextField
+                                                            {...params}
+                                                            sx={{ marginTop: 1 }}
+                                                        />
+                                                        
+                                                        )}/>
+                                                    <FormGroup>
+                                                        <FormControlLabel control={<Switch checked={checkedSum} />} onChange={handleSwitchChangeEvent} labelPlacement="top" label={<FunctionsIcon/>} />
+                                                    </FormGroup>
+                                                </Stack>   
                                         </Box>
                                     </Paper>
                                 </Grid>
@@ -361,30 +516,52 @@ function TeachingHours() {
                                         <Box
                                             p={2}>
                                                 <Typography variant="h7">Filter By Department</Typography>
-                                                <Autocomplete
-                                                    fullWidth
-                                                    options={departments}
-                                                    inputValue={departmentValue}
-                                                    getOptionLabel={(option) => option.name}
-                                                    value={selectedDepartment}
-                                                    onChange={(event, newValue) => {
-                                                        console.log(newValue);
-                                                        if(newValue){
-                                                            setSelectedDepartment(newValue);
-                                                        } else {
-                                                            setSelectedDepartment(null);
-                                                        }
-                                                    }}
-                                                    onInputChange={(event, newInputValue) => {
-                                                        console.log(newInputValue);
-                                                        setDepartmentValue(newInputValue);
-                                                    }}
-                                                    renderInput={(params) => (
-                                                        <TextField
-                                                        {...params}
-                                                        sx={{ marginTop: 1 }}
-                                                    />
-                                                    )}/>
+                                                <Stack direction="row" spacing={2}>
+                                                    <Autocomplete
+                                                        fullWidth
+                                                        autoHighlight
+                                                        multiple
+                                                        disableCloseOnSelect
+                                                        options={departments}
+                                                        inputValue={departmentValue}
+                                                        getOptionLabel={(option) => option.name}
+                                                        value={selectedDepartment}
+                                                        onChange={(event, newValue) => {
+                                                            console.log(newValue);
+                                                            if(newValue){
+                                                                setSelectedDepartment(newValue);
+                                                            } else {
+                                                                setSelectedDepartment(null);
+                                                            }
+                                                        }}
+                                                        onInputChange={(event, newInputValue) => {
+                                                            console.log(newInputValue);
+                                                            setDepartmentValue(newInputValue);
+                                                        }}
+                                                        renderOption={(props, option, { selected }) => {
+                                                            const { key, ...optionProps } = props;
+                                                            return (
+                                                              <li key={key} {...optionProps}>
+                                                                <Checkbox
+                                                                  icon={icon}
+                                                                  checkedIcon={checkedIcon}
+                                                                  style={{ marginRight: 8 }}
+                                                                  checked={selected}
+                                                                />
+                                                                {option.name}
+                                                              </li>
+                                                            );
+                                                          }}
+                                                        renderInput={(params) => (
+                                                            <TextField
+                                                            {...params}
+                                                            sx={{ marginTop: 1 }}
+                                                        />
+                                                        )}/>
+                                                    <FormGroup>
+                                                        <FormControlLabel control={<Switch checked={checkedSumDept} />} onChange={handleSwitchChangeDepartment} labelPlacement="top" label={<FunctionsIcon/>} />
+                                                    </FormGroup>
+                                                </Stack>   
                                         </Box>
                                     </Paper>
                                 </Grid>

@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import ListDataGrid from "../components/ListDataGrid";
 import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { Button, Tooltip } from "@mui/material";
+import { Button, TextField, Tooltip } from "@mui/material";
 import holidayService from "../services/holidayService";
 import { useNavigate } from "react-router-dom";
 
@@ -14,11 +14,13 @@ function Holidays() {
     const token = useSelector((state) => state.user.token);
     //Row data for the table
     const [rows, setRows] = useState([]);
+    const [unfilteredRows, setUnfilteredRows] = useState([]);
     //Role
     const role = useSelector((state) => state.user.role);
     //Columns for the table
     const [columns, setColumns] = useState([
         { field: 'teacher_name', headerName: 'Teacher', flex: 1, overflow: 'hidden' },
+        { field: 'created_at', headerName: 'Created', flex: 1, overflow: 'hidden' , type: 'date', valueGetter: (value) => value && new Date(value), },
         { field: 'start_date', headerName: 'Date start', flex: 1, overflow: 'hidden', type: 'date', valueGetter: (value) => value && new Date(value), },
         { field: 'end_date', headerName: 'Date end', flex: 1, overflow: 'hidden', type: 'date', valueGetter: (value) => value && new Date(value), },
         { field: 'status', headerName: 'Status', flex: 1, overflow: 'hidden' },
@@ -75,6 +77,8 @@ function Holidays() {
     ]);
     //Loading state
     const [loading, setLoading] = useState(true);
+    //Filter text
+    const [filterText, setFilterText] = useState('');
 
     //Al cargar la pagina carga las companias
     useEffect(() => {
@@ -106,6 +110,7 @@ function Holidays() {
                 details: holiday.notes? holiday.notes : '',
             }));
             setRows(transformedData);
+            setUnfilteredRows(transformedData);
             setLoading(false);
         } catch (error) {
             console.error(error);
@@ -236,6 +241,31 @@ function Holidays() {
         }
     }, [rows]);
 
+    //update filter with text change or user data
+    useEffect(() => {
+        if(filterText === ''){
+            setRows(unfilteredRows);
+        } else {
+            let data = unfilteredRows;
+            if(filterText !== ''){
+                data = filterRows(data);
+            }
+            setRows(data);
+        }
+    }, [filterText]);
+
+    //Filter only the name column
+    const filterRows = (data) => {
+        const filteredRows = data.filter((row) => {
+            return row.teacher?.name.toLowerCase().includes(filterText.toLowerCase());
+        });
+        return filteredRows;
+    };
+
+    const components = [
+        <FilterNameComponent filterText={filterText} setFilterText={setFilterText} />,
+    ];
+
     return (
         <ListDataGrid
             rows={rows}
@@ -246,9 +276,29 @@ function Holidays() {
             buttonName="New"
             loading={loading}
             noClick={true}
+            filterComponent={components}
+            sort={
+                    {
+                      field: 'created_at',
+                      sort: 'desc', 
+                    }
+            }
         />
 
     );
 }
 
 export default Holidays;
+
+const FilterNameComponent = ({ filterText, setFilterText }) => {
+    return (
+        <TextField
+            label="Filter by name"
+            variant="outlined"
+            margin='none'
+            size="small"
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+        />
+    );
+}

@@ -1,5 +1,7 @@
 import { Typography } from "@mui/material";
 import { Box, Stack } from "@mui/system";
+import errorImage from "/src/assets/404-error.webp";
+
 
 function NotFound() {
     return (
@@ -10,7 +12,7 @@ function NotFound() {
             sx={{ margin: 'auto', width: '60%' }}
         >
             <Box component="img"
-                src="/src/assets/404-error.webp"
+                src={errorImage}
                 alt="Error"
                 margin={2}
                 sx={{

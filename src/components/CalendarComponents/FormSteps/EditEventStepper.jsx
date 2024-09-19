@@ -90,7 +90,7 @@ const EditEventStepper = (props) => {
             icon: "warning",
         }).then((result) => {
             if (result.isConfirmed) {
-                deleteEventGroup(props.token, props.event.groupId);
+                deleteEventGroup(props.token, props.event.extendedProps.group_id, props.event.id);
             } else if (result.isDenied) {
                 deleteEvent(props.token, props.event.id);
             }
@@ -209,8 +209,9 @@ const EditEventStepper = (props) => {
      * Borra todos los eventos de un grupo
      * @param {*} token Token de autenticación
      * @param {*} id Id del grupo
+     * @param {*} event_id Id del evento
      */
-    const deleteEventGroup = async (token, id) => {
+    const deleteEventGroup = async (token, id, event_id) => {
         try {
             Swal.fire({
                 title: 'Deleting event group...',
@@ -219,8 +220,9 @@ const EditEventStepper = (props) => {
                     Swal.showLoading();
                 }
             })
-            const response = await eventService.deleteEventsGroup(token, id, values);
+            const response = await eventService.deleteEventsGroup(token, id, {date_range_start : props.event.start});
             Swal.close();
+            props.setEvents(props.events.filter(event => event.id !== event_id));
             setIsDeleting(false);
             console.log(response);
             props.closeDialog(false);

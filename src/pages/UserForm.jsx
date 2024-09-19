@@ -100,8 +100,6 @@ function UserForm() {
         }
         fetchData();
         setLoading(false); // Finaliza la carga
-
-        setLoading(false); // Finaliza la carg
     }, [id, location.state, token]);
 
     useEffect(() => {
@@ -375,7 +373,7 @@ function UserForm() {
                                         required
                                         variant="outlined"
                                     >
-                                        <MenuItem value="" disabled>Select a company</MenuItem>
+                                        <MenuItem value="not_set">All companies</MenuItem> {/* Opción "not_set" */}
                                         {companies.map((company) => (
                                             <MenuItem key={company.id} value={company.id}>
                                                 {company.name}

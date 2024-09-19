@@ -22,7 +22,7 @@ n16Api.interceptors.request.use(config => {
 n16Api.interceptors.response.use(
     response => response, // Si la respuesta es exitosa, simplemente retórnala
     error => {
-        const { response } = error;
+        const { response, config } = error;
 
         if (response && response.status === 401) {
             //Verificamos si el error es al hacer login para no redirigir al usuario
