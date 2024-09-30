@@ -115,6 +115,9 @@ function CalendarByTeacher() {
         if(companyName.length !== 0){
             let companiesIds = companiesData.filter((company) => companyName.includes(company.name)).map((company) => company._id);
             filteredResources = teachersData.filter((teacher) => companiesIds.includes(teacher.company_id));
+            //Añadimos a filteredResources tambien los profesores que tienen "not_set" como compañia
+            let notSetTeachers = teachersData.filter((teacher) => teacher.company_id === "not_set");
+            filteredResources = filteredResources.concat(notSetTeachers);
             setTeachersDataFiltered(filteredResources);
         }
     }, [companyName]);

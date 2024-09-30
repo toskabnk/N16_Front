@@ -20,9 +20,9 @@ function Holidays() {
     //Columns for the table
     const [columns, setColumns] = useState([
         { field: 'teacher_name', headerName: 'Teacher', flex: 1, overflow: 'hidden' },
-        { field: 'created_at', headerName: 'Created', flex: 1, overflow: 'hidden' , type: 'date', valueGetter: (value) => value && new Date(value), },
-        { field: 'start_date', headerName: 'Date start', flex: 1, overflow: 'hidden', type: 'date', valueGetter: (value) => value && new Date(value), },
-        { field: 'end_date', headerName: 'Date end', flex: 1, overflow: 'hidden', type: 'date', valueGetter: (value) => value && new Date(value), },
+        { field: 'created_at', headerName: 'Created', flex: 1, overflow: 'hidden' },
+        { field: 'start_date', headerName: 'Date start', flex: 1, overflow: 'hidden'},
+        { field: 'end_date', headerName: 'Date end', flex: 1, overflow: 'hidden'},
         { field: 'status', headerName: 'Status', flex: 1, overflow: 'hidden' },
         { field: 'absence_type', headerName: 'Absence type', flex: 1, overflow: 'hidden' },
         { field: 'information', headerName: 'Information', flex: 1, overflow: 'hidden',
@@ -108,6 +108,10 @@ function Holidays() {
                 id: holiday._id,
                 teacher_name: holiday.teacher?.name? holiday.teacher.name : '',
                 details: holiday.notes? holiday.notes : '',
+                //Formatea el string de la fecha a YYYY-MM-DD
+                start_date: holiday.start_date.substring(0, 10),
+                end_date: holiday.end_date.substring(0, 10),
+                created_at: holiday.created_at.substring(0, 10),
             }));
             setRows(transformedData);
             setUnfilteredRows(transformedData);

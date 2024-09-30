@@ -84,6 +84,20 @@ function CalendarByClassroom() {
     //Referencia al componente FullCalendar
     const calendarRef = useRef(null); 
 
+    //Referencia para la vista de semana
+    const [currentView, setCurrentView] = useState('resourceTimeGridDay');
+    const [filteredDays, setFilteredDays] = useState([]);
+    // Días de la semana disponibles
+    const weekDays = [
+        { id: 0, label: 'Sun' },
+        { id: 1, label: 'Mon' },
+        { id: 2, label: 'Tue' },
+        { id: 3, label: 'Wed' },
+        { id: 4, label: 'Thu' },
+        { id: 5, label: 'Fri' },
+        { id: 6, label: 'Sat' }
+    ];
+
     //Obtenemos las compañias y las aulas al cargar la página
     useEffect(() => {
         if(token){
@@ -95,7 +109,12 @@ function CalendarByClassroom() {
     //Obtenemos los eventos por fecha cuando cambia la fecha
     useEffect(() => {
         if(token){
-            getEventsByDate();
+            //Si la vista es de semana, pedimos los eventos de la semana
+            if(currentView === 'resourceTimeGridWeek'){
+                getEventsByWeek();
+            } else {
+                getEventsByDate();
+            }
         }
     }, [date]);
 
@@ -120,9 +139,15 @@ function CalendarByClassroom() {
             console.log(filteredReources);
         }
 
+        //Si la vista es de semana, filtramos las aulas por todas que contengan IN COMP
+        if(currentView === 'resourceTimeGridWeek'){
+            filteredReources = filteredReources.filter((classroom) => classroom.name.includes('IN COMP'));
+            console.log(filteredReources);
+        }
+
         //Guardamos las aulas filtradas
         setClassroomDataFiltered(filteredReources);
-    }, [companyName, classroomNameSearch]);
+    }, [companyName, classroomNameSearch, currentView]);
 
     // Cambia la fecha en el FullCalendar cuando cambia la fecha en el DatePicker
     useEffect(() => {
@@ -157,6 +182,18 @@ function CalendarByClassroom() {
     const getEventsByDate = async () => {
         try {
             const queryParams = { date: date.format('YYYY-MM-DD') };
+            const response = await eventService.getEventsWithFilters(token, queryParams);
+            console.log(response);
+            setEventsDataByDate(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    //Función para obtener los eventos por semana
+    const getEventsByWeek = async () => {
+        try {
+            const queryParams = { date: date.format('YYYY-MM-DD'), week: true };
             const response = await eventService.getEventsWithFilters(token, queryParams);
             console.log(response);
             setEventsDataByDate(response.data);
@@ -213,7 +250,26 @@ function CalendarByClassroom() {
         if(newDate.format('YYYY-MM-DD') !== date.format('YYYY-MM-DD')){
             setDate(newDate);
         }
+        //Si la vista ha cambiado, actualizamos la vista actual
+        if(info.view.type !== currentView){
+            setCurrentView(info.view.type);
+        }
     }
+
+    //Función para manejar el cambio de los días filtrados
+    const handleDayFilterChange = (dayId) => {
+        if (filteredDays.includes(dayId)) {
+            setFilteredDays(filteredDays.filter(day => day !== dayId)); // Remueve el día si ya está seleccionado
+        } else {
+            setFilteredDays([...filteredDays, dayId]); // Agrega el día si no está seleccionado
+        }
+    };
+
+    // Actualiza FullCalendar para ocultar los días seleccionados
+    const applyFilters = () => {
+        const calendarApi = calendarRef.current.getApi();
+        calendarApi.setOption('hiddenDays', filteredDays);
+    };
 
     /**
      * Actualiza el evento segun los cambios realizados en el calendario (cambio de aula, cambio de fecha de inicio y fin)
@@ -414,11 +470,11 @@ function CalendarByClassroom() {
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <Grid container direction={"column"} spacing={2}>
-                <Grid item xs={12} md={12}>
-                    <Box
-                        gap={4}
-                        p={3}>
+            <Box
+                gap={4}
+                p={2}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} md={12}>
                         <Paper
                             elevation={3}
                             >
@@ -513,64 +569,110 @@ function CalendarByClassroom() {
                                 </Stack>
                             </>
                         </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={currentView === 'resourceTimeGridWeek' ? 6:12} >
                         <Paper
-                            elevation={3}
-                            sx={{marginTop: '10px'}}
-                            >
-                            <FormGroup>
-                                <Stack
-                                    direction={{ sm: 'row', md: 'row' }}
-                                    spacing={{ xs: 1, sm: 2, md: 4 }}
-                                    p={2}
-                                    >
-                                    <FormControlLabel control={<Switch checked={fullWidth} onChange={handleSwitchChange} name="fullWidth"/>} label="Allow Scroll" />
-                                    {role === 'admin' || role === 'super_admin' ? 
-                                    <>
-                                        <FormControlLabel control={<Switch checked={allowEdit} onChange={handleSwitchChange} name="allowEdit"/>} label="Allow Edit" />
-                                        <FormControlLabel control={<Switch disabled={!allowEdit} checked={updateFuture} onChange={handleSwitchChange} name="update"/>} label="Update this and future classes" name="update"/>
-                                    </> : null}
-                                </Stack>
-                            </FormGroup>
+                            elevation={3}>
+                                <FormGroup>
+                                    <Stack
+                                        direction={{ sm: 'row', md: 'row' }}
+                                        spacing={{ xs: 1, sm: 2, md: 4 }}
+                                        p={2}
+                                        >
+                                        <FormControlLabel control={<Switch checked={fullWidth} onChange={handleSwitchChange} name="fullWidth"/>} label="Allow Scroll" />
+                                        {role === 'admin' || role === 'super_admin' ? 
+                                        <>
+                                            <FormControlLabel control={<Switch checked={allowEdit} onChange={handleSwitchChange} name="allowEdit"/>} label="Allow Edit" />
+                                            <FormControlLabel control={<Switch disabled={!allowEdit} checked={updateFuture} onChange={handleSwitchChange} name="update"/>} label="Update this and future classes" name="update"/>
+                                        </> : null}
+                                    </Stack>
+                                </FormGroup>
                         </Paper>
-                    </Box>
+                    </Grid>
+                    {currentView === 'resourceTimeGridWeek' && (
+                        <Grid item xs={12} md={6}>
+                            <Paper
+                                elevation={3}>
+                                    <FormGroup>
+                                        <Stack
+                                            direction={{ sm: 'row', md: 'row' }}
+                                            spacing={1}
+                                            useFlexGap
+                                            sx={{ flexWrap: 'wrap', justifyContent: 'space-evenly' }}
+                                            p={2}
+                                            >
+                                                {weekDays.map(day => (
+                                                    <FormControlLabel key={day.id} control={<Checkbox checked={!filteredDays.includes(day.id)} onChange={() => handleDayFilterChange(day.id)} />} label={day.label}/>
+                                                ))}
+                                                <Button
+                                                    variant="contained"
+                                                    size="small"
+                                                    onClick={applyFilters}
+                                                    >
+                                                    Apply
+                                                </Button>
+                                        </Stack>
+                                    </FormGroup>
+                            </Paper>
+                        </Grid>
+                    )}
+                    <Grid item>
+                        <Box sx={{width:'auto', overflow:'auto'}}>
+                            <FullCalendar
+                                key={calendarKey}
+                                ref={calendarRef}
+                                height='auto'
+                                plugins={[ dayGridPlugin,
+                                            timeGridPlugin,
+                                            listPlugin,
+                                            interactionPlugin,
+                                            resourceTimeGridPlugin,
+                                            scrollGridPlugin,
+                                            ]}
+                                resources={(currentView === 'resourceTimeGridWeek' || companyName.length!=0 || classroomNameSearch.length!=0)  ? classroomDataFiltered: classroomData}
+                                resourceOrder="order"
+                                {...(fullWidth ? { dayMinWidth: 100 } : {})} // Condicional para dayMinWidth
+                                stickyFooterScrollbar={true}
+                                expandRows={true}
+                                editable={allowEdit}
+                                eventDrop={updateEvent}
+                                eventDurationEditable={false}
+                                startParam='start_date'
+                                endParam='end_date'
+                                slotMinTime='07:00:00'
+                                slotMaxTime='23:00:00'
+                                eventMinHeight={10}
+                                allDaySlot={false}
+                                initialView='resourceTimeGridDay'
+                                events={eventsDataByDate}
+                                datesSet={handleDataChange}
+                                eventClick={handleEditEvent}
+                                schedulerLicenseKey={FULLCALENDAR_LICENSE_KEY}
+                                headerToolbar={
+                                    {
+                                        right: 'prev,next today resourceTimeGridDay,resourceTimeGridWeek',
+                                        left: 'title'
+                                    }
+                                }
+                                views={
+                                    {
+                                        resourceTimeGridDay: {
+                                            type: 'resourceTimeGrid',
+                                            buttonText: 'Day',
+                                            duration: { days: 1 },
+                                        },
+                                        resourceTimeGridWeek: {
+                                            type: 'resourceTimeGrid',
+                                            buttonText: 'Week',
+                                            duration: { weeks: 1 },
+                                        },
+                                    }
+                                }
+                            />
+                        </Box>
+                    </Grid>
                 </Grid>
-                <Grid item>
-                    <Box p={2} sx={{width:'auto', overflow:'auto'}}>
-                        <FullCalendar
-                            key={calendarKey}
-                            ref={calendarRef}
-                            height='auto'
-                            plugins={[ dayGridPlugin,
-                                        timeGridPlugin,
-                                        listPlugin,
-                                        interactionPlugin,
-                                        resourceTimeGridPlugin,
-                                        scrollGridPlugin,
-                                        ]}
-                            resources={(companyName.length!=0 || classroomNameSearch.length!=0)  ? classroomDataFiltered: classroomData}
-                            //No cambiar, asi muestra las aulas en el orden de la API
-                            resourceOrder="order"
-                            {...(fullWidth ? { dayMinWidth: 100 } : {})} // Condicional para dayMinWidth
-                            stickyFooterScrollbar={true}
-                            expandRows={true}
-                            editable={allowEdit}
-                            eventDrop={updateEvent}
-                            eventDurationEditable={false}
-                            startParam='start_date'
-                            endParam='end_date'
-                            slotMinTime='07:00:00'
-                            slotMaxTime='23:00:00'
-                            eventMinHeight={10}
-                            allDaySlot={false}
-                            initialView='resourceTimeGridDay'
-                            events={eventsDataByDate}
-                            datesSet={handleDataChange}
-                            eventClick={handleEditEvent}
-                            schedulerLicenseKey={FULLCALENDAR_LICENSE_KEY}
-                        />
-                    </Box>
-                </Grid>
-            </Grid>
+            </Box>
             <Dialog
                 id="dialog"
                 open={eventEdit}

@@ -93,7 +93,7 @@ function TeacherForm() {
                 // Actualiza el estado de teacher solo con las propiedades necesarias
                 setTeacher(prevTeacher => ({
                     ...prevTeacher,
-                    company_id: validCompanyId || '',
+                    company_id: validCompanyId || 'not_set',
                 }));
 
             } catch (error) {
@@ -268,11 +268,12 @@ function TeacherForm() {
         }
 
         try {
+            const{ company_name, ...cleanTeacher}=teacher;
             if (isNewTeacher) {
-                await TeacherService.create(token, teacher);
+                await TeacherService.create(token, cleanTeacher);
                 //navigate('/teacher');    // TODO define if redirect
             } else {
-                await TeacherService.update(token, id, teacher);
+                await TeacherService.update(token, id, cleanTeacher);
                 //navigate(`/teacher`);    // TODO define if redirect
             }
             showSnackbar(isNewTeacher ? 'Teacher created successfully!' : 'Teacher updated successfully!', {
