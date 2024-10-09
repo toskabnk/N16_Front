@@ -655,6 +655,12 @@ function CalendarByClassroom() {
                                         left: 'title'
                                     }
                                 }
+                                titleFormat={{ 
+                                    weekday: 'long',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                }}
                                 views={
                                     {
                                         resourceTimeGridDay: {

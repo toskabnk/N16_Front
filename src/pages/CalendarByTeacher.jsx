@@ -357,6 +357,12 @@ function CalendarByTeacher() {
                                 eventMinHeight={10}
                                 allDaySlot={false}
                                 initialView='resourceTimeGridDay'
+                                titleFormat={{ 
+                                    weekday: 'long',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                }}
                                 events={eventsDataByDate}
                                 datesSet={handleDataChange}
                                 schedulerLicenseKey={FULLCALENDAR_LICENSE_KEY}
