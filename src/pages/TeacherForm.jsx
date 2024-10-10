@@ -8,6 +8,7 @@ import TeacherService from "../services/teacherService";
 import CompanyService from "../services/companyService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import Swal from "sweetalert2";
+import { LoadingButton } from '@mui/lab';
 
 const getBrightness = (hexColor) => {
     // Eliminar el símbolo '#'
@@ -68,6 +69,8 @@ function TeacherForm() {
     const [text_colour_set, settext_colour] = useState(false);
     const [colourmissing, setColourMissing] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [loadingButton, setLoadingButton] = useState(false);
+    
     //redirect if location id null
     useEffect(() => {
         if (!locationTeacherID && window.location.pathname !== '/teacher/new') {
@@ -269,6 +272,7 @@ function TeacherForm() {
 
         try {
             const{ company_name, ...cleanTeacher}=teacher;
+            setLoadingButton(true);
             if (isNewTeacher) {
                 await TeacherService.create(token, cleanTeacher);
                 //navigate('/teacher');    // TODO define if redirect
@@ -306,6 +310,7 @@ function TeacherForm() {
                 ),
             });
         }
+        setLoadingButton(false);
     };
 
     const handleCopyToClipboard = (text) => {
@@ -616,17 +621,19 @@ function TeacherForm() {
                                 </FormControl>
                             </Box>
                             <Box sx={{ display: 'flex', gap: 2 }}>
-                                <Button type="submit" variant="contained" color="primary">
+                                <LoadingButton type="submit" variant="contained" color="primary" loading={loadingButton} >
                                     {isNewTeacher ? 'Create' : 'Save'}
-                                </Button>
+                                   
+                                </LoadingButton>
                                 {!isNewTeacher && (
-                                    <Button
+                                    <LoadingButton
                                         variant="contained"
                                         color="error"
                                         onClick={handleDelete}
+                                        loading={loadingDelete}
                                     >
                                         Delete
-                                    </Button>
+                                    </LoadingButton>
                                 )}
                             </Box>
                         </Box>

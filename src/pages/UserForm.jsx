@@ -6,6 +6,7 @@ import UserService from "../services/userService";
 import CompanyService from "../services/companyService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
 import Swal from "sweetalert2";
+import { LoadingButton } from '@mui/lab';
 
 function UserForm() {
     const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();
@@ -33,7 +34,8 @@ function UserForm() {
     const [roles, setRoles] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [isNewUser, setIsNewUser] = useState(true);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [loadingPassword, setLoadingPassword] = useState(false);
 
     //redirect if location id null
     useEffect(() => {
@@ -135,6 +137,7 @@ function UserForm() {
     const handleSubmit = async (e) => {
         event.preventDefault();
         try {
+            setLoading(true);
             if (isNewUser) {
                 await UserService.create(token, user);
                 //navigate('/user');    // TODO define if redirect
@@ -172,6 +175,8 @@ function UserForm() {
                 ),
             });
         }
+        
+        setLoading(false);
     };
 
     //password change
@@ -180,6 +185,7 @@ function UserForm() {
 
         try {
             if (password.newPassword === password.confirmPassword) {
+                setLoadingPassword(true);
                 let values = { id: user.id, password: password.newPassword };
                 await UserService.updateUserPassword(token, values.id, values);
                 showSnackbar('Password updated!', {
@@ -227,6 +233,7 @@ function UserForm() {
                 ),
             });
         }
+        setLoadingPassword(false);
     };
 
     //Función para borrar un user. Muestra un mensaje de confirmación antes de borrar.
@@ -383,18 +390,18 @@ function UserForm() {
                                 </FormControl>
                             </Box>
                             <Box sx={{ display: 'flex', gap: 2 }}>
-                                <Button type="submit" variant="contained" color="primary">
+                                <LoadingButton type="submit" variant="contained" color="primary" loading={loading} >
                                     {isNewUser ? 'Create' : 'Save'}
-                                </Button>
+                                </LoadingButton>
 
                                 {isNewUser ? null :
-                                    <Button
+                                    <LoadingButton
                                         variant="contained"
                                         color="error"
                                         onClick={handleDelete}
-                                    >
+                                        loading={loadingDelete} >
                                         Delete
-                                    </Button>
+                                    </LoadingButton>
                                 }
                             </Box>
 
@@ -438,9 +445,9 @@ function UserForm() {
                                         />
                                     </FormControl>
                                 </Box>
-                                <Button type="submit" variant="contained" color="primary">
+                                <LoadingButton type="submit" variant="contained" color="primary" loading={loadingPassword}>
                                     Update password
-                                </Button>
+                                </LoadingButton>
                             </Box>
                         </Paper>
                     </Grid>
