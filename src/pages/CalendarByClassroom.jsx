@@ -648,12 +648,19 @@ function CalendarByClassroom() {
                                 datesSet={handleDataChange}
                                 eventClick={handleEditEvent}
                                 schedulerLicenseKey={FULLCALENDAR_LICENSE_KEY}
+                                {...(currentView === 'resourceTimeGridWeek' ? { datesAboveResources: true, } : {})} // Condicional para dayMinWidth
                                 headerToolbar={
                                     {
                                         right: 'prev,next today resourceTimeGridDay,resourceTimeGridWeek',
                                         left: 'title'
                                     }
                                 }
+                                titleFormat={{ 
+                                    weekday: 'long',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                }}
                                 views={
                                     {
                                         resourceTimeGridDay: {

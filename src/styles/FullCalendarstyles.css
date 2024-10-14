@@ -2,7 +2,7 @@
 .fc-event {
     font-size: .6em;
     font-weight: 400;
-    text-align: center;
+    text-align: center !important;
 }
 
 .fc-col-header-cell-cushion {
@@ -19,6 +19,11 @@
 .fc .fc-v-event .fc-event-title-container {
     display: flex;
     align-items: center;
+    justify-content: center;
+}
+
+.fc-event-time {
+    display: none !important;
 }
 
 /*--fc-today-bg-color: rgb(255 255 255 / 15%); */

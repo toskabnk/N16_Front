@@ -314,12 +314,14 @@ function NewEvent () {
 
             if(checked){
                 //Guardamos la diferencia entre los dos arrays de fechas
-                let difference = dateAll.filter(x => !dateArray.includes(x));
-                console.log(difference);
+                let deleted = dateAll.filter(x => !dateArray.includes(x));
+                let added = dateArray.filter(x => !dateAll.includes(x));
+
+                console.log(deleted);
                 //Array de fechas que no se han podido borrar
                 let notDeleted = [];
                 //Recorremos el array de fechas a borrar
-                difference.forEach(async (date) => {
+                deleted.forEach(async (date) => {
                     //Buscamos el _id en la respuesta que coincida con la fecha
                     let id = response.find((element) => dayjs(element.start).format('YYYY-MM-DD') === dayjs(date).format('YYYY-MM-DD'))._id;
                     //Enviamos la petición
@@ -332,39 +334,75 @@ function NewEvent () {
                     }
                 });
 
-                if(notDeleted.length > 0){
-                    showSnackbar('Some dates could not be deleted', {
-                        variant: 'warning',
+                //Array de fechas que no se han podido añadir
+                let notAdded = [];
+                //Recorremos el array de fechas a añadir
+                added.forEach(async (date) => {
+                    //Formatear start_date y end_date a YYYY-MM-DD HH:mm
+                    let formated_start2 = dayjs(date).format('YYYY-MM-DD') + ' ' + formated_start_time;
+                    let formated_end2 = dayjs(date).format('YYYY-MM-DD') + ' ' + formated_end_time;
+                    //Datos a enviar
+                    let data = {
+                        name: values.name,
+                        event_type_id: values.event_type_id,
+                        company_id: values.company_id || null,
+                        classroom_id: values.classroom_id,
+                        teacher_id: values.teacher_id || null,
+                        group_id: values.group_id || null,
+                        department_id: values.department_id || "not_set",
+                        start_date: formated_start2,
+                        end_date: formated_end2,
+                        time_start: formated_start_time,
+                        time_end: formated_end_time,
+                        description: values.name,
+                        status_id: values.status_id,
+                    }
+                    //Enviamos la petición
+                    try{
+                        const response = await eventService.createSingleEvent(token, data);
+                        console.log(response);
+                    } catch (error) {
+                        console.error(error);
+                        notAdded.push(date);
+                    }
+                });
+
+                const showSnackbarMessage = (message, variant, dates) => {
+                    showSnackbar(message, {
+                        variant: variant,
                         autoHideDuration: 6000,
                         action: (key) => (
                             <Fragment>
-                                <Button
-                                    size='small'
-                                    onClick={() => {
-                                        const notDeletedString = notDeleted.map((date) => dayjs(date).format('YYYY-MM-DD')).join(', ');
-                                        alert(`Error: ${notDeletedString}`)}
-                                    }
-                                >
-                                    Detail
-                                </Button>
+                                {dates.length > 0 && (
+                                    <Button
+                                        size='small'
+                                        onClick={() => {
+                                            const datesString = dates.map((date) => dayjs(date).format('YYYY-MM-DD')).join(', ');
+                                            alert(`Error: ${datesString}`);
+                                        }}
+                                    >
+                                        Detail
+                                    </Button>
+                                )}
                                 <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
                                     Dismiss
                                 </Button>
+
                             </Fragment>
                         ),
                     });
+                };
+
+                if (notDeleted.length > 0) {
+                    showSnackbarMessage('Some dates could not be deleted', 'warning', notDeleted);
                 } else {
-                    showSnackbar('Dates deleted successfully', {
-                        variant: 'success',
-                        autoHideDuration: 6000,
-                        action: (key) => (
-                            <Fragment>
-                                <Button size='small' onClick={() => closeSnackbarGlobal(key)}>
-                                    Dismiss
-                                </Button>
-                            </Fragment>
-                        ),
-                    });
+                    showSnackbarMessage('Dates deleted successfully', 'success', []);
+                }
+
+                if (notAdded.length > 0) {
+                    showSnackbarMessage('Some dates could not be added', 'warning', notAdded);
+                } else {
+                    showSnackbarMessage('Dates added successfully', 'success', []);
                 }
             }
 
@@ -863,7 +901,7 @@ function NewEvent () {
                             <Grid item xs={12} md={6}>
                                 <Stack sx={{marginLeft: '5px', marginTop: { xs: '0px', md: '25px' }, marginBottom:'5px' }} spacing={2} direction={'row'}>
                                 <FormGroup>
-                                    <FormControlLabel control={<Switch checked={checked} onChange={() => setChecked(!checked)} />} label="Delete some dates"/>
+                                    <FormControlLabel control={<Switch checked={checked} onChange={() => setChecked(!checked)} />} label="Modify dates"/>
                                 </FormGroup>
                                 <Button disabled={!checked} variant="contained" onClick={handleOpen}>
                                     Select Dates

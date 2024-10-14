@@ -25,7 +25,8 @@ function App() {
         {/* Muestra la barra lateral si esta logueado*/}
         {isAuthenticated ? 
           <SidebarComponent
-            openSidebar={collapsed}/> 
+            openSidebar={collapsed}
+            setOpenSidebar={setCollapsed}/> 
         : null}
         <Routes/>  
       </StyledFlexFullRow>

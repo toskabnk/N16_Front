@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { Link, useLocation } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -54,12 +54,48 @@ const CustomMenuItem = styled(MenuItem)`
  * @param {*} openSidebar Variable que controla si el sidebar esta abierto o cerrado 
  * @returns {JSX.Element} Sidebar
  */
-function SidebarComponent({ openSidebar }) {
+function SidebarComponent({ openSidebar, setOpenSidebar }) {
+  const [responsive, setResponsive] = useState(true);
+  const [collapse, setCollapse] = useState(false);
+  const [toggled, setToggled] = useState(false);
+  const [lastState, setLastState] = useState(false);
+
+  useEffect(() => {
+    if (responsive) {
+      setCollapse(false);
+      setToggled(false);
+      setOpenSidebar(false);
+    } else {
+      setCollapse(lastState);
+      setOpenSidebar(lastState);
+    }
+    console.log('changeResponsive', responsive);
+  }, [responsive]);
+
+  useEffect(() => {
+    if(responsive) {
+      setCollapse(false);
+      setToggled(openSidebar);
+    }
+    else {
+      setToggled(false);
+      setCollapse(openSidebar);
+      setLastState(openSidebar);
+    }
+    console.log('openSidebar', openSidebar);
+    console.log('responsive', responsive);
+  }, [openSidebar]);
+
+  const handleBackdropClick = () => {
+    setToggled(!toggled);
+    setOpenSidebar(!openSidebar);
+  }
+
   const location = useLocation();
   const role = useSelector((state) => state.user.role);
 
   return (
-    <Sidebar collapsed={openSidebar}>
+    <Sidebar collapsed={collapse} toggled={toggled} onBackdropClick={() => handleBackdropClick()} onBreakPoint={(broken) => setResponsive(broken)} breakPoint='sm'>
       {role ? (
         <Menu>
           <CustomMenuItem active={location.pathname === '/dashboard'} component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</CustomMenuItem>
