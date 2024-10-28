@@ -768,7 +768,7 @@ function NewEvent () {
                                         if(!option){
                                             return ''
                                         } else {
-                                        return '[' + option.id + '] ' + option.name
+                                        return option.name + ' [' + option.id + ']'
                                         }
                                     }}
                                     renderInput={(params) => (

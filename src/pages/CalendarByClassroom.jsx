@@ -271,6 +271,11 @@ function CalendarByClassroom() {
         calendarApi.setOption('hiddenDays', filteredDays);
     };
 
+    //Función para deshabilitar los domingos en el calendario
+    const shouldDisableDate = (date) => {
+        return date.day() === 0;
+    };
+
     /**
      * Actualiza el evento segun los cambios realizados en el calendario (cambio de aula, cambio de fecha de inicio y fin)
      * @param {*} info Información del evento
@@ -479,7 +484,6 @@ function CalendarByClassroom() {
                             elevation={3}
                             >
                             <>
-                                <Typography variant="h6" component="h2" pl={2} pt={2} >FILTER CLASSES</Typography>
                                 <Stack
                                     direction={{ sm: 'column', md: 'row' }}
                                     spacing={{ xs: 1, sm: 2, md: 4 }}
@@ -560,6 +564,7 @@ function CalendarByClassroom() {
                                             views={['year', 'month', 'day']}
                                             id="date"
                                             value={date}
+                                            shouldDisableDate={shouldDisableDate}
                                             onChange={(newValue) => {
                                                 console.log(newValue);
                                                 setDate(newValue);
@@ -621,6 +626,7 @@ function CalendarByClassroom() {
                             <FullCalendar
                                 key={calendarKey}
                                 ref={calendarRef}
+                                hiddenDays={[0]}
                                 height='auto'
                                 plugins={[ dayGridPlugin,
                                             timeGridPlugin,
@@ -687,7 +693,7 @@ function CalendarByClassroom() {
                 sx={{ zIndex: 1300}}>
                     <DialogTitle sx={{ m: 0, p: 2 }} id="dialog">
                         {role === 'admin' || role === 'super_admin' ? 
-                            "Edit event"
+                            ""
                             : "Class summary"}
                     </DialogTitle>
                     <IconButton
