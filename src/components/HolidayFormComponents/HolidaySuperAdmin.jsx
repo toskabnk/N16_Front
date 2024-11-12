@@ -9,7 +9,11 @@ import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
 import FormGrid from "../FormGrid";
 import FormikTextField from "../FormikTextField";
 import holidayService from "../../services/holidayService";
-import dayjs from "dayjs";
+import dayjs, { utc } from "dayjs";
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const HolidaySuperAdmin = ({ token }) => {
     //Hooks
@@ -73,6 +77,10 @@ const HolidaySuperAdmin = ({ token }) => {
                     //Concatena other mas : y el valor de other_absence_type
                     values.absence_type = values.absence_type + ': ' + values.other_absence_type;
                 }
+                //Formatea las fechas al formato aceptado por el backend
+                values.start_date = (dayjs(values.start_date).format('YYYY-MM-DD'));
+                values.end_date = (dayjs(values.end_date).format('YYYY-MM-DD'));
+                
                 //Si se está editando, se llama a la función de update, si no, se llama a la función de create
                 const respone = isEdit ? await holidayService.update(token, location.state?.objectID.id, values) : await holidayService.create(token, values);
                 showSnackbar(isEdit ? 'Holiday request edited successfully!' : 'Holiday request created successfully!', {

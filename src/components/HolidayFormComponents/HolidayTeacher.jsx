@@ -59,6 +59,10 @@ const HolidayTeacher = ({ token }) => {
             console.log('values', values);
             setLoading(true);
             try {
+                //Formatea las fechas al formato aceptado por el backend
+                values.start_date = (dayjs(values.start_date).format('YYYY-MM-DD'));
+                values.end_date = (dayjs(values.end_date).format('YYYY-MM-DD'));
+                
                 //Si se está editando, se llama a la función de update, si no, se llama a la función de create
                 const respone = isEdit ? await holidayService.update(token, location.state?.objectID.id, values) : await holidayService.create(token, values);
                 showSnackbar(isEdit ? 'Holiday request edited successfully!' : 'Holiday request created successfully!', {
