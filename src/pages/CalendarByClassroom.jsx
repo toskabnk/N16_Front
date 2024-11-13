@@ -103,12 +103,13 @@ function CalendarByClassroom() {
         if(token){
             getCompanies();
             getClassrooms();
+            loadEventTypes();
         }
     }, [token]);
 
     //Obtenemos los eventos por fecha cuando cambia la fecha
     useEffect(() => {
-        if(token){
+        if(token && eventTypes.length > 0){
             //Si la vista es de semana, pedimos los eventos de la semana
             if(currentView === 'resourceTimeGridWeek'){
                 getEventsByWeek();
@@ -116,7 +117,7 @@ function CalendarByClassroom() {
                 getEventsByDate();
             }
         }
-    }, [date]);
+    }, [date, eventTypes]);
 
     //Filtramos las aulas por el nombre de la clase y por las compañias seleccionadas
     useEffect(() => {
@@ -395,7 +396,7 @@ function CalendarByClassroom() {
         //Si es admin o super_admin cargamos los datos
         if (role === 'admin' || role === 'super_admin') {
             // Cargamos los profesores, departamentos y tipos de evento antes de abrir el diálogo
-            Promise.all([loadTeachers(), loadDepartments(), loadEventTypes()])
+            Promise.all([loadTeachers(), loadDepartments()])
             .then(() => {
                 // Todas las llamadas se completaron correctamente
                 setOpenBackDrop(false);
@@ -472,6 +473,20 @@ function CalendarByClassroom() {
             throw error;
         }
     }
+
+    const renderEventContent = (eventInfo) => {
+        var type = eventTypes.find((type) => type._id === eventInfo.event.extendedProps.event_type_id);
+        return (
+            <div className="fc-event-main-frame">
+                <div className="fc-event-time">
+                    {type.name}
+                </div>   
+                <div className="fc-event-title-container">
+                    <div className="fc-event-title fc-sticky">{eventInfo.event.title}</div>
+                </div>
+          </div>
+        );
+      };
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -653,6 +668,7 @@ function CalendarByClassroom() {
                                 events={eventsDataByDate}
                                 datesSet={handleDataChange}
                                 eventClick={handleEditEvent}
+                                eventContent={renderEventContent} // Usamos esta propiedad para personalizar el contenido
                                 schedulerLicenseKey={FULLCALENDAR_LICENSE_KEY}
                                 {...(currentView === 'resourceTimeGridWeek' ? { datesAboveResources: true, } : {})} // Condicional para dayMinWidth
                                 headerToolbar={

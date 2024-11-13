@@ -95,7 +95,7 @@ function SidebarComponent({ openSidebar, setOpenSidebar }) {
   const role = useSelector((state) => state.user.role);
 
   return (
-    <Sidebar collapsed={collapse} toggled={toggled} onBackdropClick={() => handleBackdropClick()} onBreakPoint={(broken) => setResponsive(broken)} breakPoint='sm'>
+    <Sidebar backgroundColor="#FAFAFA" collapsed={collapse} toggled={toggled} onBackdropClick={() => handleBackdropClick()} onBreakPoint={(broken) => setResponsive(broken)} breakPoint='sm'>
       {role ? (
         <Menu>
           <CustomMenuItem active={location.pathname === '/dashboard'} component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</CustomMenuItem>
