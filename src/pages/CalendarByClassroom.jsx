@@ -185,6 +185,10 @@ function CalendarByClassroom() {
             const queryParams = { date: date.format('YYYY-MM-DD') };
             const response = await eventService.getEventsWithFilters(token, queryParams);
             console.log(response);
+            response.data.forEach((event) => {
+                let event_type_name = eventTypes.filter((eventType) => eventType._id === event.event_type_id)[0].name;
+                event.event_type_name = event_type_name;
+            });
             setEventsDataByDate(response.data);
         } catch (error) {
             console.error(error);
@@ -475,18 +479,17 @@ function CalendarByClassroom() {
     }
 
     const renderEventContent = (eventInfo) => {
-        var type = eventTypes.find((type) => type._id === eventInfo.event.extendedProps.event_type_id);
         return (
             <div className="fc-event-main-frame">
                 <div className="fc-event-time">
-                    {type.name}
+                    {eventInfo.event.extendedProps.event_type_name}
                 </div>   
                 <div className="fc-event-title-container">
                     <div className="fc-event-title fc-sticky">{eventInfo.event.title}</div>
                 </div>
           </div>
         );
-      };
+    };
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -641,7 +644,6 @@ function CalendarByClassroom() {
                             <FullCalendar
                                 key={calendarKey}
                                 ref={calendarRef}
-                                hiddenDays={[0]}
                                 height='auto'
                                 plugins={[ dayGridPlugin,
                                             timeGridPlugin,

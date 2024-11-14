@@ -19,6 +19,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import companyService from "../services/companyService";
 import eventService from "../services/eventService";
+import eventTypeService from "../services/eventTypeService";
 import { useSnackbarContext } from "../providers/SnackbarWrapperProvider";
 
 //Configuración de dayjs
@@ -60,19 +61,23 @@ function CalendarByTeacher() {
     //Estado para guardar el valor del TextField de Date, por defecto es la fecha actual
     const [date, setDate] = useState(dayjs().utc());
 
+    //Estado para guardar los tipos de evento
+    const [eventTypes, setEventTypes] = useState([]);
+
     //Cargar las empresas y los profesores al cargar la página
     useEffect(() => {
         if(token){
             getCompanies();
             getTeachers();
+            loadEventTypes();
         }
     }, [token]);
 
     useEffect(() => {
-        if(token){
+        if(token && eventTypes.length !== 0){
             getEventsByDate();
         }
-    }, [date]);
+    }, [date, eventTypes]);
 
     // Cambia la fecha en el FullCalendar cuando cambia la fecha en el DatePicker
     useEffect(() => {
@@ -102,6 +107,16 @@ function CalendarByTeacher() {
             const queryParams = { date: date.format('YYYY-MM-DD'), by_teacher: true,  };
             const response = await eventService.getEventsWithFilters(token, queryParams);
             console.log(response);
+            response.data.forEach((event) => {
+                let event_type_name;
+                try {
+                    event_type_name = eventTypes.filter((eventType) => eventType._id === event.event_type_id)[0].name;
+                } catch (error) {
+                    event_type_name = "";
+                }
+                console.log(event_type_name);
+                event.event_type_name = event_type_name;
+            });
             setEventsDataByDate(response.data);
         } catch (error) {
             console.error(error);
@@ -177,6 +192,37 @@ function CalendarByTeacher() {
             setUpdateFuture(event.target.checked);
         }
     };
+
+    //Función para deshabilitar los domingos en el calendario
+    const shouldDisableDate = (date) => {
+        return date.day() === 0;
+    };
+
+    const renderEventContent = (eventInfo) => {
+        return (
+            <div className="fc-event-main-frame">
+                <div className="fc-event-time">
+                    {eventInfo.event.extendedProps.event_type_name}
+                </div>   
+                <div className="fc-event-title-container">
+                    <div className="fc-event-title fc-sticky">{eventInfo.event.title}</div>
+                </div>
+          </div>
+        );
+    };
+
+    /**
+     * Función para cargar los tipos de evento
+     */
+    const loadEventTypes = async () => {
+        try {
+            const response = await eventTypeService.getAll(token);
+            setEventTypes(response.data);
+        } catch (error) {
+            console.error("Error during loadEventTypes:", error);
+            throw error;
+        }
+    }
 
     /**
      * Actualiza el evento segun los cambios realizados
@@ -299,6 +345,7 @@ function CalendarByTeacher() {
                                             views={['year', 'month', 'day']}
                                             id="date"
                                             value={date}
+                                            shouldDisableDate={shouldDisableDate}
                                             onChange={(newValue) => {
                                                 console.log(newValue);
                                                 setDate(newValue);
@@ -356,6 +403,7 @@ function CalendarByTeacher() {
                                 slotMaxTime='23:00:00'
                                 eventMinHeight={10}
                                 allDaySlot={false}
+                                eventContent={renderEventContent} // Usamos esta propiedad para personalizar el contenido
                                 initialView='resourceTimeGridDay'
                                 titleFormat={{ 
                                     weekday: 'long',
