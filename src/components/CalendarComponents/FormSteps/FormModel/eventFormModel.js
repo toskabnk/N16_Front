@@ -39,13 +39,13 @@ export default {
         },
         start_date: {
             name: 'start_date',
-            label: 'Start Date',
+            label: 'Start',
             requiredErrorMsg: 'Start Date is required',
             value: '',
         },
         end_date: {
             name: 'end_date',
-            label: 'End Date',
+            label: 'End',
             requiredErrorMsg: 'End Date is required',
             value: '',
         },

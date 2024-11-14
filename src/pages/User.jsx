@@ -5,7 +5,6 @@ import React, { useEffect, useState, Fragment, } from "react";
 import { useNavigate } from 'react-router-dom';
 import UserService from "../services/userService";
 import { useSnackbarContext } from '../providers/SnackbarWrapperProvider';
-import { Filter } from '@mui/icons-material';
 
 function User() {
     const { showSnackbar, closeSnackbarGlobal } = useSnackbarContext();

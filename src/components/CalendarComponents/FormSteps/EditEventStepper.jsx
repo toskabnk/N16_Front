@@ -6,7 +6,7 @@ import EventForm from './EventForm';
 import validationSchema from './FormModel/validationSchema';
 import eventFormModel from './FormModel/eventFormModel';
 import formInitialValues from './FormModel/formInitialValues';
-import { Box } from '@mui/system';
+import { Box, margin } from '@mui/system';
 import { LoadingButton } from '@mui/lab';
 import SaveIcon from '@mui/icons-material/Save';
 import eventService from '../../../services/eventService';
@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 import { useSnackbarContext } from '../../../providers/SnackbarWrapperProvider';
 
 //Pasos del formulario y sus nombres
-const steps = ['Step 1', 'Finish'];
+const steps = ['', ''];
 //Id y campos del formulario
 const { formId, formField } = eventFormModel;
 
@@ -269,7 +269,7 @@ const EditEventStepper = (props) => {
             onSubmit={handleSubmit}
         >
             <Form id={formId}>
-                    <Stepper activeStep={activeStep}>
+                    <Stepper activeStep={activeStep} sx={{marginBottom: '30px'}}>
                         {steps.map((label) => (
                             <Step key={label}>
                                 <StepLabel>{label}</StepLabel>
@@ -278,7 +278,7 @@ const EditEventStepper = (props) => {
                     </Stepper>
                     {getStepContent(activeStep)}
                     <Box
-                        sx= {{display: 'flex', justifyContent:'space-between'}}>
+                        sx= {{marginTop: '20px', display: 'flex', justifyContent:'space-evenly'}}>
                         {activeStep !== 0 && (
                             <Button variant="contained" onClick={handleBack}>Back</Button>
                         )}

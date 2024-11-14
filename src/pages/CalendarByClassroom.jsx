@@ -103,12 +103,13 @@ function CalendarByClassroom() {
         if(token){
             getCompanies();
             getClassrooms();
+            loadEventTypes();
         }
     }, [token]);
 
     //Obtenemos los eventos por fecha cuando cambia la fecha
     useEffect(() => {
-        if(token){
+        if(token && eventTypes.length > 0){
             //Si la vista es de semana, pedimos los eventos de la semana
             if(currentView === 'resourceTimeGridWeek'){
                 getEventsByWeek();
@@ -116,7 +117,7 @@ function CalendarByClassroom() {
                 getEventsByDate();
             }
         }
-    }, [date]);
+    }, [date, eventTypes]);
 
     //Filtramos las aulas por el nombre de la clase y por las compañias seleccionadas
     useEffect(() => {
@@ -184,6 +185,10 @@ function CalendarByClassroom() {
             const queryParams = { date: date.format('YYYY-MM-DD') };
             const response = await eventService.getEventsWithFilters(token, queryParams);
             console.log(response);
+            response.data.forEach((event) => {
+                let event_type_name = eventTypes.filter((eventType) => eventType._id === event.event_type_id)[0].name;
+                event.event_type_name = event_type_name;
+            });
             setEventsDataByDate(response.data);
         } catch (error) {
             console.error(error);
@@ -269,6 +274,11 @@ function CalendarByClassroom() {
     const applyFilters = () => {
         const calendarApi = calendarRef.current.getApi();
         calendarApi.setOption('hiddenDays', filteredDays);
+    };
+
+    //Función para deshabilitar los domingos en el calendario
+    const shouldDisableDate = (date) => {
+        return date.day() === 0;
     };
 
     /**
@@ -390,7 +400,7 @@ function CalendarByClassroom() {
         //Si es admin o super_admin cargamos los datos
         if (role === 'admin' || role === 'super_admin') {
             // Cargamos los profesores, departamentos y tipos de evento antes de abrir el diálogo
-            Promise.all([loadTeachers(), loadDepartments(), loadEventTypes()])
+            Promise.all([loadTeachers(), loadDepartments()])
             .then(() => {
                 // Todas las llamadas se completaron correctamente
                 setOpenBackDrop(false);
@@ -468,6 +478,19 @@ function CalendarByClassroom() {
         }
     }
 
+    const renderEventContent = (eventInfo) => {
+        return (
+            <div className="fc-event-main-frame">
+                <div className="fc-event-time">
+                    {eventInfo.event.extendedProps.event_type_name}
+                </div>   
+                <div className="fc-event-title-container">
+                    <div className="fc-event-title fc-sticky">{eventInfo.event.title}</div>
+                </div>
+          </div>
+        );
+    };
+
     return (
         <Box sx={{ flexGrow: 1 }}>
             <Box
@@ -479,7 +502,6 @@ function CalendarByClassroom() {
                             elevation={3}
                             >
                             <>
-                                <Typography variant="h6" component="h2" pl={2} pt={2} >FILTER CLASSES</Typography>
                                 <Stack
                                     direction={{ sm: 'column', md: 'row' }}
                                     spacing={{ xs: 1, sm: 2, md: 4 }}
@@ -560,6 +582,7 @@ function CalendarByClassroom() {
                                             views={['year', 'month', 'day']}
                                             id="date"
                                             value={date}
+                                            shouldDisableDate={shouldDisableDate}
                                             onChange={(newValue) => {
                                                 console.log(newValue);
                                                 setDate(newValue);
@@ -647,6 +670,7 @@ function CalendarByClassroom() {
                                 events={eventsDataByDate}
                                 datesSet={handleDataChange}
                                 eventClick={handleEditEvent}
+                                eventContent={renderEventContent} // Usamos esta propiedad para personalizar el contenido
                                 schedulerLicenseKey={FULLCALENDAR_LICENSE_KEY}
                                 {...(currentView === 'resourceTimeGridWeek' ? { datesAboveResources: true, } : {})} // Condicional para dayMinWidth
                                 headerToolbar={
@@ -687,7 +711,7 @@ function CalendarByClassroom() {
                 sx={{ zIndex: 1300}}>
                     <DialogTitle sx={{ m: 0, p: 2 }} id="dialog">
                         {role === 'admin' || role === 'super_admin' ? 
-                            "Edit event"
+                            ""
                             : "Class summary"}
                     </DialogTitle>
                     <IconButton
