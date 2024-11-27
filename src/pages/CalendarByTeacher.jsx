@@ -47,6 +47,8 @@ function CalendarByTeacher() {
     const [fullWidth, setFullWidth] = useState(false);
     const [allowEdit, setAllowEdit] = useState(false);
     const [updateFuture, setUpdateFuture] = useState(false);
+    const [autoRefresh, setAutoRefresh] = useState(false);
+
 
     //Referencia al componente FullCalendar
     const calendarRef = useRef(null); 
@@ -91,6 +93,24 @@ function CalendarByTeacher() {
         }
     }, [date]);
 
+        //Recarga los eventos del calendario cada 10 segundos si el autoRefresh está activado
+        useEffect(() => {
+            let interval;
+            if(autoRefresh){
+                interval = setInterval(() => {
+                    if(token){
+                        getEventsByDate();
+                    }
+                }, 10000);
+            } 
+            return () => {
+                if (interval) {
+                    clearInterval(interval);
+                    console.log("Intervalo limpiado");
+                }
+            };
+        }, [autoRefresh]);
+
     //Función para obtener los profesores
     const getTeachers = async () => {
         try {
@@ -114,7 +134,6 @@ function CalendarByTeacher() {
                 } catch (error) {
                     event_type_name = "";
                 }
-                console.log(event_type_name);
                 event.event_type_name = event_type_name;
             });
             setEventsDataByDate(response.data);
@@ -188,6 +207,8 @@ function CalendarByTeacher() {
             setFullWidth(event.target.checked);
         } else if(event.target.name === 'allowEdit'){
             setAllowEdit(event.target.checked);
+        } else if(event.target.name === 'refresh'){
+            setAutoRefresh(event.target.checked);
         } else {
             setUpdateFuture(event.target.checked);
         }
@@ -231,7 +252,7 @@ function CalendarByTeacher() {
     const updateEvent = async (info) => {
         console.log(info);
         if(allowEdit){
-            if(info.newResoruce !== null){
+            if(info.newResource !== null){
                 try {
                     let professorId = info.newResource.id;
                     let classroomId = info.event.id;
@@ -271,6 +292,8 @@ function CalendarByTeacher() {
                         ),
                     });
                 }
+            } else {
+                console.log("No new resource");
             }
         }
     }
@@ -347,6 +370,7 @@ function CalendarByTeacher() {
                                             value={date}
                                             shouldDisableDate={shouldDisableDate}
                                             onChange={(newValue) => {
+                                                setEventsDataByDate([]);
                                                 console.log(newValue);
                                                 setDate(newValue);
                                             }}
@@ -370,6 +394,7 @@ function CalendarByTeacher() {
                                     <>
                                         <FormControlLabel control={<Switch checked={allowEdit} onChange={handleSwitchChange} name="allowEdit"/>} label="Allow Edit" />
                                         <FormControlLabel control={<Switch disabled={!allowEdit} checked={updateFuture} onChange={handleSwitchChange} name="update"/>} label="Update this and future classes" name="update"/>
+                                        <FormControlLabel control={<Switch checked={autoRefresh} onChange={handleSwitchChange} name="refresh"/>} label="Auto refresh events" name="refresh"/>
                                     </> : null}
                                 </Stack>
                             </FormGroup>
@@ -411,6 +436,7 @@ function CalendarByTeacher() {
                                     day: 'numeric',
                                     year: 'numeric'
                                 }}
+                                eventStartEditable={false}
                                 events={eventsDataByDate}
                                 datesSet={handleDataChange}
                                 schedulerLicenseKey={FULLCALENDAR_LICENSE_KEY}
