@@ -70,6 +70,7 @@ function CalendarByClassroom() {
     const [fullWidth, setFullWidth] = useState(false);
     const [allowEdit, setAllowEdit] = useState(false);
     const [updateFuture, setUpdateFuture] = useState(false);
+    const [autoRefresh, setAutoRefresh] = useState(false);
     
     //Estado para guardar la clave del calendario, se usa para recargar el calendario
     const [calendarKey, setCalendarKey] = useState(0);
@@ -149,6 +150,29 @@ function CalendarByClassroom() {
         //Guardamos las aulas filtradas
         setClassroomDataFiltered(filteredReources);
     }, [companyName, classroomNameSearch, currentView]);
+
+    //Recarga los eventos del calendario cada 10 segundos si el autoRefresh está activado
+    useEffect(() => {
+        let interval;
+        if(autoRefresh){
+            interval = setInterval(() => {
+                if(token){
+                    //Si la vista es de semana, pedimos los eventos de la semana
+                    if(currentView === 'resourceTimeGridWeek'){
+                        getEventsByWeek();
+                    } else {
+                        getEventsByDate();
+                    }
+                }
+            }, 10000);
+        } 
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+                console.log("Intervalo limpiado");
+            }
+        };
+    }, [autoRefresh]);
 
     // Cambia la fecha en el FullCalendar cuando cambia la fecha en el DatePicker
     useEffect(() => {
@@ -243,6 +267,8 @@ function CalendarByClassroom() {
             setFullWidth(event.target.checked);
         } else if(event.target.name === 'allowEdit'){
             setAllowEdit(event.target.checked);
+        } else if(event.target.name === 'refresh'){
+            setAutoRefresh(event.target.checked);
         } else {
             setUpdateFuture(event.target.checked);
         }
@@ -584,6 +610,7 @@ function CalendarByClassroom() {
                                             value={date}
                                             shouldDisableDate={shouldDisableDate}
                                             onChange={(newValue) => {
+                                                setEventsDataByDate([]);
                                                 console.log(newValue);
                                                 setDate(newValue);
                                             }}
@@ -607,6 +634,7 @@ function CalendarByClassroom() {
                                         <>
                                             <FormControlLabel control={<Switch checked={allowEdit} onChange={handleSwitchChange} name="allowEdit"/>} label="Allow Edit" />
                                             <FormControlLabel control={<Switch disabled={!allowEdit} checked={updateFuture} onChange={handleSwitchChange} name="update"/>} label="Update this and future classes" name="update"/>
+                                            <FormControlLabel control={<Switch checked={autoRefresh} onChange={handleSwitchChange} name="refresh"/>} label="Auto refresh events" name="refresh"/>
                                         </> : null}
                                     </Stack>
                                 </FormGroup>
