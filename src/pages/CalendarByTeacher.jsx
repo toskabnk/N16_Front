@@ -38,7 +38,7 @@ function CalendarByTeacher() {
     const [classroomData, setClassroomData] = useState([]);
     const [teachersData, setTeachersData] = useState([]);
     const [teachersDataFiltered, setTeachersDataFiltered] = useState([]);
-
+    const [teachersFiltered, setTeachersFiltered] = useState([]);
 
     //Estado para saber si se están cargando las empresas y las aulas
     const [companyLoading, setCompanyLoading] = useState(true);
@@ -48,7 +48,8 @@ function CalendarByTeacher() {
     const [allowEdit, setAllowEdit] = useState(false);
     const [updateFuture, setUpdateFuture] = useState(false);
     const [autoRefresh, setAutoRefresh] = useState(false);
-
+    const [showLeft, setShowLeft] = useState(false);
+    const [showLeftDisabled, setShowLeftDisabled] = useState(true);
 
     //Referencia al componente FullCalendar
     const calendarRef = useRef(null); 
@@ -80,6 +81,18 @@ function CalendarByTeacher() {
             getEventsByDate();
         }
     }, [date, eventTypes]);
+
+    //Filtrar los profesores que tienen eventos con description "other: LEFT" y quitar esos profesores de la lista de profesores a mostrar
+    useEffect(() => {
+        //Filtramos los eventos que tengan el mismo resourceId que el id del profesor y description  "other: LEFT" y quitamos los profesores que esten en esos eventos.
+        let teacherEvents = eventsDataByDate.filter((event) => event.resourceId !== null && event.description === "other: LEFT");
+        //Filtramos los profesores que esten en leftEvent
+        let teachersFiltered = teachersData.filter((teacher) => {
+            return !teacherEvents.some((event) => event.resourceId === teacher._id);
+        });
+        setTeachersFiltered(teachersFiltered);
+        setShowLeftDisabled(teachersFiltered.length === 0);
+    }, [eventsDataByDate]);
 
     // Cambia la fecha en el FullCalendar cuando cambia la fecha en el DatePicker
     useEffect(() => {
@@ -144,13 +157,14 @@ function CalendarByTeacher() {
 
     //Filtrar los profesores por compañia
     useEffect(() => {
-        let filteredResources = teachersData;
+        let filteredResources = showLeft ? teachersFiltered : teachersData;
+        let teachersCopy = showLeft ? teachersFiltered : teachersData;
 
         if(companyName.length !== 0){
             let companiesIds = companiesData.filter((company) => companyName.includes(company.name)).map((company) => company._id);
-            filteredResources = teachersData.filter((teacher) => companiesIds.includes(teacher.company_id));
+            filteredResources = teachersCopy.filter((teacher) => companiesIds.includes(teacher.company_id));
             //Añadimos a filteredResources tambien los profesores que tienen "not_set" como compañia
-            let notSetTeachers = teachersData.filter((teacher) => teacher.company_id === "not_set");
+            let notSetTeachers = teachersCopy.filter((teacher) => teacher.company_id === "not_set");
             filteredResources = filteredResources.concat(notSetTeachers);
             setTeachersDataFiltered(filteredResources);
         }
@@ -172,6 +186,13 @@ function CalendarByTeacher() {
             console.error(error);
         }
     }
+
+    //Función para manejar el cambio boton y filtrar los profesores
+    const handleShowLeftChange = (event) => {
+        setShowLeft(event.target.checked);
+        setCompanyName([]);
+    }
+
 
     //Función para manejar el evento de borrar un chip
     const handleDelete = (e, value) => {
@@ -395,6 +416,7 @@ function CalendarByTeacher() {
                                         <FormControlLabel control={<Switch checked={allowEdit} onChange={handleSwitchChange} name="allowEdit"/>} label="Allow Edit" />
                                         <FormControlLabel control={<Switch disabled={!allowEdit} checked={updateFuture} onChange={handleSwitchChange} name="update"/>} label="Update this and future classes" name="update"/>
                                         <FormControlLabel control={<Switch checked={autoRefresh} onChange={handleSwitchChange} name="refresh"/>} label="Auto refresh events" name="refresh"/>
+                                        <FormControlLabel control={<Switch checked={showLeft} onChange={handleShowLeftChange} disabled={showLeftDisabled} name="showLeft"/>} label="Hide Left" />
                                     </> : null}
                                 </Stack>
                             </FormGroup>
@@ -413,7 +435,7 @@ function CalendarByTeacher() {
                                             resourceTimeGridPlugin,
                                             scrollGridPlugin,
                                             ]}
-                                resources={(companyName.length!=0)  ? teachersDataFiltered: teachersData}
+                                resources={(companyName.length!=0)  ? teachersDataFiltered: (showLeft ? teachersFiltered : teachersData)}
                                 //No cambiar, asi muestra las aulas en el orden de la API
                                 resourceOrder="_IDD"
                                 {...(fullWidth ? { dayMinWidth: 100 } : {})} // Condicional para dayMinWidth

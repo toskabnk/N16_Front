@@ -1,7 +1,7 @@
 {
   "name": "n16front",
   "private": true,
-  "version": "v1.3.2",
+  "version": "v1.3.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
